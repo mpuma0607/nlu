@@ -24,16 +24,34 @@ export default function HomePage() {
     }
   }, [tenantConfig, router])
 
-  // If tenant has custom home page, don't render this component
-  if (tenantConfig.features.customHomePage) {
-    return null
+  const handleLogin = () => {
+    console.log("Login clicked - checking authentication status")
+
+    // Check if user is already authenticated by looking for the memberspace token
+    const msToken = document.cookie.split("; ").find((row) => row.startsWith("_ms-access-token="))
+
+    if (msToken) {
+      console.log("User already authenticated - redirecting to portal")
+      // User is already signed in, redirect directly to portal
+      window.location.href = "/portal"
+    } else {
+      console.log("User not authenticated - redirecting to sign in")
+      // User not signed in, go to sign in page
+      window.location.href = "https://www.thenextlevelu.com?msopen=/member/sign_in"
+    }
   }
 
-  const handleLogin = () => {
-    console.log("Login clicked - redirecting to sign in page")
-    // Direct redirect to sign in page to force fresh login
-    window.location.href = "https://www.thenextlevelu.com?msopen=/member/sign_in"
-  }
+  // Auto-redirect authenticated users who land on home page
+  useEffect(() => {
+    const msToken = document.cookie.split("; ").find((row) => row.startsWith("_ms-access-token="))
+
+    if (msToken && !tenantConfig.features.customHomePage) {
+      console.log("Authenticated user detected on home page - auto-redirecting to portal")
+      setTimeout(() => {
+        window.location.href = "/portal"
+      }, 2000) // 2 second delay to show the page briefly
+    }
+  }, [tenantConfig])
 
   const handleSignup = () => {
     console.log("Signup clicked - redirecting to plans page")

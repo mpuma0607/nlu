@@ -29,7 +29,7 @@ export default function GoalScreenForm() {
   // Real estate calculation constants
   const AVG_COMMISSION = 9500
   const APPT_CONVERSION = 0.8
-  const CONVERSATION_TO_APPT = 0.0008
+  const CONVERSATION_TO_APPT = 0.08
   const ATTEMPTS_PER_CONVERSATION = 7
   const DAYS_PER_MONTH = 30
 
@@ -229,7 +229,7 @@ export default function GoalScreenForm() {
               Your Success Formula
             </CardTitle>
             <CardDescription>
-              Based on industry averages: $9,500 avg commission, 80% appointment conversion, 0.08%
+              Based on industry averages: $9,500 avg commission, 80% appointment conversion, 8%
               conversation-to-appointment rate, 7 attempts per conversation.
             </CardDescription>
           </CardHeader>

@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Brain, Lightbulb } from "lucide-react"
-import IdeaHubForm from "@/components/idea-hub-form"
+import IdeaHubForm from "./idea-hub-form"
 
 export default function IdeaHubAIPage() {
   return (

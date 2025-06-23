@@ -24,34 +24,30 @@ export default function HomePage() {
     }
   }, [tenantConfig, router])
 
-  const handleLogin = () => {
-    console.log("Login clicked - checking authentication status")
-
-    // Check if user is already authenticated by looking for the memberspace token
-    const msToken = document.cookie.split("; ").find((row) => row.startsWith("_ms-access-token="))
-
-    if (msToken) {
-      console.log("User already authenticated - redirecting to portal")
-      // User is already signed in, redirect directly to portal
-      window.location.href = "/portal"
-    } else {
-      console.log("User not authenticated - redirecting to sign in")
-      // User not signed in, go to sign in page
-      window.location.href = "https://www.thenextlevelu.com?msopen=/member/sign_in"
-    }
+  // If tenant has custom home page, don't render this component
+  if (tenantConfig.features.customHomePage) {
+    return null
   }
 
-  // Auto-redirect authenticated users who land on home page
-  useEffect(() => {
-    const msToken = document.cookie.split("; ").find((row) => row.startsWith("_ms-access-token="))
+  const handleLogin = () => {
+    console.log("Login clicked - checking for existing authentication")
 
-    if (msToken && !tenantConfig.features.customHomePage) {
-      console.log("Authenticated user detected on home page - auto-redirecting to portal")
-      setTimeout(() => {
+    // Check if Memberspace is loaded and user is authenticated
+    if (typeof window !== "undefined" && (window as any).MemberSpace) {
+      const memberspace = (window as any).MemberSpace
+
+      // Check if user is already logged in via Memberspace
+      if (memberspace.isLoggedIn && memberspace.isLoggedIn()) {
+        console.log("User already authenticated via Memberspace - redirecting to portal")
         window.location.href = "/portal"
-      }, 2000) // 2 second delay to show the page briefly
+        return
+      }
     }
-  }, [tenantConfig])
+
+    // Fallback: redirect to sign in page
+    console.log("Redirecting to sign in page")
+    window.location.href = "https://www.thenextlevelu.com?msopen=/member/sign_in"
+  }
 
   const handleSignup = () => {
     console.log("Signup clicked - redirecting to plans page")

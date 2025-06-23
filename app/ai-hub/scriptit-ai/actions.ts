@@ -24,41 +24,33 @@ export async function generateScript(formData: ScriptFormData) {
     // Get topic-specific context
     const topicContext = getTopicContext(topicToUse)
 
-    const prompt = `You are an expert real estate script writer and communication coach specializing in DISC behavioral analysis and VAK (Visual, Auditory, Kinesthetic) sensory language patterns.
+    const prompt = `You are an expert real estate script writer. Create ONE SINGLE professional ${formData.scriptType} script for ${formData.agentName} from ${formData.brokerageName} targeting ${topicToUse}.
 
-Create a professional ${formData.scriptType} script for ${formData.agentName} from ${formData.brokerageName} targeting ${topicToUse}.
+CRITICAL INSTRUCTION: Create ONLY ONE script that naturally incorporates DISC and VAK principles throughout. DO NOT create separate scripts for different personality types.
 
-SCRIPT REQUIREMENTS:
 ${scriptTypeDetails.requirements}
 
-DISC & VAK INTEGRATION:
-- Incorporate language that appeals to all DISC personality types (Dominant, Influential, Steady, Compliant)
-- Include VAK sensory language (Visual: "see," "picture," "imagine"; Auditory: "hear," "sounds," "listen"; Kinesthetic: "feel," "touch," "experience")
-- Use a balanced approach that doesn't favor one style over others
+INTEGRATION APPROACH:
+- Use language that appeals to ALL DISC types in one flowing script
+- Include varied sensory language (Visual: "see," "picture"; Auditory: "hear," "sounds"; Kinesthetic: "feel," "experience")
+- Make it sound natural and conversational, not like separate sections
 
-TOPIC CONTEXT:
-${topicContext}
+TOPIC CONTEXT: ${topicContext}
 
-STRUCTURE:
-1. Opening/Hook (builds rapport, gets attention)
-2. Value Proposition (what's in it for them)
+SCRIPT STRUCTURE:
+1. Opening Hook (attention-grabbing, builds rapport)
+2. Value Proposition (clear benefit to them)
 3. Proof/Credibility (establish trust)
-4. Call to Action (clear next step)
-5. Objection Handling (if applicable)
+4. Call to Action (specific next step)
+5. Objection Handling (brief, if applicable)
 
-TONE & STYLE:
-- Professional yet conversational
-- Confident but not pushy
-- Empathetic and understanding
-- Results-oriented
+TONE: Professional, conversational, confident but not pushy, empathetic
 
 ${formData.additionalDetails ? `ADDITIONAL REQUIREMENTS: ${formData.additionalDetails}` : ""}
 
-Create ONE comprehensive script that seamlessly integrates DISC and VAK principles throughout. Make it natural and conversational, not robotic or overly structured.
-
 ${scriptTypeDetails.lengthGuidance}
 
-Focus on creating genuine connection and providing clear value to the prospect.`
+IMPORTANT: Write this as ONE complete script that flows naturally from start to finish. Do not break it into sections or separate scripts for different personality types. The DISC and VAK elements should be woven throughout seamlessly.`
 
     const { text: generatedScript } = await generateText({
       model: openai("gpt-4o"),

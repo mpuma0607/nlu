@@ -198,7 +198,7 @@ export default function ListingForm() {
             description: result.description,
             propertyAddress: formData.propertyAddress,
             listingPrice: formData.listingPrice,
-            listingHTML,
+            listingHTML: listingHTML,
           }),
         })
 

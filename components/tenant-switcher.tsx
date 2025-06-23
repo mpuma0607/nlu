@@ -36,7 +36,7 @@ export default function TenantSwitcher() {
   }
 
   return (
-    <div className="fixed top-4 left-4 z-[9999] bg-white shadow-2xl rounded-lg border-2 border-gray-300">
+    <div className="fixed top-20 left-4 z-[9999] bg-white shadow-2xl rounded-lg border-2 border-gray-300">
       <div className="relative">
         <Button
           onClick={() => setIsOpen(!isOpen)}

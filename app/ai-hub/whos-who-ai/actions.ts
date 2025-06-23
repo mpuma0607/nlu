@@ -26,4 +26,3 @@ export const sendEmail = (emailData) => {
     }
   }
 }
-</merged_code>

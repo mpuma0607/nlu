@@ -115,8 +115,8 @@ export default function QuickCMAForm({ onAnalysisComplete }: QuickCMAFormProps) 
             <div className="bg-white rounded-xl p-8 max-w-md mx-4 text-center shadow-2xl border-2 border-blue-200">
               <div className="relative mb-6">
                 <Image
-                  src="/images/century21-logo.png"
-                  alt="Century 21 Logo"
+                  src="/images/nlu-logo-light.png"
+                  alt="Next Level U Logo"
                   width={120}
                   height={120}
                   className="animate-spin mx-auto"
@@ -224,3 +224,4 @@ export default function QuickCMAForm({ onAnalysisComplete }: QuickCMAFormProps) 
     </div>
   )
 }
+</merged_code>

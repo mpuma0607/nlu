@@ -1,208 +1,43 @@
 "use client"
 
+import type React from "react"
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import {
-  Download,
-  Mail,
-  Loader2,
-  Check,
-  Home,
-  DollarSign,
-  Ruler,
-  MapPin,
-  TrendingUp,
-  ChevronDown,
-  ChevronUp,
-  AlertCircle,
-  Hash,
-} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { toast } from "@/components/ui/use-toast"
+import { Label } from "@/components/ui/label"
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 interface QuickCMAResultsProps {
   data: {
-    analysisText: string
-    sections: Record<string, string[]>
     address: string
+    analysisText: string
     comparableData: {
-      totalComparables: number
-      comparables: any[]
-      summary: {
-        averagePrice: number
-        averageSqft: number
-        priceRange: { min: number; max: number }
-      }
-    }
-    rawData?: {
-      error?: string
-      usingRealData: boolean
-    }
+      address: string
+      price: number
+      bedrooms: number
+      bathrooms: number
+      squareFootage: number
+    }[]
   }
 }
 
-export function QuickCMAResults({ data }: QuickCMAResultsProps) {
-  const [isDownloading, setIsDownloading] = useState(false)
+const QuickCMAResults: React.FC<QuickCMAResultsProps> = ({ data }) => {
+  const [userEmail, setUserEmail] = useState("")
   const [isSendingEmail, setIsSendingEmail] = useState(false)
-  const [emailSent, setEmailSent] = useState(false)
-  const [emailError, setEmailError] = useState<string | null>(null)
-  const [email, setEmail] = useState("")
-  const [expandedComps, setExpandedComps] = useState<Set<number>>(new Set())
 
-  const toggleCompExpansion = (index: number) => {
-    const newExpanded = new Set(expandedComps)
-    if (newExpanded.has(index)) {
-      newExpanded.delete(index)
-    } else {
-      newExpanded.add(index)
-    }
-    setExpandedComps(newExpanded)
-  }
-
-  const handleDownloadPDF = async () => {
-    setIsDownloading(true)
-    try {
-      const { jsPDF } = await import("jspdf")
-      const doc = new jsPDF()
-
-      // Add header background
-      doc.setFillColor(37, 99, 235)
-      doc.rect(0, 0, 210, 40, "F")
-
-      // Add title
-      doc.setTextColor(255, 255, 255)
-      doc.setFont("helvetica", "bold")
-      doc.setFontSize(24)
-      doc.text("QuickCMA Report", 20, 25)
-
-      // Add subtitle
-      doc.setFontSize(12)
-      doc.text(`Comparative Market Analysis for ${data.address}`, 20, 32)
-
-      // Reset text color for body
-      doc.setTextColor(0, 0, 0)
-
-      // Add generation date and stats
-      doc.setFontSize(10)
-      doc.text(`Generated: ${new Date().toLocaleDateString()}`, 150, 50)
-      doc.text(`Comparables Analyzed: ${data.comparableData.totalComparables}`, 150, 55)
-      doc.text(`Average Price: $${data.comparableData.summary.averagePrice.toLocaleString()}`, 150, 60)
-
-      let yPosition = 80
-
-      // Add comparable properties summary
-      doc.setFontSize(14)
-      doc.setFont("helvetica", "bold")
-      doc.text("Comparable Properties Summary", 20, yPosition)
-      yPosition += 15
-
-      doc.setFontSize(10)
-      doc.setFont("helvetica", "normal")
-      doc.text(
-        `Price Range: $${data.comparableData.summary.priceRange.min.toLocaleString()} - $${data.comparableData.summary.priceRange.max.toLocaleString()}`,
-        20,
-        yPosition,
-      )
-      yPosition += 8
-      doc.text(
-        `Average Square Footage: ${data.comparableData.summary.averageSqft.toLocaleString()} sq ft`,
-        20,
-        yPosition,
-      )
-      yPosition += 15
-
-      // Add top comparables with MLS IDs
-      doc.setFont("helvetica", "bold")
-      doc.text("Top Comparable Properties:", 20, yPosition)
-      yPosition += 10
-
-      data.comparableData.comparables.slice(0, 5).forEach((comp, index) => {
-        if (yPosition > 250) {
-          doc.addPage()
-          yPosition = 30
-        }
-
-        doc.setFont("helvetica", "normal")
-        doc.setFontSize(9)
-        doc.text(`${index + 1}. ${comp.address}`, 25, yPosition)
-        yPosition += 6
-
-        // Add MLS ID if available
-        if (comp.mlsId || comp.listingId) {
-          doc.text(`   MLS ID: ${comp.mlsId || comp.listingId}`, 25, yPosition)
-          yPosition += 6
-        }
-
-        doc.text(
-          `   $${comp.price?.toLocaleString() || "N/A"} • ${comp.bedrooms}BR/${comp.bathrooms}BA • ${comp.sqft?.toLocaleString() || "N/A"} sq ft`,
-          25,
-          yPosition,
-        )
-        yPosition += 10
+  const sendEmail = async () => {
+    if (!userEmail.trim()) {
+      toast({
+        title: "Email Required",
+        description: "Please enter your email address to receive the CMA report.",
+        variant: "destructive",
       })
-
-      yPosition += 10
-
-      // Add analysis sections
-      Object.entries(data.sections).forEach(([header, bullets]) => {
-        if (yPosition > 250) {
-          doc.addPage()
-          yPosition = 30
-        }
-
-        doc.setFont("helvetica", "bold")
-        doc.setFontSize(12)
-        doc.text(header, 20, yPosition)
-        yPosition += 10
-
-        doc.setFont("helvetica", "normal")
-        doc.setFontSize(9)
-
-        bullets.forEach((bullet) => {
-          if (yPosition > 270) {
-            doc.addPage()
-            yPosition = 30
-          }
-
-          const splitText = doc.splitTextToSize(`• ${bullet}`, 170)
-          doc.text(splitText, 25, yPosition)
-          yPosition += splitText.length * 5 + 3
-        })
-
-        yPosition += 8
-      })
-
-      // Add footer
-      const pageCount = doc.getNumberOfPages()
-      for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i)
-        doc.setFillColor(248, 250, 252)
-        doc.rect(0, 280, 210, 17, "F")
-        doc.setFontSize(9)
-        doc.setTextColor(100, 116, 139)
-        doc.text("Generated by QuickCMA AI - The Next Level U", 20, 290)
-        doc.text(`Page ${i} of ${pageCount}`, 170, 290)
-      }
-
-      const cleanAddress = data.address.split(",")[0].replace(/[^a-zA-Z0-9]/g, "-")
-      doc.save(`${cleanAddress}-CMA-Report.pdf`)
-    } catch (error) {
-      console.error("Error generating PDF:", error)
-    } finally {
-      setIsDownloading(false)
-    }
-  }
-
-  const handleSendEmail = async () => {
-    if (!email) {
-      setEmailError("Please enter your email address")
       return
     }
 
     setIsSendingEmail(true)
-    setEmailError(null)
-
     try {
       const response = await fetch("/api/send-cma-email", {
         method: "POST",
@@ -210,259 +45,94 @@ export function QuickCMAResults({ data }: QuickCMAResultsProps) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: email,
+          email: userEmail,
           address: data.address,
           analysisText: data.analysisText,
           comparableData: data.comparableData,
         }),
       })
 
+      const result = await response.json()
+
       if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(errorText || "Failed to send email")
+        throw new Error(result.error || "Failed to send email")
       }
 
-      setEmailSent(true)
-      setEmail("")
+      if (result.success) {
+        toast({
+          title: "Email Sent Successfully",
+          description: "Check your inbox for your CMA report!",
+        })
+        setUserEmail("") // Clear email after successful send
+      } else {
+        throw new Error(result.error || "Failed to send email")
+      }
     } catch (error) {
-      console.error("Email error:", error)
-      setEmailError(error instanceof Error ? error.message : "Failed to send email")
+      console.error("Error sending email:", error)
+      toast({
+        title: "Email Sending Failed",
+        description: error instanceof Error ? error.message : "Failed to send email. Please try again.",
+        variant: "destructive",
+      })
     } finally {
       setIsSendingEmail(false)
     }
   }
 
   return (
-    <div className="mt-8 space-y-6">
-      {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-end">
-        <Button
-          variant="outline"
-          onClick={handleDownloadPDF}
-          disabled={isDownloading}
-          className="flex items-center gap-2"
-        >
-          {isDownloading ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Generating PDF...
-            </>
-          ) : (
-            <>
-              <Download className="h-4 w-4" />
-              Download CMA Report
-            </>
-          )}
-        </Button>
-
-        <div className="flex gap-2">
+    <Card>
+      <CardHeader>
+        <CardTitle>Quick CMA Results for {data.address}</CardTitle>
+        <CardDescription>Here's a summary of your property's comparative market analysis.</CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-4">
+        <div className="grid gap-2">
+          <Label htmlFor="email">Email</Label>
           <Input
+            id="email"
+            placeholder="Enter your email to receive the full report"
             type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-64"
+            value={userEmail}
+            onChange={(e) => setUserEmail(e.target.value)}
           />
-          <Button onClick={handleSendEmail} disabled={isSendingEmail || emailSent} className="flex items-center gap-2">
-            {isSendingEmail ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Sending...
-              </>
-            ) : emailSent ? (
-              <>
-                <Check className="h-4 w-4" />
-                Sent
-              </>
-            ) : (
-              <>
-                <Mail className="h-4 w-4" />
-                Email Report
-              </>
-            )}
+          <Button onClick={sendEmail} disabled={isSendingEmail}>
+            {isSendingEmail ? "Sending..." : "Send Report to Email"}
           </Button>
         </div>
-      </div>
 
-      {emailError && (
-        <div className="p-4 bg-red-50 text-red-800 rounded-md flex items-center gap-2">
-          <AlertCircle className="h-4 w-4" />
-          {emailError}
+        <div className="grid gap-2">
+          <Label>Analysis Summary</Label>
+          <p>{data.analysisText}</p>
         </div>
-      )}
 
-      {emailSent && (
-        <div className="p-4 bg-green-50 text-green-800 rounded-md flex items-center gap-2">
-          <Check className="h-4 w-4" />
-          CMA report successfully sent to {email}
+        <div className="rounded-md border">
+          <Table>
+            <TableCaption>Comparable Properties</TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[100px]">Address</TableHead>
+                <TableHead>Price</TableHead>
+                <TableHead>Bedrooms</TableHead>
+                <TableHead>Bathrooms</TableHead>
+                <TableHead>Sq. Footage</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.comparableData.map((item) => (
+                <TableRow key={item.address}>
+                  <TableCell className="font-medium">{item.address}</TableCell>
+                  <TableCell>${item.price}</TableCell>
+                  <TableCell>{item.bedrooms}</TableCell>
+                  <TableCell>{item.bathrooms}</TableCell>
+                  <TableCell>{item.squareFootage}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
-      )}
-
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 rounded-lg">
-        <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
-          <Home className="h-8 w-8" />
-          QuickCMA Report
-        </h1>
-        <p className="text-blue-100 text-lg">{data.address}</p>
-        <div className="flex items-center gap-4 mt-3">
-          <Badge variant="secondary" className="bg-blue-500 text-white">
-            {data.comparableData.totalComparables} Comparables Found
-          </Badge>
-          <p className="text-blue-200 text-sm">Generated on {new Date().toLocaleDateString()}</p>
-        </div>
-      </div>
-
-      {/* Market Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="border-l-4 border-l-green-500">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <DollarSign className="h-5 w-5 text-green-600" />
-              Average Price
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-green-600">
-              ${data.comparableData.summary.averagePrice.toLocaleString()}
-            </p>
-            <p className="text-sm text-gray-600 mt-1">
-              Range: ${data.comparableData.summary.priceRange.min.toLocaleString()} - $
-              {data.comparableData.summary.priceRange.max.toLocaleString()}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-blue-500">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Ruler className="h-5 w-5 text-blue-600" />
-              Average Size
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-blue-600">
-              {data.comparableData.summary.averageSqft.toLocaleString()} sq ft
-            </p>
-            <p className="text-sm text-gray-600 mt-1">
-              ${Math.round(data.comparableData.summary.averagePrice / data.comparableData.summary.averageSqft || 0)}
-              /sq ft
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-purple-500">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-purple-600" />
-              Market Activity
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-purple-600">{data.comparableData.totalComparables}</p>
-            <p className="text-sm text-gray-600 mt-1">Active Comparables</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Comparable Properties with MLS IDs */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MapPin className="h-5 w-5" />
-            Comparable Properties
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {data.comparableData.comparables.slice(0, 8).map((comp, index) => (
-              <div key={index} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h4 className="font-semibold text-lg">{comp.address}</h4>
-                      {(comp.mlsId || comp.listingId) && (
-                        <Badge variant="outline" className="text-xs">
-                          <Hash className="h-3 w-3 mr-1" />
-                          MLS: {comp.mlsId || comp.listingId}
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
-                      <div>
-                        <p className="text-sm text-gray-600">Price</p>
-                        <p className="font-semibold text-green-600">${comp.price?.toLocaleString() || "N/A"}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Bed/Bath</p>
-                        <p className="font-semibold">
-                          {comp.bedrooms || 0}BR / {comp.bathrooms || 0}BA
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Square Feet</p>
-                        <p className="font-semibold">{comp.sqft?.toLocaleString() || "N/A"} sq ft</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Price/Sq Ft</p>
-                        <p className="font-semibold">${comp.pricePerSqft || "N/A"}</p>
-                      </div>
-                    </div>
-
-                    {expandedComps.has(index) && (
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4 pt-4 border-t">
-                        <div>
-                          <p className="text-sm text-gray-600">Year Built</p>
-                          <p className="font-semibold">{comp.yearBuilt || "N/A"}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Days on Market</p>
-                          <p className="font-semibold">{comp.daysOnMarket || "N/A"} days</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Property Type</p>
-                          <p className="font-semibold">{comp.propertyType || "N/A"}</p>
-                        </div>
-                        {(comp.mlsId || comp.listingId) && (
-                          <div>
-                            <p className="text-sm text-gray-600">MLS ID</p>
-                            <p className="font-semibold font-mono text-blue-600">{comp.mlsId || comp.listingId}</p>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  <Button variant="ghost" size="sm" onClick={() => toggleCompExpansion(index)} className="ml-4">
-                    {expandedComps.has(index) ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Analysis Sections */}
-      <div className="space-y-6">
-        {Object.entries(data.sections).map(([header, bullets]) => (
-          <Card key={header} className="border-l-4 border-l-blue-500">
-            <CardHeader>
-              <CardTitle className="text-xl font-bold text-blue-800">{header}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-3">
-                {bullets.map((bullet, index) => (
-                  <li key={index} className="flex items-start gap-3">
-                    <span className="text-blue-600 font-bold mt-1 flex-shrink-0">•</span>
-                    <span className="text-gray-700 leading-relaxed">{bullet}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }
+
+export default QuickCMAResults

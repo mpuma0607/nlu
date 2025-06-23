@@ -1,9 +1,10 @@
 "use client"
+
 import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { toast } from "@/components/ui/use-toast"
+import { toast } from "@/hooks/use-toast"
 import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
@@ -132,5 +133,3 @@ export function QuickCMAResults({ data }: QuickCMAResultsProps) {
     </Card>
   )
 }
-
-</merged_code>

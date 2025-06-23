@@ -1,10 +1,9 @@
-// app/ai-hub/ideahub-ai/idea-hub-form.tsx
 "use client"
 
 import type React from "react"
 
-import { generateContent } from "./actions"
 import { useState } from "react"
+import { generateContent } from "./actions"
 
 export default function IdeaHubForm() {
   const [idea, setIdea] = useState("")

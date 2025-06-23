@@ -30,23 +30,8 @@ export default function HomePage() {
   }
 
   const handleLogin = () => {
-    console.log("Login clicked - checking for existing authentication")
-
-    // Check if Memberspace is loaded and user is authenticated
-    if (typeof window !== "undefined" && (window as any).MemberSpace) {
-      const memberspace = (window as any).MemberSpace
-
-      // Check if user is already logged in via Memberspace
-      if (memberspace.isLoggedIn && memberspace.isLoggedIn()) {
-        console.log("User already authenticated via Memberspace - redirecting to portal")
-        window.location.href = "/portal"
-        return
-      }
-    }
-
-    // Fallback: redirect to sign in page
-    console.log("Redirecting to sign in page")
-    window.location.href = "https://www.thenextlevelu.com?msopen=/member/sign_in"
+    console.log("Sign In clicked - redirecting to portal")
+    window.location.href = "/portal"
   }
 
   const handleSignup = () => {

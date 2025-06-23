@@ -115,7 +115,7 @@ export default function QuickCMAForm({ onAnalysisComplete }: QuickCMAFormProps) 
             <div className="bg-white rounded-xl p-8 max-w-md mx-4 text-center shadow-2xl border-2 border-blue-200">
               <div className="relative mb-6">
                 <Image
-                  src="/images/nlu-logo-light.png"
+                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/NLU%20site%20icons%20%2847%29-MsI3IOXyfpXO9n0VxbJ3qOErJcv5pO.png"
                   alt="Next Level U Logo"
                   width={120}
                   height={120}

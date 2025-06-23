@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input"
 import {
   Download,
   Mail,
-  Loader2,
   Check,
   Home,
   DollarSign,
@@ -244,7 +243,11 @@ export function QuickCMAResults({ data }: QuickCMAResultsProps) {
         >
           {isDownloading ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <img
+                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/NLU%20site%20icons%20%2847%29-MsI3IOXyfpXO9n0VxbJ3qOErJcv5pO.png"
+                alt="Next Level U"
+                className="h-4 w-4 animate-spin"
+              />
               Generating PDF...
             </>
           ) : (
@@ -266,7 +269,11 @@ export function QuickCMAResults({ data }: QuickCMAResultsProps) {
           <Button onClick={handleSendEmail} disabled={isSendingEmail || emailSent} className="flex items-center gap-2">
             {isSendingEmail ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <img
+                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/NLU%20site%20icons%20%2847%29-MsI3IOXyfpXO9n0VxbJ3qOErJcv5pO.png"
+                  alt="Next Level U"
+                  className="h-4 w-4 animate-spin"
+                />
                 Sending...
               </>
             ) : emailSent ? (

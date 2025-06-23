@@ -60,8 +60,8 @@ export default function HomePage() {
             <Image
               src="/images/nlu-logo-light.png"
               alt="The Next Level U"
-              width={60}
-              height={60}
+              width={66}
+              height={66}
               className="object-contain"
             />
           </div>

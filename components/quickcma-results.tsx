@@ -298,4 +298,3 @@ export function QuickCMAResults({ data }: QuickCMAResultsProps) {
     </div>
   )
 }
-</merged_code>

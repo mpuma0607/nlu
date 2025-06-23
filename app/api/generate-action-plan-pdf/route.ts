@@ -5,108 +5,120 @@ export async function POST(request: NextRequest) {
   try {
     const { formData, plan } = await request.json()
 
-    // Create PDF using jsPDF
+    // Replace the entire PDF generation section with enhanced formatting
     const pdf = new jsPDF({
       orientation: "portrait",
       unit: "mm",
       format: "a4",
     })
 
-    // Set up fonts and colors
+    // Set up professional styling
     pdf.setFont("helvetica")
 
-    // Header section with Vegas Gold background
-    pdf.setFillColor(182, 168, 136) // Vegas Gold color (#b6a888)
-    pdf.rect(0, 0, 210, 40, "F")
+    // Modern header with gradient effect
+    pdf.setFillColor(59, 130, 246) // Blue-600
+    pdf.rect(0, 0, 210, 45, "F")
 
-    // Header text
-    pdf.setTextColor(255, 255, 255) // White text
-    pdf.setFontSize(24)
-    pdf.text("Daily Action Plan", 105, 20, { align: "center" })
-    pdf.setFontSize(12)
-    pdf.text(`Generated for ${formData.name} - ${new Date().toLocaleDateString()}`, 105, 30, { align: "center" })
-
-    // Reset text color to black
-    pdf.setTextColor(0, 0, 0)
-
-    // Prospecting focus
-    pdf.setFontSize(16)
+    // Header content
+    pdf.setTextColor(255, 255, 255)
+    pdf.setFontSize(26)
     pdf.setFont("helvetica", "bold")
+    pdf.text("DAILY ACTION PLAN", 105, 20, { align: "center" })
+
+    pdf.setFontSize(14)
+    pdf.setFont("helvetica", "normal")
+    pdf.text(`${formData.name} • ${new Date().toLocaleDateString()}`, 105, 30, { align: "center" })
+
+    pdf.setFontSize(12)
     pdf.text(
-      `Prospecting Focus: ${formData.prospectType === "Other" ? formData.customProspectType : formData.prospectType}`,
-      20,
-      50,
-      { maxWidth: 170 },
+      `Target: ${formData.prospectType === "Other" ? formData.customProspectType : formData.prospectType}`,
+      105,
+      38,
+      { align: "center" },
     )
 
-    // Split the plan into sections
-    const sections = [
-      { title: "🔍 Prospecting Focus", color: "#b6a888" },
-      { title: "📱 Text Outreach Plan", color: "#b6a888" },
-      { title: "📞 Phone Call Plan", color: "#b6a888" },
-      { title: "📧 Email Outreach Plan", color: "#b6a888" },
-      { title: "📊 Bonus Task or Follow-Up Assignment", color: "#b6a888" },
-    ]
+    // Reset for body content
+    pdf.setTextColor(0, 0, 0)
+    let currentY = 55
 
-    // Find the sections in the plan
-    let currentY = 60
-    const planText = plan
+    // Add prospect focus section
+    pdf.setFillColor(239, 246, 255) // Blue-50
+    pdf.rect(15, currentY - 5, 180, 15, "F")
+    pdf.setFontSize(14)
+    pdf.setFont("helvetica", "bold")
+    pdf.setTextColor(30, 64, 175) // Blue-800
+    pdf.text("🎯 PROSPECTING FOCUS", 20, currentY + 5)
+    currentY += 20
 
-    for (const section of sections) {
-      const sectionIndex = planText.indexOf(section.title)
+    pdf.setFontSize(11)
+    pdf.setFont("helvetica", "normal")
+    pdf.setTextColor(55, 65, 81) // Gray-700
+    const focusText = `Target Audience: ${formData.prospectType === "Other" ? formData.customProspectType : formData.prospectType}`
+    pdf.text(focusText, 20, currentY)
+    currentY += 8
 
-      if (sectionIndex !== -1) {
-        // Extract the section content
-        const nextSectionIndex = sections.findIndex((s) => s.title === section.title) + 1
-        const nextSection = nextSectionIndex < sections.length ? sections[nextSectionIndex].title : null
-
-        let sectionContent
-        if (nextSection) {
-          const nextSectionStart = planText.indexOf(nextSection)
-          sectionContent =
-            nextSectionStart !== -1
-              ? planText.substring(sectionIndex + section.title.length, nextSectionStart).trim()
-              : planText.substring(sectionIndex + section.title.length).trim()
-        } else {
-          sectionContent = planText.substring(sectionIndex + section.title.length).trim()
-        }
-
-        // Add section header
-        pdf.setTextColor(182, 168, 136) // Vegas Gold color
-        pdf.setFontSize(14)
-        pdf.setFont("helvetica", "bold")
-
-        // Check if we need a new page
-        if (currentY > 250) {
-          pdf.addPage()
-          currentY = 20
-        }
-
-        pdf.text(section.title, 20, currentY)
-        currentY += 8
-
-        // Add section content
-        pdf.setTextColor(0, 0, 0)
-        pdf.setFontSize(11)
-        pdf.setFont("helvetica", "normal")
-
-        const splitContent = pdf.splitTextToSize(sectionContent, 170)
-        pdf.text(splitContent, 20, currentY)
-
-        currentY += splitContent.length * 6 + 10
-      }
+    if (formData.specificGoals) {
+      const goalText = pdf.splitTextToSize(`Goals: ${formData.specificGoals}`, 170)
+      pdf.text(goalText, 20, currentY)
+      currentY += goalText.length * 5 + 10
+    } else {
+      currentY += 10
     }
 
-    // Footer
-    pdf.setFillColor(249, 250, 251)
+    // Process the plan content with better formatting
+    const cleanPlan = plan.replace(/[🔍📱📞📧📊]/gu, "").trim()
+    const sections = cleanPlan.split(/(?=^[A-Z\s]+:)/gm).filter((section) => section.trim())
+
+    sections.forEach((section, index) => {
+      const lines = section.trim().split("\n")
+      const title = lines[0].replace(/:/g, "").trim()
+
+      // Check if we need a new page
+      if (currentY > 250) {
+        pdf.addPage()
+        currentY = 20
+      }
+
+      // Section header with colored background
+      const colors = [
+        [16, 185, 129], // Emerald-500
+        [139, 92, 246], // Violet-500
+        [236, 72, 153], // Pink-500
+        [245, 158, 11], // Amber-500
+        [6, 182, 212], // Cyan-500
+      ]
+      const color = colors[index % colors.length]
+
+      pdf.setFillColor(color[0], color[1], color[2])
+      pdf.rect(15, currentY - 3, 180, 12, "F")
+
+      pdf.setTextColor(255, 255, 255)
+      pdf.setFontSize(12)
+      pdf.setFont("helvetica", "bold")
+      pdf.text(title, 20, currentY + 4)
+      currentY += 15
+
+      // Section content
+      pdf.setTextColor(55, 65, 81)
+      pdf.setFontSize(10)
+      pdf.setFont("helvetica", "normal")
+
+      const content = lines.slice(1).join("\n").trim()
+      if (content) {
+        const splitContent = pdf.splitTextToSize(content, 170)
+        pdf.text(splitContent, 20, currentY)
+        currentY += splitContent.length * 4 + 15
+      }
+    })
+
+    // Professional footer
+    pdf.setFillColor(248, 250, 252) // Gray-50
     pdf.rect(0, 277, 210, 20, "F")
 
     pdf.setFontSize(8)
-    pdf.setTextColor(107, 114, 128)
-    pdf.text("© 2024 The Next Level U - Empowering Real Estate Professionals", 105, 283, { align: "center" })
-    pdf.text("Generated with AI-powered tools designed for real estate success", 105, 288, {
-      align: "center",
-    })
+    pdf.setTextColor(107, 114, 128) // Gray-500
+    pdf.text("© 2024 The Next Level U - Professional Real Estate Training", 105, 283, { align: "center" })
+    pdf.text("Generated by Action AI - Your Daily Success Partner", 105, 288, { align: "center" })
 
     const pdfBuffer = Buffer.from(pdf.output("arraybuffer"))
 

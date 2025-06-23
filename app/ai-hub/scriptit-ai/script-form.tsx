@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { generateScript } from "./actions"
-import { Loader2, Copy, Download, Mail, FileText } from "lucide-react"
+import { Loader2, Copy, Download, Mail, FileText, MessageSquare } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 type ScriptFormState = {
@@ -71,10 +71,12 @@ export default function ScriptForm() {
   // Auto-scroll to results when they're generated
   useEffect(() => {
     if (step === 4 && result && resultsRef.current) {
-      resultsRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      })
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        })
+      }, 100)
     }
   }, [step, result])
 
@@ -356,7 +358,7 @@ export default function ScriptForm() {
       <Card className="bg-gray-50 border-0">
         <CardContent className="p-6">
           <h4 className="font-semibold text-black mb-4 flex items-center gap-2">
-            <FileText className="h-4 w-4" />
+            <MessageSquare className="h-4 w-4" />
             Script Summary
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -417,7 +419,8 @@ export default function ScriptForm() {
         <h3 className="text-xl font-bold text-black">Your Script is Ready!</h3>
         <p className="text-gray-600">
           Here's your professionally crafted{" "}
-          {scriptTypeOptions.find((opt) => opt.value === formData.scriptType)?.label.toLowerCase()} script
+          {scriptTypeOptions.find((opt) => opt.value === formData.scriptType)?.label.toLowerCase()} script with DISC &
+          VAK integration
         </p>
       </div>
 
@@ -439,6 +442,14 @@ export default function ScriptForm() {
                     ? formData.customTopic
                     : topicOptions.find((opt) => opt.value === formData.topic)?.label}
                 </p>
+                <div className="flex items-center gap-2 mt-2 text-sm text-gray-600">
+                  <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                    DISC Integrated
+                  </span>
+                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                    VAK Enhanced
+                  </span>
+                </div>
               </div>
               <div className="prose prose-gray max-w-none">
                 <div className="whitespace-pre-wrap text-gray-800 leading-relaxed bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-lg border border-orange-200">
@@ -488,11 +499,20 @@ export default function ScriptForm() {
         <ul className="text-sm text-blue-800 space-y-1">
           <li>• Practice the script until it feels natural</li>
           <li>• Customize it with specific details for each prospect</li>
-          <li>• Use the DISC and VAK principles to adapt your delivery</li>
+          <li>• The script integrates DISC and VAK principles automatically</li>
           <li>• Focus on the call-to-action at the end</li>
           <li>• Track your results and refine as needed</li>
           <li>• Print the PDF for easy reference during calls</li>
         </ul>
+      </div>
+
+      <div className="bg-gradient-to-r from-orange-50 to-red-50 p-4 rounded-lg border border-orange-200">
+        <h5 className="font-medium text-orange-900 mb-2">🎯 DISC & VAK Integration:</h5>
+        <p className="text-sm text-orange-800">
+          This script incorporates language patterns that appeal to all DISC personality types (Dominant, Influential,
+          Steady, Compliant) and includes VAK sensory language (Visual, Auditory, Kinesthetic) for maximum effectiveness
+          with any prospect.
+        </p>
       </div>
 
       <Button

@@ -168,7 +168,7 @@ For any URLs or web links found in the data, present them clearly in the CONTACT
     // Send email with results
     try {
       const emailResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/send-skiptrace-email`,
+        `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/send-whos-who-email`,
         {
           method: "POST",
           headers: {

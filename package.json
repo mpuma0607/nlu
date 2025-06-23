@@ -60,6 +60,7 @@
     "react-hook-form": "latest",
     "react-resizable-panels": "latest",
     "recharts": "latest",
+    "redux-actions": "latest",
     "resend": "latest",
     "sonner": "latest",
     "tailwind-merge": "^2.5.5",

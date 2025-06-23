@@ -54,7 +54,6 @@
     "nodemailer": "latest",
     "openai": "latest",
     "path": "latest",
-    "puppeteer": "latest",
     "react": "^19",
     "react-day-picker": "8.10.1",
     "react-dom": "^19",

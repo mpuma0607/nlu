@@ -1,10 +1,154 @@
 "use server"
 
 import OpenAI from "openai"
+import { generateText } from "ai"
+import { openai } from "@ai-sdk/openai"
 
-const openai = new OpenAI({
+const openaiInstance = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
+
+type FormData = {
+  name: string
+  email: string
+  prospectType: string
+  customProspectType: string
+  language: string
+  specificGoals: string
+}
+
+export async function generateActionPlan(formData: FormData) {
+  try {
+    const prospectFocus = formData.prospectType === "Other" ? formData.customProspectType : formData.prospectType
+
+    const prompt = `Take on the role of an elite real estate coach and create a high-performance daily action plan for a real estate agent to execute today, focused on finding and prospecting ${prospectFocus}.
+
+${formData.specificGoals ? `Additional context: ${formData.specificGoals}` : ""}
+
+IMPORTANT: Generate this entire action plan in ${formData.language}. All text, scripts, and instructions should be written in ${formData.language}.
+
+Instructions:
+This plan should be for today only — do not spread tasks across multiple days.
+
+The plan must be detailed, specific, and fully executable with a clear breakdown of actions and recommended numbers (e.g., "Send 10 text messages").
+
+Include professionally written scripts for each outreach method: Text, Email, and Phone Calls.
+
+Scripts must be crafted using VAK language principles to appeal to visual, auditory, and kinesthetic personality types.
+
+The output should be formatted cleanly and professionally, with each action step starting with a bolded heading in font color #b6a888.
+
+Add a relevant emoji/icon next to each section heading for visual engagement (avoid hashtags).
+
+Ensure the tone is empowering, confident, and focused on helping the agent take effective, immediate action.
+
+Content to Include in Each Daily Plan:
+🔍 Prospecting Focus (#b6a888 header)
+
+Brief summary of who they're targeting today (based on input)
+
+Why this audience is important today
+
+Emotional or strategic angle to approach them with
+
+📱 Text Outreach Plan (#b6a888 header)
+
+Specific number of texts to send today
+
+Custom text message script using VAK language
+
+Tip on how to follow up or track replies
+
+📞 Phone Call Plan (#b6a888 header)
+
+Number of calls to make today
+
+Prescriptive call structure: Opener, Questions, Close
+
+Full phone script with sensory-rich wording
+
+📧 Email Outreach Plan (#b6a888 header)
+
+Number of emails to send today
+
+Email subject line idea
+
+Full email script that includes a visually descriptive layout and emotionally resonant CTA
+
+📊 Bonus Task or Follow-Up Assignment (#b6a888 header)
+
+Optional bonus action that helps close the loop:
+
+Example: "DM 5 new people in your farm area" or "Follow up with yesterday's warm leads"
+
+Short motivational note tied to the agent's bigger goals (keep it focused and intentional)`
+
+    const { text: generatedPlan } = await generateText({
+      model: openai("gpt-4o"),
+      prompt,
+    })
+
+    // Convert the plain text to HTML with proper formatting
+    const html = convertPlanToHTML(generatedPlan, formData.name)
+
+    return {
+      plan: generatedPlan,
+      html,
+    }
+  } catch (error) {
+    console.error("Error generating action plan:", error)
+    throw new Error("Failed to generate action plan. Please try again.")
+  }
+}
+
+function convertPlanToHTML(plan: string, agentName: string): string {
+  // Replace the section headers with properly styled HTML
+  let html = plan
+    // Replace the emoji headers with styled headers
+    .replace(
+      /🔍\s+Prospecting Focus/g,
+      `<h2 style="color: #b6a888; font-weight: bold; margin-top: 20px; border-bottom: 1px solid #b6a888; padding-bottom: 8px;">🔍 Prospecting Focus</h2>`,
+    )
+    .replace(
+      /📱\s+Text Outreach Plan/g,
+      `<h2 style="color: #b6a888; font-weight: bold; margin-top: 20px; border-bottom: 1px solid #b6a888; padding-bottom: 8px;">📱 Text Outreach Plan</h2>`,
+    )
+    .replace(
+      /📞\s+Phone Call Plan/g,
+      `<h2 style="color: #b6a888; font-weight: bold; margin-top: 20px; border-bottom: 1px solid #b6a888; padding-bottom: 8px;">📞 Phone Call Plan</h2>`,
+    )
+    .replace(
+      /📧\s+Email Outreach Plan/g,
+      `<h2 style="color: #b6a888; font-weight: bold; margin-top: 20px; border-bottom: 1px solid #b6a888; padding-bottom: 8px;">📧 Email Outreach Plan</h2>`,
+    )
+    .replace(
+      /📊\s+Bonus Task or Follow-Up Assignment/g,
+      `<h2 style="color: #b6a888; font-weight: bold; margin-top: 20px; border-bottom: 1px solid #b6a888; padding-bottom: 8px;">📊 Bonus Task or Follow-Up Assignment</h2>`,
+    )
+
+  // Convert line breaks to HTML paragraphs
+  html = html
+    .split("\n\n")
+    .map((paragraph) => `<p>${paragraph.replace(/\n/g, "<br>")}</p>`)
+    .join("")
+
+  // Add a header and wrapper
+  html = `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+      <div style="background: linear-gradient(135deg, #4338ca, #3b82f6); color: white; padding: 20px; text-align: center; border-radius: 8px; margin-bottom: 20px;">
+        <h1 style="margin: 0; font-size: 24px;">Daily Action Plan for ${agentName}</h1>
+        <p style="margin: 5px 0 0 0; font-size: 16px;">Generated by Action AI - ${new Date().toLocaleDateString()}</p>
+      </div>
+      ${html}
+      <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin-top: 30px; border-left: 4px solid #b6a888;">
+        <p style="margin: 0; font-weight: bold; color: #1e3a8a;">Remember:</p>
+        <p style="margin: 5px 0 0 0; color: #1e40af;">Consistency is key. Execute this plan fully today, track your results, and create a new plan tomorrow to maintain momentum.</p>
+      </div>
+    </div>
+  `
+
+  return html
+}
 
 export async function analyzeComparables(address: string) {
   try {
@@ -87,7 +231,7 @@ Create a professional CMA report with these EXACT sections:
 
 Format each section with detailed bullet points using specific data from the comparable properties provided.`
 
-    const response = await openai.chat.completions.create({
+    const response = await openaiInstance.chat.completions.create({
       model: "gpt-4o",
       messages: [
         {

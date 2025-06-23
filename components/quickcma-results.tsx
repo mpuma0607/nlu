@@ -1,6 +1,4 @@
 "use client"
-
-import type React from "react"
 import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -23,7 +21,7 @@ interface QuickCMAResultsProps {
   }
 }
 
-const QuickCMAResults: React.FC<QuickCMAResultsProps> = ({ data }) => {
+export function QuickCMAResults({ data }: QuickCMAResultsProps) {
   const [userEmail, setUserEmail] = useState("")
   const [isSendingEmail, setIsSendingEmail] = useState(false)
 
@@ -135,4 +133,4 @@ const QuickCMAResults: React.FC<QuickCMAResultsProps> = ({ data }) => {
   )
 }
 
-export default QuickCMAResults
+</merged_code>

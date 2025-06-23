@@ -58,7 +58,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center">
             <Image
-              src="/images/nlu-logo.png"
+              src="/images/nlu-logo-light.png"
               alt="The Next Level U"
               width={60}
               height={60}

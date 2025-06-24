@@ -2,6 +2,7 @@
 
 import { generateText } from "ai"
 import { openai } from "@ai-sdk/openai"
+import sharp from "sharp"
 
 // Initialize Unsplash API
 const UNSPLASH_ACCESS_KEY = process.env.UNSPLASH_ACCESS_KEY || "demo-key"
@@ -51,21 +52,43 @@ async function searchUnsplashImage(query: string): Promise<string> {
 
 async function addBrandingToImage(imageUrl: string): Promise<string> {
   try {
-    // In a real implementation, this would:
-    // 1. Download the image from Unsplash
-    // 2. Use Canvas API or Sharp to add Century 21 branding
-    // 3. Return the processed image as base64 or upload to storage
+    // Download the image from Unsplash
+    const response = await fetch(imageUrl)
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image: ${response.status}`)
+    }
 
-    // For now, we'll return the original image URL
-    // In production, you'd implement the actual image processing here
-    console.log("Image branding processing would happen here for:", imageUrl)
+    const imageBuffer = await response.arrayBuffer()
 
-    // Simulate processing time
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    // Process the image with Sharp
+    const processedImageBuffer = await sharp(Buffer.from(imageBuffer))
+      .resize(1200, 630, {
+        fit: "cover",
+        position: "center",
+      })
+      .composite([
+        {
+          input: Buffer.from(`
+            <svg width="200" height="60" xmlns="http://www.w3.org/2000/svg">
+              <rect width="200" height="60" fill="rgba(0,0,0,0.7)" rx="8"/>
+              <text x="100" y="25" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white" text-anchor="middle">CENTURY 21</text>
+              <text x="100" y="45" font-family="Arial, sans-serif" font-size="12" fill="#FFD700" text-anchor="middle">Beggins Enterprises</text>
+            </svg>
+          `),
+          top: 20,
+          left: 20,
+        },
+      ])
+      .jpeg({ quality: 90 })
+      .toBuffer()
 
-    return imageUrl
+    // Convert to base64 for embedding in email
+    const base64Image = `data:image/jpeg;base64,${processedImageBuffer.toString("base64")}`
+
+    return base64Image
   } catch (error) {
     console.error("Error processing image:", error)
+    // Return original image URL if processing fails
     return imageUrl
   }
 }

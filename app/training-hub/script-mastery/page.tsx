@@ -141,9 +141,9 @@ export default function ScriptMasteryPage() {
                 </DialogHeader>
                 <div className="mt-6">
                   <Tabs defaultValue={category.tabs[0].id}>
-                    <TabsList className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 mb-6">
+                    <TabsList className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 mb-6">
                       {category.tabs.map((tab) => (
-                        <TabsTrigger key={tab.id} value={tab.id}>
+                        <TabsTrigger key={tab.id} value={tab.id} className="text-xs">
                           {tab.name}
                         </TabsTrigger>
                       ))}
@@ -248,7 +248,7 @@ const scriptCategories = [
     tabs: [
       {
         id: "expired-listing",
-        name: "Expired Listing Script",
+        name: "Expired Listing",
         description: "Professional script for contacting owners of expired listings",
         scripts: [
           {
@@ -295,7 +295,7 @@ When can I take a look around to ensure that I fully understand your property so
       },
       {
         id: "fsbo",
-        name: "FSBO Script",
+        name: "FSBO",
         description: "Scripts for For Sale By Owner prospects",
         scripts: [
           {
@@ -425,8 +425,127 @@ SMS 5: Emphasizing Community Impact
         ],
       },
       {
+        id: "absentee-owners",
+        name: "Absentee Owners",
+        description: "Scripts for out-of-area property owners",
+        scripts: [
+          {
+            title: "Absentee Owner Phone Script - Value-First Approach",
+            objective:
+              "To establish rapport with out-of-area property owners by offering local assistance and building trust before discussing potential sale opportunities",
+            content: `Mirror and Match greeting. ____ (Repeat back their greeting exactly - match their Energy / tonality / vocabulary)
+
+It's ______ (Your name) with (Insert brokerage name) here in _________(area)
+
+I'm reaching out about the property that you own on ___________. (Ex. Oak Street)
+
+I live and work right here in ______ (area) and I'm checking on my out-of-area owners to see if there's anything I can do to bring some value to you since I'm here and it's sometimes difficult for you to check on your investment.
+
+I don't want anything at all from you...just here to help out like I would hope someone would do for me if I lived away from my investment... for some I've been doing a drive by to check on things and take some pics...
+
+for others .... I've been doing a FaceTime /duo/skype walk around with them....
+
+for others I am connecting them with some handymen, contractors, .etc...
+
+for others...I'm emailing them values occasionally so they know what it's worth... . so..I'm curious ....what can I do to help you...
+
+If something.. ______ - Great I'm happy to help... I'm on it...
+
+If nothing..... Ok no problem, just know I'm right here if you need anything...this is my cell number so please ...save it now... as _(your name) ____real estate friend___(area) (ex. Jeff Beggins Real Estate Friend Orlando). ....if you ever need anything locally just ...reach out to me...anytime... and let's connect when you are in town...
+
+Well, thanks for your time, great talking with you. I'll reach out from time to time to check on you, feel free to do the same.`,
+            notes:
+              "This script focuses on providing value first without asking for anything. The key is to establish yourself as a local resource and build trust over time. Follow up consistently with helpful information and services.",
+          },
+          {
+            title: "Absentee Owner Email Campaign Series (5 Emails)",
+            objective: "Professional email sequence targeting Florida absentee owners affected by rising costs",
+            content: `EMAIL 1: Evaluating Financial Impact
+Subject: Navigating Recent Changes in Florida Property Costs
+
+Dear [Owner's Name],
+Florida's real estate landscape has experienced some noteworthy changes recently, especially regarding insurance and property taxes. As an absentee owner, these shifts could have a substantial effect on your investment.
+
+If you're reconsidering the financial feasibility of holding onto your property, I specialize in helping owners like you assess and maximize its current value.
+
+Reach out for a no-obligation discussion on how we can optimize your investment.
+
+Warm Regards,
+[Your Name]
+
+EMAIL 2: Time-sensitive Alert
+Subject: Important Update: Florida Insurance & Property Taxes
+
+Hello [Owner's Name],
+Recent hikes in insurance and property taxes in Florida have left many absentee owners re-evaluating their position. With these increases, is your property still the investment you envisioned?
+
+Should you feel the financials no longer make sense, my expertise lies in helping absentee owners like you navigate this terrain and maximize your property's value.
+
+Don't hesitate to contact me for insights tailored to your unique situation.
+
+Best,
+[Your Name]
+
+EMAIL 3: Offering Solutions
+Subject: Is Your Florida Property Still Working for You?
+
+Hi [Owner's Name],
+With Florida's recent upticks in insurance and property taxes, many absentee owners are grappling with the effects on their bottom line. Is your property still yielding the returns you expect?
+
+I have successfully guided many in your position, helping them pivot strategies and unlock their property's true potential. If the numbers aren't adding up for you, let's talk solutions.
+
+Warmly,
+[Your Name]
+
+EMAIL 4: The Consultative Approach
+Subject: Let's Review Your Florida Property's Financial Health
+
+Dear [Owner's Name],
+The recent changes in insurance and property taxes in Florida have prompted many absentee owners to take a closer look at their investments. I offer a comprehensive review to help you determine if your property is still aligned with your financial aspirations.
+
+If the rising costs have you second-guessing, allow me to help you understand your options and maximize its current value.
+
+Looking forward to assisting you,
+[Your Name]
+
+EMAIL 5: Positioning for the Future
+Subject: Maximizing Your Florida Property in Today's Market
+
+Hello [Owner's Name],
+Changes are afoot in Florida's property sector, particularly with the latest surge in insurance and property taxes. As an absentee owner, it's crucial to assess how these shifts impact your long-term plans.
+
+My specialty is in assisting owners like you navigate these waters, ensuring you're poised for success irrespective of market dynamics. Let's strategize together to ensure your property continues to be a valuable asset.
+
+Best wishes,
+[Your Name]`,
+            notes:
+              "These emails specifically address Florida's insurance and tax challenges. Customize with local market data and send 4-5 days apart for maximum impact.",
+          },
+          {
+            title: "Absentee Owner SMS Campaign Series (5 Messages)",
+            objective: "Concise text message sequence for mobile-first absentee owner outreach",
+            content: `SMS 1: Investment Partnership
+"Hi [Owner's Name], I noticed you own a property in Florida but aren't currently residing there. Many owners in your position have partnered with us to maximize their investment returns. Curious to learn more?"
+
+SMS 2: Market Opportunity
+"Hey [Owner's Name]! Florida's real estate market has seen some interesting shifts. Being an absentee owner, have you considered your property's current potential? Let's chat."
+
+SMS 3: Sunshine State Focus
+"☀️ Greetings, [Owner's Name]! Sunshine State properties are in demand. As you own a property in Florida but aren't local, we can help assess its value and opportunities. Interested?"
+
+SMS 4: Management Support
+"Hi [Owner's Name], managing a property from afar can be challenging. We've assisted many absentee owners in Florida, ensuring their homes are well-maintained and profitable. Fancy a chat?"
+
+SMS 5: Local Expertise
+"Hello [Owner's Name]! Owning a property in beautiful Florida is a dream for many. If you ever think of selling or need local insights, let's connect. We specialize in supporting absentee owners like you."`,
+            notes:
+              "Send SMS messages 2-3 days apart. Keep messages friendly and helpful rather than pushy. Always offer value and local expertise.",
+          },
+        ],
+      },
+      {
         id: "farming",
-        name: "Farming Script",
+        name: "Farming",
         description: "Scripts for geographic farming",
         scripts: [
           {
@@ -473,7 +592,7 @@ In order to maximize the value for you and do the best job when would be a good 
       },
       {
         id: "soi",
-        name: "SOI Script",
+        name: "SOI",
         description: "Scripts for your Sphere of Influence",
         scripts: [
           {
@@ -503,7 +622,7 @@ Thank you SO much... I'll check in with you periodically to see who you know who
       },
       {
         id: "vacant",
-        name: "Vacant Land Script",
+        name: "Vacant Land",
         description: "Scripts for vacant land opportunities",
         scripts: [
           {

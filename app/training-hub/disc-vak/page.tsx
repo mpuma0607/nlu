@@ -170,6 +170,24 @@ export default function DISCVAKTrainingPage() {
                               </div>
                             </div>
 
+                            <div
+                              className="relative w-full cursor-pointer hover:opacity-90 transition-opacity rounded-lg overflow-hidden"
+                              onClick={() => setExpandedImage("/images/greatest-respect-quote.png")}
+                            >
+                              <Image
+                                src="/images/greatest-respect-quote.png"
+                                alt="Greatest Respect Quote by Chris Reade"
+                                width={1000}
+                                height={400}
+                                className="w-full object-contain"
+                              />
+                              <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 flex items-center justify-center">
+                                <span className="bg-white bg-opacity-75 px-3 py-1 rounded-full text-sm font-medium">
+                                  Click to expand
+                                </span>
+                              </div>
+                            </div>
+
                             <h3 className="text-xl font-bold">Learning Objectives</h3>
                             <ul className="list-disc pl-6 space-y-2">
                               <li>Understand the four DISC personality types and their communication preferences</li>

@@ -207,11 +207,11 @@ export default function DISCVAKTrainingPage() {
                               {/* D Personality Detailed Chart */}
                               <div
                                 className="relative w-full aspect-[4/3] cursor-pointer hover:opacity-90 transition-opacity border border-gray-200 rounded-lg overflow-hidden"
-                                onClick={() => setExpandedImage("/images/d-personality-detailed-chart.png")}
+                                onClick={() => setExpandedImage("/images/d-personality-comprehensive-chart.png")}
                               >
                                 <Image
-                                  src="/images/d-personality-detailed-chart.png"
-                                  alt="D Personality Detailed Chart"
+                                  src="/images/d-personality-comprehensive-chart.png"
+                                  alt="D Personality Comprehensive Reference Chart"
                                   fill
                                   className="object-contain"
                                 />
@@ -225,11 +225,11 @@ export default function DISCVAKTrainingPage() {
                               {/* DISC Traits Diagram */}
                               <div
                                 className="relative w-full aspect-[4/3] cursor-pointer hover:opacity-90 transition-opacity border border-gray-200 rounded-lg overflow-hidden"
-                                onClick={() => setExpandedImage("/images/disc-traits-d.gif")}
+                                onClick={() => setExpandedImage("/images/disc-personality-traits-quadrant.gif")}
                               >
                                 <Image
-                                  src="/images/disc-traits-d.gif"
-                                  alt="DISC Personality Traits Diagram"
+                                  src="/images/disc-personality-traits-quadrant.gif"
+                                  alt="DISC Personality Traits Quadrant Overview"
                                   fill
                                   className="object-contain"
                                 />

@@ -2,7 +2,8 @@
 
 import { generateText } from "ai"
 import { openai } from "@ai-sdk/openai"
-import sharp from "sharp"
+// Remove this line:
+// import sharp from "sharp"
 
 // Initialize Unsplash API
 const UNSPLASH_ACCESS_KEY = process.env.UNSPLASH_ACCESS_KEY || "demo-key"
@@ -51,46 +52,8 @@ async function searchUnsplashImage(query: string): Promise<string> {
 }
 
 async function addBrandingToImage(imageUrl: string): Promise<string> {
-  try {
-    // Download the image from Unsplash
-    const response = await fetch(imageUrl)
-    if (!response.ok) {
-      throw new Error(`Failed to fetch image: ${response.status}`)
-    }
-
-    const imageBuffer = await response.arrayBuffer()
-
-    // Process the image with Sharp
-    const processedImageBuffer = await sharp(Buffer.from(imageBuffer))
-      .resize(1200, 630, {
-        fit: "cover",
-        position: "center",
-      })
-      .composite([
-        {
-          input: Buffer.from(`
-            <svg width="200" height="60" xmlns="http://www.w3.org/2000/svg">
-              <rect width="200" height="60" fill="rgba(0,0,0,0.7)" rx="8"/>
-              <text x="100" y="25" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white" text-anchor="middle">CENTURY 21</text>
-              <text x="100" y="45" font-family="Arial, sans-serif" font-size="12" fill="#FFD700" text-anchor="middle">Beggins Enterprises</text>
-            </svg>
-          `),
-          top: 20,
-          left: 20,
-        },
-      ])
-      .jpeg({ quality: 90 })
-      .toBuffer()
-
-    // Convert to base64 for embedding in email
-    const base64Image = `data:image/jpeg;base64,${processedImageBuffer.toString("base64")}`
-
-    return base64Image
-  } catch (error) {
-    console.error("Error processing image:", error)
-    // Return original image URL if processing fails
-    return imageUrl
-  }
+  // For now, just return the original Unsplash image without processing
+  return imageUrl
 }
 
 function getImageSearchQuery(topic: string, contentType: string): string {
@@ -122,6 +85,26 @@ function getImageSearchQuery(topic: string, contentType: string): string {
   } else {
     return "real estate property home"
   }
+}
+
+function extractKeywordsFromContent(content: string): string {
+  // Extract relevant keywords from the generated content for better image search
+  const keywords = []
+  const contentLower = content.toLowerCase()
+
+  // Real estate specific terms
+  if (contentLower.includes("home") || contentLower.includes("house")) keywords.push("home")
+  if (contentLower.includes("kitchen")) keywords.push("kitchen")
+  if (contentLower.includes("bathroom")) keywords.push("bathroom")
+  if (contentLower.includes("bedroom")) keywords.push("bedroom")
+  if (contentLower.includes("living room")) keywords.push("living room")
+  if (contentLower.includes("garden") || contentLower.includes("yard")) keywords.push("garden")
+  if (contentLower.includes("investment")) keywords.push("investment property")
+  if (contentLower.includes("luxury")) keywords.push("luxury")
+  if (contentLower.includes("modern")) keywords.push("modern")
+  if (contentLower.includes("family")) keywords.push("family home")
+
+  return keywords.length > 0 ? keywords.join(" ") : "real estate property"
 }
 
 export async function generateContentV2(formData: FormData) {
@@ -187,8 +170,9 @@ Please write the content in ${formData.language} and ensure it reads naturally a
       prompt: textPrompt,
     })
 
-    // Get relevant image from Unsplash
-    const imageSearchQuery = getImageSearchQuery(topicToUse, formData.contentType)
+    // Use the generated content to create a better image search query
+    const contentKeywords = extractKeywordsFromContent(generatedText)
+    const imageSearchQuery = `${contentKeywords} real estate`
     const unsplashImageUrl = await searchUnsplashImage(imageSearchQuery)
 
     // Add Century 21 branding to the image

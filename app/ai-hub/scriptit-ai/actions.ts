@@ -24,23 +24,23 @@ export async function generateScript(formData: ScriptFormData) {
     // Get topic-specific context
     const topicContext = getTopicContext(topicToUse)
 
-    const prompt = `You are an expert real estate script writer. Create ONE SINGLE professional ${formData.scriptType} script for ${formData.agentName} from ${formData.brokerageName} targeting ${topicToUse}.
+    const prompt = `You are an expert real estate script writer. Create ONE professional ${formData.scriptType} script for ${formData.agentName} from ${formData.brokerageName} targeting ${topicToUse}.
 
-CRITICAL INSTRUCTION: Create ONLY ONE script that naturally incorporates DISC and VAK principles throughout. DO NOT create separate scripts for different personality types.
+CRITICAL: Write ONE complete script that naturally incorporates VAK (Visual, Auditory, Kinesthetic) language patterns throughout. DO NOT create separate scripts or sections for different personality types.
 
 ${scriptTypeDetails.requirements}
 
-INTEGRATION APPROACH:
-- Use language that appeals to ALL DISC types in one flowing script
-- Include varied sensory language (Visual: "see," "picture"; Auditory: "hear," "sounds"; Kinesthetic: "feel," "experience")
-- Make it sound natural and conversational, not like separate sections
+VAK LANGUAGE INTEGRATION:
+- Visual words: "see," "picture," "look," "view," "imagine," "envision," "clear," "bright," "focus"
+- Auditory words: "hear," "listen," "sounds," "tell," "discuss," "rings true," "clicks," "resonates"  
+- Kinesthetic words: "feel," "touch," "grasp," "handle," "solid," "smooth," "comfortable," "experience"
 
 TOPIC CONTEXT: ${topicContext}
 
 SCRIPT STRUCTURE:
 1. Opening Hook (attention-grabbing, builds rapport)
-2. Value Proposition (clear benefit to them)
-3. Proof/Credibility (establish trust)
+2. Value Proposition (clear benefit using VAK language)
+3. Proof/Credibility (establish trust with sensory language)
 4. Call to Action (specific next step)
 5. Objection Handling (brief, if applicable)
 
@@ -50,7 +50,7 @@ ${formData.additionalDetails ? `ADDITIONAL REQUIREMENTS: ${formData.additionalDe
 
 ${scriptTypeDetails.lengthGuidance}
 
-IMPORTANT: Write this as ONE complete script that flows naturally from start to finish. Do not break it into sections or separate scripts for different personality types. The DISC and VAK elements should be woven throughout seamlessly.`
+IMPORTANT: Write this as ONE complete, flowing script that naturally weaves in visual, auditory, and kinesthetic language throughout. Make it sound conversational and natural, not like it's targeting different personality types.`
 
     const { text: generatedScript } = await generateText({
       model: openai("gpt-4o"),

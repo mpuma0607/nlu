@@ -430,30 +430,36 @@ export default function ScriptForm() {
           <TabsTrigger value="text">Text Only</TabsTrigger>
         </TabsList>
         <TabsContent value="preview" className="space-y-4">
-          <Card className="border-0 shadow-md">
-            <CardContent className="p-6">
-              <div className="mb-4">
-                <h3 className="text-xl font-bold text-black">
-                  {scriptTypeOptions.find((opt) => opt.value === formData.scriptType)?.label} Script
-                </h3>
-                <p className="text-lg font-semibold text-orange-600">
-                  Topic:{" "}
-                  {formData.topic === "other"
-                    ? formData.customTopic
-                    : topicOptions.find((opt) => opt.value === formData.topic)?.label}
-                </p>
-                <div className="flex items-center gap-2 mt-2 text-sm text-gray-600">
-                  <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-                    DISC Integrated
-                  </span>
-                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-red-50">
+            <CardContent className="p-8">
+              <div className="mb-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-orange-600 to-red-600 rounded-xl flex items-center justify-center">
+                    <MessageSquare className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900">Your Professional Script</h3>
+                    <p className="text-gray-600">
+                      {scriptTypeOptions.find((opt) => opt.value === formData.scriptType)?.label} •{" "}
+                      {formData.topic === "other"
+                        ? formData.customTopic
+                        : topicOptions.find((opt) => opt.value === formData.topic)?.label}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mb-6">
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
                     VAK Enhanced
+                  </span>
+                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                    Conversion Optimized
                   </span>
                 </div>
               </div>
-              <div className="prose prose-gray max-w-none">
-                <div className="whitespace-pre-wrap text-gray-800 leading-relaxed bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-lg border border-orange-200">
-                  {result?.script}
+
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-orange-100">
+                <div className="prose prose-gray max-w-none">
+                  <div className="whitespace-pre-wrap text-gray-800 leading-relaxed font-medium">{result?.script}</div>
                 </div>
               </div>
             </CardContent>

@@ -54,82 +54,41 @@ async function addBrandingToImage(imageUrl: string): Promise<string> {
   return imageUrl
 }
 
-function extractKeywordsFromContent(content: string, originalTopic: string): string {
-  // Extract specific keywords from the generated content for better image search
-  const contentLower = content.toLowerCase()
+function extractKeywordsFromTopic(originalTopic: string): string {
+  // Extract specific keywords from the TOPIC for better image search
   const topicLower = originalTopic.toLowerCase()
-  const keywords = []
 
   // Pool/Spa specific - be very specific
-  if (contentLower.includes("pool") || topicLower.includes("pool")) {
-    keywords.push("swimming pool")
-  }
-  if (contentLower.includes("spa") || topicLower.includes("spa") || contentLower.includes("hot tub")) {
-    keywords.push("spa hot tub")
-  }
-  if (contentLower.includes("jacuzzi")) {
-    keywords.push("jacuzzi")
-  }
+  if (topicLower.includes("pool")) return "swimming pool"
+  if (topicLower.includes("spa") || topicLower.includes("hot tub")) return "spa hot tub"
+  if (topicLower.includes("jacuzzi")) return "jacuzzi"
 
   // Kitchen specific
-  if (contentLower.includes("kitchen") || topicLower.includes("kitchen")) {
-    keywords.push("kitchen")
-  }
+  if (topicLower.includes("kitchen")) return "kitchen"
 
   // Bathroom specific
-  if (contentLower.includes("bathroom") || topicLower.includes("bathroom")) {
-    keywords.push("bathroom")
-  }
+  if (topicLower.includes("bathroom")) return "bathroom"
 
   // Outdoor/Garden specific
-  if (contentLower.includes("garden") || contentLower.includes("landscaping") || topicLower.includes("garden")) {
-    keywords.push("garden")
-  }
-  if (contentLower.includes("patio") || contentLower.includes("deck")) {
-    keywords.push("patio")
-  }
-  if (contentLower.includes("backyard") || topicLower.includes("backyard")) {
-    keywords.push("backyard")
-  }
+  if (topicLower.includes("garden") || topicLower.includes("landscaping")) return "garden"
+  if (topicLower.includes("patio") || topicLower.includes("deck")) return "patio"
+  if (topicLower.includes("backyard")) return "backyard"
 
   // Home office
-  if (contentLower.includes("office") || contentLower.includes("workspace") || topicLower.includes("office")) {
-    keywords.push("home office")
-  }
+  if (topicLower.includes("office") || topicLower.includes("workspace")) return "home office"
 
   // Living spaces
-  if (contentLower.includes("living room") || topicLower.includes("living room")) {
-    keywords.push("living room")
-  }
-  if (contentLower.includes("bedroom") || topicLower.includes("bedroom")) {
-    keywords.push("bedroom")
-  }
+  if (topicLower.includes("living room")) return "living room"
+  if (topicLower.includes("bedroom")) return "bedroom"
 
   // Investment/Business
-  if (contentLower.includes("investment") || contentLower.includes("profit")) {
-    keywords.push("real estate investment")
-  }
+  if (topicLower.includes("investment") || topicLower.includes("profit")) return "real estate investment"
 
   // Home features
-  if (contentLower.includes("fireplace")) {
-    keywords.push("fireplace")
-  }
+  if (topicLower.includes("fireplace")) return "fireplace"
 
-  // If no specific keywords found, analyze the original topic more carefully
-  if (keywords.length === 0) {
-    if (topicLower.includes("pool")) return "swimming pool"
-    if (topicLower.includes("spa")) return "spa hot tub"
-    if (topicLower.includes("kitchen")) return "kitchen"
-    if (topicLower.includes("bathroom")) return "bathroom"
-    if (topicLower.includes("garden")) return "garden"
-    if (topicLower.includes("office")) return "home office"
-    if (topicLower.includes("living")) return "living room"
-    if (topicLower.includes("bedroom")) return "bedroom"
-    return "house home"
-  }
-
-  // Return the most specific keyword (first one found)
-  return keywords[0]
+  // Default fallback
+  return "house home"
 }
 
 export async function generateContentV2(formData: FormData) {
@@ -197,11 +156,12 @@ Please write the content in ${formData.language} and ensure it reads naturally a
       prompt: textPrompt,
     })
 
-    // Use the generated content to create a better image search query
-    const contentKeywords = extractKeywordsFromContent(generatedText, topicToUse)
-    console.log("Image search keywords:", contentKeywords)
+    // Use ONLY the original topic to create image search query
+    const topicKeywords = extractKeywordsFromTopic(topicToUse)
+    console.log("Topic:", topicToUse)
+    console.log("Image search keywords:", topicKeywords)
 
-    const pexelsImageUrl = await searchPexelsImage(contentKeywords)
+    const pexelsImageUrl = await searchPexelsImage(topicKeywords)
 
     // Add Century 21 branding to the image
     const brandedImageUrl = await addBrandingToImage(pexelsImageUrl)

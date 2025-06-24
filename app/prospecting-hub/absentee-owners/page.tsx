@@ -158,11 +158,19 @@ export default function AbsenteeOwnersPage() {
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="phone-scripts" className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="phone-scripts">Phone Scripts</TabsTrigger>
-                  <TabsTrigger value="email-scripts">Email Scripts</TabsTrigger>
-                  <TabsTrigger value="text-scripts">Text Scripts</TabsTrigger>
-                  <TabsTrigger value="practice">Practice</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-4 text-xs">
+                  <TabsTrigger value="phone-scripts" className="text-xs px-2">
+                    Phone
+                  </TabsTrigger>
+                  <TabsTrigger value="email-scripts" className="text-xs px-2">
+                    Email
+                  </TabsTrigger>
+                  <TabsTrigger value="text-scripts" className="text-xs px-2">
+                    SMS
+                  </TabsTrigger>
+                  <TabsTrigger value="practice" className="text-xs px-2">
+                    Practice
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="phone-scripts" className="space-y-6 mt-6">

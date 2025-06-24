@@ -1,4 +1,6 @@
 "use client"
+
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -10,7 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { BookOpen, Phone, Play } from "lucide-react"
+import { BookOpen, Phone, Home, Users, MessageSquare, Play } from "lucide-react"
 
 // Audio Player Component
 function AudioPlayer({ src, title }: { src: string; title: string }) {
@@ -33,8 +35,11 @@ function FSBOAudioSection() {
   return (
     <div className="mt-6 space-y-4">
       <h4 className="font-semibold text-lg mb-4">🎵 Audio Training Resources</h4>
+
       <AudioPlayer src="/audio/advanced-fsbo-follow-up.mp3" title="Advanced FSBO Follow-Up Training" />
+
       <AudioPlayer src="/audio/prospecting-fsbo-script.mp3" title="Prospecting FSBO Script Training" />
+
       <AudioPlayer src="/audio/fsbo-follow-up.mp3" title="FSBO Follow-Up Training" />
     </div>
   )
@@ -102,6 +107,8 @@ function ObjectionsAudioSection() {
 }
 
 export default function ScriptMasteryPage() {
+  const [openModal, setOpenModal] = useState<string | null>(null)
+
   return (
     <div className="min-h-screen bg-white py-12">
       <div className="container mx-auto px-4">
@@ -119,10 +126,20 @@ export default function ScriptMasteryPage() {
         {/* Script Categories */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto mb-16">
           {scriptCategories.map((category) => (
-            <Dialog key={category.id}>
+            <Dialog
+              key={category.id}
+              open={openModal === category.id}
+              onOpenChange={(open) => {
+                if (open) {
+                  setOpenModal(category.id)
+                } else {
+                  setOpenModal(null)
+                }
+              }}
+            >
               <DialogTrigger asChild>
                 <Button
-                  className="w-full h-32 flex flex-col items-center justify-center gap-3 rounded-xl text-white hover:opacity-90"
+                  className="w-full h-32 flex flex-col items-center justify-center gap-3 rounded-xl"
                   style={{
                     background: `linear-gradient(135deg, ${category.gradientFrom} 0%, ${category.gradientTo} 100%)`,
                   }}
@@ -141,9 +158,9 @@ export default function ScriptMasteryPage() {
                 </DialogHeader>
                 <div className="mt-6">
                   <Tabs defaultValue={category.tabs[0].id}>
-                    <TabsList className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 mb-6 text-xs">
+                    <TabsList className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 mb-6">
                       {category.tabs.map((tab) => (
-                        <TabsTrigger key={tab.id} value={tab.id} className="px-2">
+                        <TabsTrigger key={tab.id} value={tab.id}>
                           {tab.name}
                         </TabsTrigger>
                       ))}
@@ -248,14 +265,14 @@ const scriptCategories = [
     tabs: [
       {
         id: "expired-listing",
-        name: "Expired Listing",
+        name: "Expired Listing Script",
         description: "Professional script for contacting owners of expired listings",
         scripts: [
           {
-            title: "Expired Listing Phone Script - Complete System",
+            title: "Expired Listing Script",
             objective:
-              "To establish rapport with expired listing owners through systematic questioning and secure an appointment to interview for the listing",
-            content: `(Mirror/Match Introduction) ... I'm ______ from (your brokerage name)... The reason I'm here (or calling) is your property came up on our computer as an expired listing and what I am curious about is ... when I can interview for the job of getting this property sold for you... You do still want to SELL YOUR PROPERTY right...
+              "To establish rapport with expired listing owners and secure an appointment to interview for the listing",
+            content: `(Mirror/Match Introduction) ... I'm ______ from CENTURY 21... The reason I'm here (or calling) is your property came up on our computer as an expired listing and what I am curious about is ... when I can interview for the job of getting this property sold for you... You do still want to SELL YOUR PROPERTY right...
 
 Let me ask you: (REMEMBER TO FIND WAYS TO CONNECT)
 
@@ -275,7 +292,7 @@ What will you expect from the next company that you choose. (_____) Terrific!
 
 Have you already chosen a company to work with. (_____) Wonderful!
 
-Let's do this... let me show you what your house is REALLY worth in today's market and ... show you the tools that only (your brokerage name) has ... that allow us to sell 20-30 homes a day which is more than any of our competitors. You do expect the best...right.
+Let's do this... let me show you what your house is REALLY worth in today's market and ... show you the tools that only CENTURY 21 has ... that allow us to sell 20-30 homes a day which is more than any of our competitors. You do expect the best...right.
 
 This way at least you REALLY ...know your options... and if it makes sense, it makes sense...if it doesn't, it doesn't.
 
@@ -291,100 +308,20 @@ When can I take a look around to ensure that I fully understand your property so
             notes:
               "This script emphasizes building rapport through questions and positioning yourself as interviewing for the job. Fill in the blanks with specific times and personalize the company references as needed.",
           },
-          {
-            title: "Expired Listing Email Campaign Series (5 Emails)",
-            objective: "Professional email sequence to nurture expired listing sellers with empathetic messaging",
-            content: `EMAIL 1: Let's Turn a New Page for Your [Address] Property!
-Subject: Let's Turn a New Page for Your [Address] Property!
-
-Hi [Homeowner's Name],
-I noticed that your listing at [Address] recently expired, and I understand this might be a bit discouraging. I'm [Your Name] with [Your Realty Company], and I specialize in revitalizing listings like yours. My approach is tailored to each property, focusing on targeted marketing and pricing strategies that resonate with today's buyers.
-
-Would you be open to discussing a fresh approach for your property? I'd love to share some success stories and ideas specific to homes in [Area/Neighborhood].
-
-Best regards,
-[Your Name]
-
-EMAIL 2: It's Time for a New Strategy for Your Home on [Street Name]
-Subject: [Homeowner's Name], It's Time for a New Strategy for Your Home on [Street Name]
-
-Dear [Homeowner's Name],
-Seeing your home on [Street Name] leave the market unsold can be frustrating, but it's often just a matter of strategy. I'm [Your Name] from [Your Realty Company], and I have a track record of successfully selling properties that had previously struggled to find the right buyer.
-
-I'd like to offer you a no-obligation assessment of your home, providing insights into the current market and how we can position your property for a successful sale.
-
-Looking forward to hearing from you,
-[Your Name]
-
-EMAIL 3: New Possibilities Await Your Home at [Address]
-Subject: New Possibilities Await Your Home at [Address]
-
-Hello [Homeowner's Name],
-I'm [Your Name], a real estate professional with [Your Realty Company]. I noticed that your property at [Address] is no longer listed. In today's dynamic market, repositioning and an innovative marketing approach can make all the difference.
-
-I have specific ideas for your property, including a comprehensive digital marketing strategy and staging techniques that can enhance its appeal. Let's discuss how we can unlock the full potential of your home.
-
-Warm regards,
-[Your Name]
-
-EMAIL 4: Explore a Fresh Approach to Selling Your [Area] Home
-Subject: [Homeowner's Name], Explore a Fresh Approach to Selling Your [Area] Home
-
-Greetings [Homeowner's Name],
-I'm [Your Name] with [Your Realty Company], and I specialize in properties in the [Area] region. It's not uncommon for listings to expire in this complex market, but with a fresh perspective and a customized marketing plan, success is within reach.
-
-I'd love to connect and discuss a tailored strategy that aligns with your goals and showcases your property's unique features to the right audience.
-
-Best wishes,
-[Your Name]
-
-EMAIL 5: Revitalize Your Listing at [Address] with Proven Strategies
-Subject: Revitalize Your Listing at [Address] with Proven Strategies
-
-Hi [Homeowner's Name],
-I'm [Your Name] from [Your Realty Company], reaching out regarding your property at [Address]. Sometimes, a fresh set of eyes and a new marketing approach are what's needed to sell a home. With my experience in [Area], I bring proven strategies that have helped similar homes sell quickly and at desirable prices.
-
-Let's schedule a time to review what didn't work in the past and how we can turn things around for your property.
-
-Regards,
-[Your Name]`,
-            notes:
-              "Send these emails 3-5 days apart. Personalize with actual area names and specific market data when possible. Focus on empathy and fresh solutions.",
-          },
-          {
-            title: "Expired Listing SMS Campaign Series (5 Messages)",
-            objective: "Concise text message sequence for mobile-first expired listing outreach",
-            content: `SMS 1: Friendly Introduction & Value Offer
-"Hi [Homeowner's Name], I'm [Your Name] with [Your Realty Company]. I noticed your listing on [Street Name] recently expired. I have some unique strategies that might help in this challenging market. Can we chat about this?"
-
-SMS 2: Empathetic Approach & Expertise Highlight
-"Hello [Homeowner's Name], it's [Your Name] from [Your Realty Company]. Selling a home can be tough, especially in today's market. I've successfully helped homes like yours sell quickly and for a great price. Let's talk about how I can do the same for you."
-
-SMS 3: Market Insight & Consultation Offer
-"Good morning [Homeowner's Name], I'm [Your Name] with [Your Realty Company]. I specialize in properties in [Area Name] and have insights into why some listings don't close. Would you be open to a brief call to discuss your home's potential?"
-
-SMS 4: Personalized Strategy & Success Record
-"Hi [Homeowner's Name], this is [Your Name] from [Your Realty Company]. I've had success in re-listing properties like yours in [Neighborhood/Area]. I have a tailored strategy ready for your home. Are you available for a quick call to explore this?"
-
-SMS 5: Direct & Solution-Oriented
-"Hey [Homeowner's Name], I'm [Your Name] from [Your Realty Company]. Saw your listing on [Street Name] expired. I have a few ideas that could turn things around and get your house sold. Interested in hearing more?"`,
-            notes:
-              "Send SMS messages 2-3 days apart. Keep messages professional but friendly. Always offer specific value and avoid being pushy.",
-          },
         ],
       },
       {
         id: "fsbo",
-        name: "FSBO",
+        name: "FSBO Script",
         description: "Scripts for For Sale By Owner prospects",
         scripts: [
           {
-            title: "FSBO Door Knock Script - Complete System",
+            title: "FSBO Door Knock Script",
             objective:
-              "To establish rapport with FSBO sellers through systematic questioning and secure an appointment using a proven 15-step process",
+              "To establish rapport with FSBO sellers through systematic questioning and secure an appointment",
             content: `____, I'm here about the home for sale... is it still available... ____ Great!
 
-I'm ______ with (insert brokerage name), and I know you are going to try it on your own for a little while, and I'm here to interview for the job when you are ready.....and that's why ... I'm curious...
+I'm ______ with CENTURY 21, and I know you are going to try it on your own for a little while, and I'm here to interview for the job when you are ready.....and that's why ... I'm curious...
 
 1. If you sold this home ... where would you go next. __________ Great!
 
@@ -406,11 +343,11 @@ I'm ______ with (insert brokerage name), and I know you are going to try it on y
 
 10. If you were to ... hire the best Company...what would you expect us to do ... to ...get your property sold... for you. ______________ Excellent!
 
-11. When do you think you will at least ... interview (your brokerage name)... for the job of selling your home. _____________ Wonderful!
+11. When do you think you will at least ... interview CENTURY 21... for the job of selling your home. _____________ Wonderful!
 
-12. What would have to happen .... to cause you to ... make the decision ...to ... HIRE THE BEST COMPANY ... (your brokerage name)...for the job of selling your property. ___ OK!
+12. What would have to happen .... to cause you to ... make the decision ...to ... HIRE THE BEST COMPANY ... CENTURY 21...for the job of selling your property. ___ OK!
 
-13. Let's do this... let me ... show you what your house is REALLY worth in today's market and show you the tools that only (your brokerage name) has that allow us to sell 20-30 homes a day which is more than any of our competitors.... You do... expect the best ...don't you.... Of course!
+13. Let's do this... let me ... show you what your house is REALLY worth in today's market and show you the tools that only CENTURY 21 has that allow us to sell 20-30 homes a day which is more than any of our competitors.... You do... expect the best ...don't you.... Of course!
 
 14. This way... at least you REALLY ... know your options... and if ...it makes sense...it makes sense... if it doesn't it doesn't... either way ... let's ... find out... The worst case scenario is...you'll know what your house is REALLY going to sell for... that will be nice to know.. RIGHT!
 
@@ -420,212 +357,13 @@ What's better for you ___ or ____ Fantastic!!! See you then!
 
 When can I take a look at the property to ensure that I fully maximize the value? ____ or ____ or right now?`,
             notes:
-              "This comprehensive 15-step system builds rapport systematically. Practice the flow and timing between questions. Each question serves a specific purpose in uncovering motivation and building trust. Audio training files provide real-world examples of this script in action.",
-          },
-          {
-            title: "FSBO Email Campaign Series (5 Emails)",
-            objective: "Professional email sequence to nurture FSBO sellers with value-focused messaging",
-            content: `EMAIL 1: Introduction and Value Proposition
-Subject: Local Expertise to Maximize Your FSBO Success
-
-Hello [Seller's Name],
-As a dedicated local real estate agent, I've noticed your property on the FSBO listings. My expertise in [Your Area] real estate market positions me uniquely to assist you. While you're embarking on a FSBO journey, partnering with a professional can significantly enhance your success.
-
-My goal is to ensure your property sells for its highest potential value. This not only benefits you but also positively impacts my other clients by establishing higher market values in our community. Let's chat about how we can achieve the best outcome for your sale.
-
-Best regards,
-[Your Name]
-
-EMAIL 2: Highlighting Local Market Knowledge
-Subject: Leverage My Local Market Insights for Your FSBO Sale
-
-Hi [Seller's Name],
-I'm [Your Name], a real estate expert in [Your Area], and I've been following your FSBO listing. My deep understanding of our local market can be a vital asset in your home selling process.
-
-Selling at an optimal price point benefits not only you but also helps in maintaining robust property values for the entire neighborhood – something all my clients, present and future, greatly appreciate. Let's discuss how we can collaborate to maximize your sale price.
-
-Warm regards,
-[Your Name]
-
-EMAIL 3: Focusing on Mutual Benefits
-Subject: Achieving Top Dollar for Your Home Benefits Us Both
-
-Dear [Seller's Name],
-I'm reaching out as a seasoned real estate professional in [Your Area]. I see you're selling your home independently, and I admire your initiative. As someone deeply invested in the local property market, I understand how important it is for homes like yours to sell for their true worth.
-
-Achieving a successful sale at a great price not only fulfills your goals but also elevates the market, benefiting my other clients. I'd love to explore how we can work together for mutual success.
-
-Best,
-[Your Name]
-
-EMAIL 4: Offering Support and Guidance
-Subject: Expert Guidance to Enhance Your FSBO Journey
-
-Hello [Seller's Name],
-As a real estate agent specializing in [Your Area], I noticed your FSBO listing and wanted to offer my expertise. Navigating the FSBO route can be challenging, but with the right guidance, it's incredibly rewarding.
-
-By ensuring your home sells for the best possible price, we not only achieve your goal but also support the overall health of our local real estate market, benefiting all homeowners in the area. Let's talk about how we can make your sale a resounding success.
-
-Regards,
-[Your Name]
-
-EMAIL 5: Emphasizing Community Impact
-Subject: Your FSBO Success Contributes to Our Community's Value
-
-Hi [Seller's Name],
-I'm [Your Name], a local real estate agent, and I noticed your home listed as FSBO. Selling your home at a peak value is crucial for you and has a ripple effect throughout our community.
-
-By achieving the best possible sale price, we elevate the market standards, benefiting all property owners in the area, including my clients. I'd be thrilled to discuss how we can collaborate to maximize your home's value and positively impact our community.
-
-Sincerely,
-[Your Name]`,
-            notes:
-              "Send these emails 3-5 days apart. Personalize with actual area names and specific market data when possible.",
-          },
-          {
-            title: "FSBO SMS Campaign Series (5 Messages)",
-            objective: "Concise text message sequence for mobile-first FSBO outreach",
-            content: `SMS 1: Introduction and Value Proposition
-"Hi [Seller's Name], I'm [Your Name], a local real estate expert. Noticed your FSBO listing. I can help maximize your sale price, benefiting you and our community. Let's talk! - [Your Name]"
-
-SMS 2: Highlighting Local Market Knowledge
-"Hello [Seller's Name], I'm [Your Name], specializing in [Your Area] real estate. Let's use my market insights to boost your FSBO sale and strengthen local property values. Interested? - [Your Name]"
-
-SMS 3: Focusing on Mutual Benefits
-"Hi [Seller's Name], I'm [Your Name], a real estate pro in [Your Area]. Your successful FSBO sale can elevate the market for all. Let's work together for top dollar! - [Your Name]"
-
-SMS 4: Offering Support and Guidance
-"Hey [Seller's Name], [Your Name] here, a real estate agent in [Your Area]. I can guide your FSBO journey for a rewarding sale, benefiting our local market. Let's connect! - [Your Name]"
-
-SMS 5: Emphasizing Community Impact
-"Hello [Seller's Name], I'm [Your Name] from [Your Area] real estate. Your FSBO success can uplift our community's property values. Let's collaborate for a great sale! - [Your Name]"`,
-            notes:
-              "Send SMS messages 2-3 days apart. Keep messages under 160 characters when possible. Always include your name for identification.",
-          },
-        ],
-      },
-      {
-        id: "absentee-owners",
-        name: "Absentee Owners",
-        description: "Scripts for out-of-area property owners",
-        scripts: [
-          {
-            title: "Absentee Owner Phone Script - Value-First Approach",
-            objective:
-              "To establish rapport with out-of-area property owners by offering local assistance and building trust before discussing potential sale opportunities",
-            content: `Mirror and Match greeting. ____ (Repeat back their greeting exactly - match their Energy / tonality / vocabulary)
-
-It's ______ (Your name) with (Insert brokerage name) here in _________(area)
-
-I'm reaching out about the property that you own on ___________. (Ex. Oak Street)
-
-I live and work right here in ______ (area) and I'm checking on my out-of-area owners to see if there's anything I can do to bring some value to you since I'm here and it's sometimes difficult for you to check on your investment.
-
-I don't want anything at all from you...just here to help out like I would hope someone would do for me if I lived away from my investment... for some I've been doing a drive by to check on things and take some pics...
-
-for others .... I've been doing a FaceTime /duo/skype walk around with them....
-
-for others I am connecting them with some handymen, contractors, .etc...
-
-for others...I'm emailing them values occasionally so they know what it's worth... . so..I'm curious ....what can I do to help you...
-
-If something.. ______ - Great I'm happy to help... I'm on it...
-
-If nothing..... Ok no problem, just know I'm right here if you need anything...this is my cell number so please ...save it now... as _(your name) ____real estate friend___(area) (ex. Jeff Beggins Real Estate Friend Orlando). ....if you ever need anything locally just ...reach out to me...anytime... and let's connect when you are in town...
-
-Well, thanks for your time, great talking with you. I'll reach out from time to time to check on you, feel free to do the same.`,
-            notes:
-              "This script focuses on providing value first without asking for anything. The key is to establish yourself as a local resource and build trust over time. Follow up consistently with helpful information and services.",
-          },
-          {
-            title: "Absentee Owner Email Campaign Series (5 Emails)",
-            objective: "Professional email sequence targeting Florida absentee owners affected by rising costs",
-            content: `EMAIL 1: Evaluating Financial Impact
-Subject: Navigating Recent Changes in Florida Property Costs
-
-Dear [Owner's Name],
-Florida's real estate landscape has experienced some noteworthy changes recently, especially regarding insurance and property taxes. As an absentee owner, these shifts could have a substantial effect on your investment.
-
-If you're reconsidering the financial feasibility of holding onto your property, I specialize in helping owners like you assess and maximize its current value.
-
-Reach out for a no-obligation discussion on how we can optimize your investment.
-
-Warm Regards,
-[Your Name]
-
-EMAIL 2: Time-sensitive Alert
-Subject: Important Update: Florida Insurance & Property Taxes
-
-Hello [Owner's Name],
-Recent hikes in insurance and property taxes in Florida have left many absentee owners re-evaluating their position. With these increases, is your property still the investment you envisioned?
-
-Should you feel the financials no longer make sense, my expertise lies in helping absentee owners like you navigate this terrain and maximize your property's value.
-
-Don't hesitate to contact me for insights tailored to your unique situation.
-
-Best,
-[Your Name]
-
-EMAIL 3: Offering Solutions
-Subject: Is Your Florida Property Still Working for You?
-
-Hi [Owner's Name],
-With Florida's recent upticks in insurance and property taxes, many absentee owners are grappling with the effects on their bottom line. Is your property still yielding the returns you expect?
-
-I have successfully guided many in your position, helping them pivot strategies and unlock their property's true potential. If the numbers aren't adding up for you, let's talk solutions.
-
-Warmly,
-[Your Name]
-
-EMAIL 4: The Consultative Approach
-Subject: Let's Review Your Florida Property's Financial Health
-
-Dear [Owner's Name],
-The recent changes in insurance and property taxes in Florida have prompted many absentee owners to take a closer look at their investments. I offer a comprehensive review to help you determine if your property is still aligned with your financial aspirations.
-
-If the rising costs have you second-guessing, allow me to help you understand your options and maximize its current value.
-
-Looking forward to assisting you,
-[Your Name]
-
-EMAIL 5: Positioning for the Future
-Subject: Maximizing Your Florida Property in Today's Market
-
-Hello [Owner's Name],
-Changes are afoot in Florida's property sector, particularly with the latest surge in insurance and property taxes. As an absentee owner, it's crucial to assess how these shifts impact your long-term plans.
-
-My specialty is in assisting owners like you navigate these waters, ensuring you're poised for success irrespective of market dynamics. Let's strategize together to ensure your property continues to be a valuable asset.
-
-Best wishes,
-[Your Name]`,
-            notes:
-              "These emails specifically address Florida's insurance and tax challenges. Customize with local market data and send 4-5 days apart for maximum impact.",
-          },
-          {
-            title: "Absentee Owner SMS Campaign Series (5 Messages)",
-            objective: "Concise text message sequence for mobile-first absentee owner outreach",
-            content: `SMS 1: Investment Partnership
-"Hi [Owner's Name], I noticed you own a property in Florida but aren't currently residing there. Many owners in your position have partnered with us to maximize their investment returns. Curious to learn more?"
-
-SMS 2: Market Opportunity
-"Hey [Owner's Name]! Florida's real estate market has seen some interesting shifts. Being an absentee owner, have you considered your property's current potential? Let's chat."
-
-SMS 3: Sunshine State Focus
-"☀️ Greetings, [Owner's Name]! Sunshine State properties are in demand. As you own a property in Florida but aren't local, we can help assess its value and opportunities. Interested?"
-
-SMS 4: Management Support
-"Hi [Owner's Name], managing a property from afar can be challenging. We've assisted many absentee owners in Florida, ensuring their homes are well-maintained and profitable. Fancy a chat?"
-
-SMS 5: Local Expertise
-"Hello [Owner's Name]! Owning a property in beautiful Florida is a dream for many. If you ever think of selling or need local insights, let's connect. We specialize in supporting absentee owners like you."`,
-            notes:
-              "Send SMS messages 2-3 days apart. Keep messages friendly and helpful rather than pushy. Always offer value and local expertise.",
+              "This systematic approach uses 15 strategic questions to build rapport and uncover motivation. Practice the flow and timing between questions. Audio training files are available for reference.",
           },
         ],
       },
       {
         id: "farming",
-        name: "Farming",
+        name: "Farming Script",
         description: "Scripts for geographic farming",
         scripts: [
           {
@@ -672,7 +410,7 @@ In order to maximize the value for you and do the best job when would be a good 
       },
       {
         id: "soi",
-        name: "SOI",
+        name: "SOI Script",
         description: "Scripts for your Sphere of Influence",
         scripts: [
           {
@@ -687,24 +425,182 @@ Who do you know that is thinking about SELLING or BUYING Real Estate in the next
 
 (Chunk Down if they can't think of anyone)
 Ok, who can you think of in your (office, church group, family, neighborhood) that may be thinking about moving soon.
+(Who do you know that's getting married, divorced, Job transfer, having kids, etc) (_____) Great!
 
-Who do you know that:
-• Just got married or divorced
-• Just had a baby or became empty nesters
-• Got a new job or retired
-• Inherited property
-• Is outgrowing their current home
-• Wants to downsize
+It would be OK if I called them ...right. What's their contact info______________________________. (WRITE CONTACT INFO)
 
-Can I get their name and number so I can reach out to them? (_____)
+By the way, when do YOU plan on moving/buying investment property. (_____)Terrific!
+(Set Appointment/Set them up on listing book/Confirm their Email Address for Business Builder campaign...etc.)
 
-Thank you so much! I really appreciate your help. I'll let you know how it goes.
-
-Is there anything I can do for you? (_____)
-
-Great talking with you! Talk soon!`,
+Thank you SO much... I'll check in with you periodically to see who you know who is interested, okay. (_____) Great! Have a great day!`,
             notes:
-              "This script systematically asks for referrals by chunking down into specific life events that trigger real estate needs. Always ask for contact information and follow up on results.",
+              "This script emphasizes building rapport through questions and positioning yourself as interviewing for the job. Fill in the blanks with specific times and personalize the company references as needed.",
+          },
+        ],
+      },
+      {
+        id: "vacant",
+        name: "Vacant Land Script",
+        description: "Scripts for vacant land opportunities",
+        scripts: [
+          {
+            title: "Vacant Land Owner Contact",
+            objective: "To approach owners of vacant land about selling",
+            content: `"Hello, my name is [Your Name] with [Your Company]. I'm reaching out because I noticed you own the vacant property at [Address/Location]. I work with several buyers who are interested in land in this area for [development/building a home/investment].
+
+I'm curious – have you considered selling this property?
+
+[If yes] That's great to hear. What price range were you thinking about?
+
+[If no] I understand. May I ask what your long-term plans are for the property? The reason I ask is that I have some insights on land values in this area that might be valuable to you, even if you're not ready to sell right now."`,
+            notes: "Research zoning and potential uses before calling.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "listing-scripts",
+    name: "Listing Scripts",
+    description: "Scripts for listing presentations and seller interactions",
+    icon: Home,
+    gradientFrom: "#10B981",
+    gradientTo: "#059669",
+    tabs: [
+      {
+        id: "listing-presentation",
+        name: "Listing Presentation",
+        description: "Complete scripts for listing presentations and seller interactions",
+        scripts: [
+          {
+            title: "Listing PreQual Script",
+            objective:
+              "To confirm appointment details and gather essential information before the listing presentation",
+            content: `Mirror and Match greeting. (Repeat back their greeting exactly - match their energy / tonality / vocabulary)
+
+__________ it's ________________ with CENTURY 21. I'm calling to confirm our appointment at _____ on _____. Does that still work for you? In order to make the most efficient use of our time, I'd like to confirm some information and ask you a few questions.
+
+ASK QUESTIONS.
+REPEAT AND APPROVE THEIR ANSWERS.
+TAKE NOTES DURING THE CONVERSATION
+
+• Are you interviewing more than one agent? Who?
+• Will all of the decision makers be at our meeting?
+• Where are you moving?
+• When would be the ideal date to close and move? How soon do you have to be there? Why? (reason for moving)
+• What do you feel is the approximate value of the home?
+• Will your plans change if you can't get your price? Why?
+• Have you already found your next home?
+• Have you already bought your next home? If not, I'd love to interview for the job of being your buyer's agent.
+• How much do you owe on your home?
+• Will you help finance the home for the buyer or do you need to take the cash out for the next home?
+• Do you need to sell this property in order to purchase your next?
+• How would you describe your home? (take notes, use their words for your marketing remarks)
+• How would you rate your home on a scale from 1 to 10?
+• What would make it a 10?
+• Why did you select this home ... what sold YOU?
+• What did you enjoy most about living here?
+• What do you think is the biggest drawback?
+• What is the best feature?
+• What's the most recent upgrade?`,
+            notes:
+              "This script helps you gather crucial information before the presentation. Take detailed notes and use their own words in your marketing materials. Confirm all decision makers will be present.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "buyer-scripts",
+    name: "Buyer Scripts",
+    description: "Scripts for working with buyers at every stage",
+    icon: Users,
+    gradientFrom: "#F59E0B",
+    gradientTo: "#D97706",
+    tabs: [
+      {
+        id: "buyer-consultation",
+        name: "Buyer Consultation",
+        description: "Scripts for initial buyer consultations and pre-qualification",
+        scripts: [
+          {
+            title: "Buyer Pre-Qualification Script",
+            objective:
+              "To set/confirm appointment, gather essential buyer information, and establish the buyer representation relationship",
+            content: `Hi, this is________________________ 
+with CENTURY 21 
+The reason I'm calling is to ...SET/CONFIRM our appointment...to get you into your next property...
+Would____ Or____work better for you. _______
+
+In order to make the most efficient use of our time...and provide you with the best service, I'd like to confirm some information and ask you a few questions prior to our meeting, Okay. _____(Super)
+
+Buyer's who ... get pre-approved for a mortgage ... are in a much better negotiating position than those who don't ... Have you, by any chance, already arranged financing for your new property._____(Good) 
+
+If YES – Good for you! What lender are you working with. Super! 
+Let me do you a favor ... let's see if our in house loan officer might be able to help you to ... get a better rate... I will have him/her call you when we are finished...
+
+If NO - Our In-House Loan Officers work with over 500 lenders to get you the best loan program. I will have one of our loan officers call you later today...
+
+And, how much of a down payment do you plan to invest. __________Great! 
+
+And, what price ranges are you entertaining. $ _______ To $ _______. Super! 
+
+Ideally, when would you like to move into your new home. _____________ Great! 
+
+Do you have to sell the property you are in now before you buy the new one...
+
+I'm going to be sending you a link to a very brief overview presentation that I'd like you to watch before our meeting...
+
+Let me confirm your e-mail address.____________________________
+
+I'm also going to send you a link to a cool service that I actually pay for ...for you... which is going to send you daily updates of everything new that hits the inventory...that matches your criteria...its going to allow you to have a great understanding between now and the time anything new comes on the market before (_________).
+
+When we get together, we're going to review all of your options as far as location...style of home...amenities...neighborhoods...everything you can possibly think of. In order to ...save us time... I'd like to ask you to ...complete our Lifestyle Profile... it will tell me your wants and needs better...so I can do the VERY BEST JOB for you. I'll e-mail it to you. (__) GREAT!
+
+What you are going to find is that we have a very thorough system for finding the right home for each of our clients. Quite frankly...I think it's the best system in the industry. When we get together on ____________, we'll review the entire process and I'll answer any questions that you may have.`,
+            notes:
+              "This comprehensive script covers appointment setting, financial pre-qualification, and sets up the buyer consultation process. Make sure to send all promised materials promptly after the call.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "objection-handling",
+    name: "Overcoming Objections",
+    description: "Scripts for handling common objections",
+    icon: MessageSquare,
+    gradientFrom: "#EC4899",
+    gradientTo: "#BE185D",
+    tabs: [
+      {
+        id: "overcoming-objections",
+        name: "Overcoming Objections",
+        description: "Audio training for handling common objections",
+        scripts: [
+          {
+            title: "Common Objection Handling Techniques",
+            objective: "Learn to handle common objections with professional responses",
+            content: `The key to handling objections is to:
+
+1. LISTEN - Let them fully express their concern
+2. ACKNOWLEDGE - Show you understand their position
+3. CLARIFY - Ask questions to understand the real issue
+4. RESPOND - Address their specific concern
+5. CONFIRM - Make sure they're satisfied with your response
+
+Remember: Objections are often buying signals in disguise. They indicate interest and engagement.
+
+Common objection patterns:
+• Price objections
+• Timing objections  
+• Authority objections
+• Trust objections
+• Competition objections
+
+Each type requires a different approach and response strategy.`,
+            notes:
+              "Practice these responses until they become natural. Remember to listen actively to the client's concerns before responding. Audio training files provide real-world examples.",
           },
         ],
       },

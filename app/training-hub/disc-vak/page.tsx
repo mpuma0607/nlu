@@ -154,24 +154,6 @@ export default function DISCVAKTrainingPage() {
                           <div className="space-y-6">
                             <div
                               className="relative w-full cursor-pointer hover:opacity-90 transition-opacity rounded-lg overflow-hidden"
-                              onClick={() => setExpandedImage("/images/disc-quote.png")}
-                            >
-                              <Image
-                                src="/images/disc-quote.png"
-                                alt="DISC Quote"
-                                width={1000}
-                                height={400}
-                                className="w-full object-contain"
-                              />
-                              <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 flex items-center justify-center">
-                                <span className="bg-white bg-opacity-75 px-3 py-1 rounded-full text-sm font-medium">
-                                  Click to expand
-                                </span>
-                              </div>
-                            </div>
-
-                            <div
-                              className="relative w-full cursor-pointer hover:opacity-90 transition-opacity rounded-lg overflow-hidden"
                               onClick={() => setExpandedImage("/images/greatest-respect-quote.png")}
                             >
                               <Image

@@ -87,24 +87,67 @@ function getImageSearchQuery(topic: string, contentType: string): string {
   }
 }
 
-function extractKeywordsFromContent(content: string): string {
-  // Extract relevant keywords from the generated content for better image search
-  const keywords = []
+function extractKeywordsFromContent(content: string, originalTopic: string): string {
+  // Extract specific keywords from the generated content for better image search
   const contentLower = content.toLowerCase()
+  const topicLower = originalTopic.toLowerCase()
+  const keywords = []
 
-  // Real estate specific terms
-  if (contentLower.includes("home") || contentLower.includes("house")) keywords.push("home")
-  if (contentLower.includes("kitchen")) keywords.push("kitchen")
-  if (contentLower.includes("bathroom")) keywords.push("bathroom")
-  if (contentLower.includes("bedroom")) keywords.push("bedroom")
-  if (contentLower.includes("living room")) keywords.push("living room")
-  if (contentLower.includes("garden") || contentLower.includes("yard")) keywords.push("garden")
-  if (contentLower.includes("investment")) keywords.push("investment property")
-  if (contentLower.includes("luxury")) keywords.push("luxury")
-  if (contentLower.includes("modern")) keywords.push("modern")
-  if (contentLower.includes("family")) keywords.push("family home")
+  // Pool/Spa specific
+  if (contentLower.includes("pool") || topicLower.includes("pool")) keywords.push("swimming pool")
+  if (contentLower.includes("spa") || topicLower.includes("spa")) keywords.push("spa hot tub")
+  if (contentLower.includes("jacuzzi")) keywords.push("jacuzzi")
+  if (contentLower.includes("hot tub")) keywords.push("hot tub")
 
-  return keywords.length > 0 ? keywords.join(" ") : "real estate property"
+  // Kitchen specific
+  if (contentLower.includes("kitchen") || topicLower.includes("kitchen")) keywords.push("modern kitchen")
+  if (contentLower.includes("cooking") || contentLower.includes("chef")) keywords.push("kitchen cooking")
+
+  // Bathroom specific
+  if (contentLower.includes("bathroom") || topicLower.includes("bathroom")) keywords.push("luxury bathroom")
+  if (contentLower.includes("shower")) keywords.push("modern shower")
+  if (contentLower.includes("bathtub")) keywords.push("bathtub")
+
+  // Outdoor/Garden specific
+  if (contentLower.includes("garden") || contentLower.includes("landscaping")) keywords.push("beautiful garden")
+  if (contentLower.includes("patio") || contentLower.includes("deck")) keywords.push("outdoor patio")
+  if (contentLower.includes("backyard")) keywords.push("backyard")
+
+  // Home office
+  if (contentLower.includes("office") || contentLower.includes("workspace")) keywords.push("home office")
+  if (contentLower.includes("work from home")) keywords.push("home workspace")
+
+  // Living spaces
+  if (contentLower.includes("living room")) keywords.push("modern living room")
+  if (contentLower.includes("bedroom")) keywords.push("beautiful bedroom")
+  if (contentLower.includes("dining room")) keywords.push("dining room")
+
+  // Investment/Business
+  if (contentLower.includes("investment") || contentLower.includes("profit")) keywords.push("real estate investment")
+  if (contentLower.includes("rental") || contentLower.includes("tenant")) keywords.push("rental property")
+
+  // Home features
+  if (contentLower.includes("fireplace")) keywords.push("fireplace")
+  if (contentLower.includes("garage")) keywords.push("garage")
+  if (contentLower.includes("basement")) keywords.push("finished basement")
+  if (contentLower.includes("attic")) keywords.push("attic conversion")
+
+  // Luxury features
+  if (contentLower.includes("luxury") || contentLower.includes("high-end")) keywords.push("luxury home")
+  if (contentLower.includes("marble") || contentLower.includes("granite")) keywords.push("luxury interior")
+
+  // If no specific keywords found, use the original topic
+  if (keywords.length === 0) {
+    // Extract key terms from the original topic
+    if (topicLower.includes("pool") || topicLower.includes("spa")) return "swimming pool spa backyard"
+    if (topicLower.includes("kitchen")) return "modern kitchen interior"
+    if (topicLower.includes("bathroom")) return "luxury bathroom interior"
+    if (topicLower.includes("garden")) return "beautiful garden landscaping"
+    if (topicLower.includes("office")) return "home office workspace"
+    return "beautiful home real estate"
+  }
+
+  return keywords.join(" ")
 }
 
 export async function generateContentV2(formData: FormData) {
@@ -171,8 +214,8 @@ Please write the content in ${formData.language} and ensure it reads naturally a
     })
 
     // Use the generated content to create a better image search query
-    const contentKeywords = extractKeywordsFromContent(generatedText)
-    const imageSearchQuery = `${contentKeywords} real estate`
+    const contentKeywords = extractKeywordsFromContent(generatedText, topicToUse)
+    const imageSearchQuery = `${contentKeywords}`
     const unsplashImageUrl = await searchUnsplashImage(imageSearchQuery)
 
     // Add Century 21 branding to the image

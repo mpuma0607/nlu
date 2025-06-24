@@ -19,7 +19,7 @@ async function searchPexelsImage(query: string): Promise<string> {
   try {
     const searchQuery = encodeURIComponent(query)
     const response = await fetch(
-      `https://api.pexels.com/v1/search?query=${searchQuery}&per_page=15&orientation=landscape`,
+      `https://api.pexels.com/v1/search?query=${searchQuery}&per_page=30&orientation=landscape`,
       {
         headers: {
           Authorization: PEXELS_API_KEY,
@@ -34,17 +34,21 @@ async function searchPexelsImage(query: string): Promise<string> {
     const data = await response.json()
 
     if (data.photos && data.photos.length > 0) {
-      // Get a random image from the results
+      // Get a random image from the results (increased pool size)
       const randomIndex = Math.floor(Math.random() * data.photos.length)
       const selectedImage = data.photos[randomIndex]
+      console.log(`Found ${data.photos.length} images for "${query}", selected index ${randomIndex}`)
       return selectedImage.src.large
     } else {
+      console.log(`No images found for "${query}", trying fallback`)
       // Fallback to a generic real estate search
-      return await searchPexelsImage("house home property")
+      if (query !== "house home property") {
+        return await searchPexelsImage("house home property")
+      }
+      return "/placeholder.svg?height=400&width=600"
     }
   } catch (error) {
     console.error("Error fetching from Pexels:", error)
-    // Return a placeholder if Pexels fails
     return "/placeholder.svg?height=400&width=600"
   }
 }
@@ -59,36 +63,70 @@ function extractKeywordsFromTopic(originalTopic: string): string {
   const topicLower = originalTopic.toLowerCase()
 
   // Pool/Spa specific - be very specific
-  if (topicLower.includes("pool")) return "swimming pool"
-  if (topicLower.includes("spa") || topicLower.includes("hot tub")) return "spa hot tub"
-  if (topicLower.includes("jacuzzi")) return "jacuzzi"
+  if (topicLower.includes("pool") && topicLower.includes("spa")) return "backyard swimming pool spa"
+  if (topicLower.includes("pool")) return "backyard swimming pool"
+  if (topicLower.includes("spa") || topicLower.includes("hot tub")) return "outdoor spa hot tub"
+  if (topicLower.includes("jacuzzi")) return "jacuzzi hot tub"
 
   // Kitchen specific
-  if (topicLower.includes("kitchen")) return "kitchen"
+  if (topicLower.includes("kitchen")) return "modern kitchen interior design"
 
   // Bathroom specific
-  if (topicLower.includes("bathroom")) return "bathroom"
+  if (topicLower.includes("bathroom")) return "luxury bathroom interior"
 
   // Outdoor/Garden specific
-  if (topicLower.includes("garden") || topicLower.includes("landscaping")) return "garden"
-  if (topicLower.includes("patio") || topicLower.includes("deck")) return "patio"
-  if (topicLower.includes("backyard")) return "backyard"
+  if (topicLower.includes("garden") || topicLower.includes("landscaping")) return "beautiful garden landscaping"
+  if (topicLower.includes("patio") || topicLower.includes("deck")) return "outdoor patio deck"
+  if (topicLower.includes("backyard")) return "beautiful backyard"
 
   // Home office
-  if (topicLower.includes("office") || topicLower.includes("workspace")) return "home office"
+  if (topicLower.includes("office") || topicLower.includes("workspace")) return "modern home office"
 
   // Living spaces
-  if (topicLower.includes("living room")) return "living room"
-  if (topicLower.includes("bedroom")) return "bedroom"
-
-  // Investment/Business
-  if (topicLower.includes("investment") || topicLower.includes("profit")) return "real estate investment"
+  if (topicLower.includes("living room")) return "modern living room interior"
+  if (topicLower.includes("bedroom")) return "beautiful bedroom interior"
+  if (topicLower.includes("dining room")) return "elegant dining room"
 
   // Home features
-  if (topicLower.includes("fireplace")) return "fireplace"
+  if (topicLower.includes("fireplace")) return "cozy fireplace living room"
+  if (topicLower.includes("garage")) return "organized garage space"
+  if (topicLower.includes("basement")) return "finished basement interior"
+  if (topicLower.includes("attic")) return "converted attic space"
 
-  // Default fallback
-  return "house home"
+  // Investment/Business
+  if (topicLower.includes("investment") || topicLower.includes("profit")) return "real estate investment property"
+  if (topicLower.includes("rental")) return "rental property interior"
+
+  // Home buying/selling
+  if (topicLower.includes("buy") || topicLower.includes("purchase")) return "beautiful home exterior"
+  if (topicLower.includes("sell") || topicLower.includes("sale")) return "house for sale exterior"
+
+  // First time buyers
+  if (topicLower.includes("first-time") || topicLower.includes("first time")) return "happy family new home"
+
+  // Home staging
+  if (topicLower.includes("stage") || topicLower.includes("staging")) return "staged home interior"
+
+  // Home inspection
+  if (topicLower.includes("inspection")) return "home inspection process"
+
+  // Mortgage/financing
+  if (topicLower.includes("mortgage") || topicLower.includes("finance")) return "home loan documents"
+
+  // Default fallback - try to extract key words from the topic
+  const words = topicLower.split(" ")
+  const relevantWords = words.filter(
+    (word) =>
+      !["how", "to", "the", "a", "an", "and", "or", "but", "in", "on", "at", "by", "for", "with", "about"].includes(
+        word,
+      ),
+  )
+
+  if (relevantWords.length > 0) {
+    return relevantWords.slice(0, 3).join(" ") + " home"
+  }
+
+  return "beautiful home real estate"
 }
 
 export async function generateContentV2(formData: FormData) {

@@ -62,44 +62,99 @@ export default function FSBOPage() {
               <div className="space-y-6">
                 <div>
                   <h4 className="font-semibold text-black mb-3">Key Sources for FSBO Sellers:</h4>
-                  <div className="grid grid-cols-1 gap-y-2 text-sm text-gray-600">
+                  <div className="grid grid-cols-1 gap-y-3 text-sm text-gray-600">
                     <div className="flex items-start">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3 mt-1.5"></div>
-                      <p>
-                        <span className="font-medium">Craigslist:</span> Search "For Sale By Owner" in real estate
-                        section
-                      </p>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3 mt-1.5 flex-shrink-0"></div>
+                      <div>
+                        <p>
+                          <span className="font-medium">Research Online Platforms:</span> Start with popular real estate
+                          websites that allow FSBO listings, like Zillow, Craigslist, FSBO.com, and ForSaleByOwner.com.
+                          These sites are frequently used by homeowners to list their properties directly.
+                        </p>
+                      </div>
                     </div>
+
                     <div className="flex items-start">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3 mt-1.5"></div>
-                      <p>
-                        <span className="font-medium">Facebook Marketplace:</span> Local FSBO listings and groups
-                      </p>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3 mt-1.5 flex-shrink-0"></div>
+                      <div>
+                        <p>
+                          <span className="font-medium">Utilize Social Media:</span> Social media platforms like
+                          Facebook, Instagram, and Nextdoor can be useful. Look for local real estate groups or
+                          community pages where homeowners might post FSBO listings.
+                        </p>
+                      </div>
                     </div>
+
                     <div className="flex items-start">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3 mt-1.5"></div>
-                      <p>
-                        <span className="font-medium">FSBO Websites:</span> ForSaleByOwner.com, Fizber.com
-                      </p>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3 mt-1.5 flex-shrink-0"></div>
+                      <div>
+                        <p>
+                          <span className="font-medium">Drive Around Neighborhoods:</span> Take some time to drive
+                          through local neighborhoods. Look for "For Sale By Owner" signs in yards. This method can
+                          uncover listings that might not be advertised online.
+                        </p>
+                      </div>
                     </div>
+
                     <div className="flex items-start">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3 mt-1.5"></div>
-                      <p>
-                        <span className="font-medium">Yard Signs:</span> Drive neighborhoods looking for FSBO signs
-                      </p>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3 mt-1.5 flex-shrink-0"></div>
+                      <div>
+                        <p>
+                          <span className="font-medium">Network with Contacts:</span> Leverage your network of contacts.
+                          Inform them that you're looking for FSBO properties. Word-of-mouth can be a powerful tool in
+                          real estate.
+                        </p>
+                      </div>
                     </div>
+
                     <div className="flex items-start">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3 mt-1.5"></div>
-                      <p>
-                        <span className="font-medium">Zillow/Realtor.com:</span> Filter for "For Sale By Owner"
-                      </p>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3 mt-1.5 flex-shrink-0"></div>
+                      <div>
+                        <p>
+                          <span className="font-medium">Check Local Newspapers:</span> Some sellers still use local
+                          newspapers or community bulletins to advertise their properties. Regularly check these sources
+                          for any new listings.
+                        </p>
+                      </div>
                     </div>
+
                     <div className="flex items-start">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3 mt-1.5"></div>
-                      <p>
-                        <span className="font-medium">Local Newspapers:</span> Classified ads section
-                      </p>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3 mt-1.5 flex-shrink-0"></div>
+                      <div>
+                        <p>
+                          <span className="font-medium">Attend Community Events:</span> Engage in community events or
+                          local real estate meetings. These can be great opportunities to learn about FSBO properties
+                          before they hit the broader market.
+                        </p>
+                      </div>
                     </div>
+
+                    <div className="flex items-start">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3 mt-1.5 flex-shrink-0"></div>
+                      <div>
+                        <p>
+                          <span className="font-medium">Use Direct Mail Marketing:</span> Consider sending out direct
+                          mail to homeowners in your target areas. Sometimes, homeowners are considering selling but
+                          haven't listed their property yet.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Training Video Section */}
+                <div className="mt-8">
+                  <h4 className="font-semibold text-black mb-4">FSBO Prospecting Training Video</h4>
+                  <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                    <iframe
+                      src="https://www.youtube.com/embed/Blhdk_5WzbY"
+                      width="100%"
+                      height="315"
+                      style={{ border: 0 }}
+                      title="FSBO Prospecting Training"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
                   </div>
                 </div>
               </div>
@@ -119,9 +174,9 @@ export default function FSBOPage() {
             <CardContent>
               <Tabs defaultValue="phone-scripts" className="w-full">
                 <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="phone-scripts">Phone Scripts</TabsTrigger>
-                  <TabsTrigger value="email-scripts">Email Scripts</TabsTrigger>
-                  <TabsTrigger value="text-scripts">Text Scripts</TabsTrigger>
+                  <TabsTrigger value="phone-scripts">Phone</TabsTrigger>
+                  <TabsTrigger value="email-scripts">Email</TabsTrigger>
+                  <TabsTrigger value="text-scripts">SMS</TabsTrigger>
                   <TabsTrigger value="practice">Practice</TabsTrigger>
                 </TabsList>
 

@@ -112,28 +112,121 @@ export default function ProbatePage() {
 
                 <div className="mt-6">
                   <h4 className="font-semibold text-black mb-3">
-                    Building Relationships with Probate Attorneys & Estate Planners:
+                    Step-by-Step Guide to Building Relationships with Probate Attorneys & Estate Planners:
                   </h4>
                   <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
-                    <div className="space-y-4 text-sm text-gray-700">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-6 text-sm text-gray-700">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                          <h5 className="font-semibold text-blue-900 mb-2">Research & Networking</h5>
-                          <ul className="space-y-2">
-                            <li>• Use local bar association directories</li>
-                            <li>• Join estate planning councils</li>
-                            <li>• Attend networking events and seminars</li>
-                            <li>• Participate in professional organizations</li>
-                          </ul>
+                          <h5 className="font-semibold text-blue-900 mb-3">1-6: Research & Initial Outreach</h5>
+                          <div className="space-y-3">
+                            <div>
+                              <p className="font-medium text-blue-800 mb-1">
+                                1. Research and Identify Target Professionals
+                              </p>
+                              <ul className="text-xs space-y-1 ml-2">
+                                <li>• Use local bar association directories</li>
+                                <li>• Join estate planning councils</li>
+                                <li>• Identify attorneys by specialty</li>
+                              </ul>
+                            </div>
+                            <div>
+                              <p className="font-medium text-blue-800 mb-1">2. Attend Networking Events</p>
+                              <ul className="text-xs space-y-1 ml-2">
+                                <li>• Participate in local networking events</li>
+                                <li>• Join estate planning organizations</li>
+                                <li>• Attend professional seminars</li>
+                              </ul>
+                            </div>
+                            <div>
+                              <p className="font-medium text-blue-800 mb-1">3. Offer Educational Seminars</p>
+                              <ul className="text-xs space-y-1 ml-2">
+                                <li>• Host market trend presentations</li>
+                                <li>• Position yourself as an expert</li>
+                                <li>• Provide value to attendees</li>
+                              </ul>
+                            </div>
+                            <div>
+                              <p className="font-medium text-blue-800 mb-1">4. Build Online Presence</p>
+                              <ul className="text-xs space-y-1 ml-2">
+                                <li>• Highlight probate expertise</li>
+                                <li>• Share relevant content</li>
+                                <li>• Maintain professional profiles</li>
+                              </ul>
+                            </div>
+                            <div>
+                              <p className="font-medium text-blue-800 mb-1">5. Craft Value Proposition</p>
+                              <ul className="text-xs space-y-1 ml-2">
+                                <li>• Expertise in local market</li>
+                                <li>• Sensitivity to emotional needs</li>
+                                <li>• Efficiency in handling sales</li>
+                              </ul>
+                            </div>
+                            <div>
+                              <p className="font-medium text-blue-800 mb-1">6. Schedule One-on-One Meetings</p>
+                              <ul className="text-xs space-y-1 ml-2">
+                                <li>• Reach out directly to attorneys</li>
+                                <li>• Offer coffee/lunch meetings</li>
+                                <li>• Discuss mutual value</li>
+                              </ul>
+                            </div>
+                          </div>
                         </div>
+
                         <div>
-                          <h5 className="font-semibold text-blue-900 mb-2">Value Creation</h5>
-                          <ul className="space-y-2">
-                            <li>• Host educational seminars on market trends</li>
-                            <li>• Build strong online presence</li>
-                            <li>• Co-create content and webinars</li>
-                            <li>• Share regular market updates</li>
-                          </ul>
+                          <h5 className="font-semibold text-blue-900 mb-3">
+                            7-12: Relationship Building & Maintenance
+                          </h5>
+                          <div className="space-y-3">
+                            <div>
+                              <p className="font-medium text-blue-800 mb-1">7. Collaborate on Content</p>
+                              <ul className="text-xs space-y-1 ml-2">
+                                <li>• Co-write articles together</li>
+                                <li>• Host joint webinars</li>
+                                <li>• Merge expertise areas</li>
+                              </ul>
+                            </div>
+                            <div>
+                              <p className="font-medium text-blue-800 mb-1">8. Stay Updated & Keep Them Updated</p>
+                              <ul className="text-xs space-y-1 ml-2">
+                                <li>• Share market trends regularly</li>
+                                <li>• Provide recent sales data</li>
+                                <li>• Update on law changes</li>
+                              </ul>
+                            </div>
+                            <div>
+                              <p className="font-medium text-blue-800 mb-1">9. Be Genuine and Build Trust</p>
+                              <ul className="text-xs space-y-1 ml-2">
+                                <li>• Avoid being salesy</li>
+                                <li>• Focus on mutual benefits</li>
+                                <li>• Build authentic relationships</li>
+                              </ul>
+                            </div>
+                            <div>
+                              <p className="font-medium text-blue-800 mb-1">10. Provide Excellent Service</p>
+                              <ul className="text-xs space-y-1 ml-2">
+                                <li>• Prioritize referrals</li>
+                                <li>• Ensure smooth transactions</li>
+                                <li>• Strengthen relationships through results</li>
+                              </ul>
+                            </div>
+                            <div>
+                              <p className="font-medium text-blue-800 mb-1">11. Show Appreciation</p>
+                              <ul className="text-xs space-y-1 ml-2">
+                                <li>• Send thank-you notes</li>
+                                <li>• Celebrate mutual successes</li>
+                                <li>• Acknowledge referrals</li>
+                              </ul>
+                            </div>
+                            <div>
+                              <p className="font-medium text-blue-800 mb-1">12. Nurture Long-term Relationships</p>
+                              <ul className="text-xs space-y-1 ml-2">
+                                <li>• Maintain consistent contact</li>
+                                <li>• Regular check-ins</li>
+                                <li>• Position as go-to expert</li>
+                              </ul>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
@@ -165,31 +258,14 @@ export default function ProbatePage() {
                       </div>
 
                       <div className="border-t border-blue-200 pt-4">
-                        <h5 className="font-semibold text-blue-900 mb-2">Relationship Building Steps:</h5>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <p className="font-medium mb-1">1-6: Initial Outreach</p>
-                            <ul className="text-xs space-y-1">
-                              <li>• Schedule one-on-one meetings</li>
-                              <li>• Offer coffee/lunch discussions</li>
-                              <li>• Propose collaboration opportunities</li>
-                              <li>• Share market insights regularly</li>
-                              <li>• Be genuine, avoid being salesy</li>
-                              <li>• Focus on building trust</li>
-                            </ul>
-                          </div>
-                          <div>
-                            <p className="font-medium mb-1">7-12: Relationship Maintenance</p>
-                            <ul className="text-xs space-y-1">
-                              <li>• Provide excellent service on referrals</li>
-                              <li>• Send thank-you notes for referrals</li>
-                              <li>• Celebrate mutual successes</li>
-                              <li>• Regular check-ins and updates</li>
-                              <li>• Nurture long-term connections</li>
-                              <li>• Position as go-to probate expert</li>
-                            </ul>
-                          </div>
-                        </div>
+                        <p className="font-semibold text-blue-900 mb-2">Summary:</p>
+                        <p className="text-xs">
+                          Building relationships with probate attorneys and estate planners can be highly rewarding for
+                          a real estate agent. These professionals often encounter clients who need expert assistance in
+                          selling properties, and having a trusted agent to refer to can be a significant asset. By
+                          highlighting your value as an expert agent and nurturing these relationships, you position
+                          yourself as a go-to professional in this niche market.
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -221,11 +297,19 @@ export default function ProbatePage() {
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="phone-scripts" className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="phone-scripts">Phone Scripts</TabsTrigger>
-                  <TabsTrigger value="email-scripts">Email Scripts</TabsTrigger>
-                  <TabsTrigger value="text-scripts">Text Scripts</TabsTrigger>
-                  <TabsTrigger value="practice">Practice</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-4 text-xs">
+                  <TabsTrigger value="phone-scripts" className="px-2">
+                    Phone
+                  </TabsTrigger>
+                  <TabsTrigger value="email-scripts" className="px-2">
+                    Email
+                  </TabsTrigger>
+                  <TabsTrigger value="text-scripts" className="px-2">
+                    Text
+                  </TabsTrigger>
+                  <TabsTrigger value="practice" className="px-2">
+                    Practice
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="phone-scripts" className="space-y-6 mt-6">

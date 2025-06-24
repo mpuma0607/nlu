@@ -623,6 +623,61 @@ Let's do this ... let me show you what your lot is REALLY worth in today's marke
     ],
   },
   {
+  id: "overcoming-objections",
+  name: "Overcoming Objections",
+  description: "Scripts for handling common real estate objections",
+  icon: Phone,
+  gradientFrom: "#DC2626",
+  gradientTo: "#B91C1C",
+  tabs: [
+    {
+      id: "overcoming-objections",
+      name: "Objection Responses",
+      description: "Professional responses to common seller and buyer objections",
+      scripts: [
+        {
+          title: "Commission Objection Response",
+          objective: "To address commission concerns while demonstrating value",
+          content: `I understand your concern about commission. Let me ask you this - if I could show you that by working with me, you'll actually net more money in your pocket even after paying commission, would that be worth discussing?
+
+Here's what most people don't realize: The difference between a professional marketing your home and trying to do it yourself often results in a higher sale price that more than covers the commission.
+
+Plus, consider the time, stress, and potential legal issues you avoid. When you factor in the marketing costs, your time value, and the expertise in negotiations, most sellers find they come out ahead.
+
+Would you like me to show you exactly how this works with some recent examples?`,
+          notes: "Focus on value and net proceeds rather than just commission percentage. Use specific examples when possible."
+        },
+        {
+          title: "Price Objection Response",
+          objective: "To address pricing concerns and guide sellers to market reality",
+          content: `I completely understand wanting to get the highest possible price for your home. That's exactly what I want for you too.
+
+The challenge is that buyers determine value by comparison shopping. They're looking at what they can get for their money compared to other homes on the market.
+
+If we price above market value, we risk your home sitting on the market, which actually costs you money in the long run. Homes that sit too long often sell for less than they would have if priced correctly from the start.
+
+Let me show you the Strategic Positioning Analysis I prepared. This shows exactly where your home fits in today's market and how we can position it to sell quickly and for top dollar.`,
+          notes: "Use market data to support your position. Always bring the conversation back to net proceeds and timeline."
+        },
+        {
+          title: "Think It Over Objection",
+          objective: "To address hesitation and move toward a decision",
+          content: `I completely understand wanting to think it over - this is a big decision. 
+
+Let me ask you this: What specifically would you like to think about? Is it the price, the marketing strategy, or something else?
+
+(Listen to their response, then address the specific concern)
+
+Here's what I've found: The longer a property sits on the market without professional representation, the more it costs sellers in the end. Every day that passes is another day your competition is getting ahead.
+
+What would have to happen for you to feel comfortable moving forward today?`,
+          notes: "Identify the specific concern behind the objection. Create urgency without being pushy."
+        }
+      ]
+    }
+  ]
+},
+  {
     id: "listing-scripts",
     name: "Listing Scripts",
     description: "Scripts for listing presentations and seller interactions",
@@ -699,6 +754,79 @@ This will show:
 ASK QUESTIONS.
 REPEAT AND APPROVE THEIR ANSWERS.
 TAKE NOTES DURING THE CONVERSATION.
+
+
+Thank you for having me over. This should only take a few minutes. Let's go have a seat at the kitchen table.
+
+I wrote down 3 important questions for you ...
+
+• Have you absolutely decided to sell your property?
+
+• Will you position your property to sell versus the competition? Or do we position your property so it sits on the market?
+
+• (it's totally ok to say Yes to this one) Do you want (insert your brokerage name) to handle the sale for you?
+
+If they say yes, Go to the PRICING and SIGN THE CONTRACT.
+If "No" or they are not sure yet ... then continue on!
+
+TALK PRICE ONCE HIRED.
+
+At the end of my presentation, one of three things will happen ...
+
+• You'll have the opportunity to hire us.
+• You'll decide not to hire me
+• We'll decide not to market your property ... and any of these is fine. (This will only happen if we can't come to agreement on price and terms)
+
+Let's quickly take a moment to review the questions I asked you over the phone.
+
+• You said you were moving to (_______________) Right?
+• And you said you want to be there by (______________) Correct?
+• You think you would like to price your property at (_______________) Right?
+• And ... you said you owe (_________________) Right?
+• And ... you did (did not) want to hold seller financing (___________________) Correct?
+
+Did you have the opportunity to watch the presentation that I emailed to you?
+
+YES - Great! Any questions? What did you think about it?
+NO - No Problem. Please take a few minutes when you can. (or offer to watch it together)
+
+There are really only two issues we have to look at today.
+
+• Your motivation to sell your property ... and
+• The price we set on your property.
+
+Now ... It's important that you understand ... these are the only two issues in selling real estate today ... are we clear on that?
+
+I have prepared a Strategic Positioning Analysis for you.
+
+The purpose of the Strategic Positioning Analysis is to determine the value of your home in the eyes of the BUYER. Do you know how Buyers determine value? Buyers determine value by comparison shopping. They look at the price of your home based on its features and benefits, and they compare it with the features and benefits of similar homes that have sold recently or are currently on the market.
+
+What we have found is that if you want to increase VALUE: You need to either
+
+• Lower the price ... or...
+• Have more features and benefits for the same price.
+
+So ... unless you're planning to add more features/benefits to your home ... Are you? (NO) Then ... price is the only issue. Can I show you what I mean? Let's look at the Strategic Positioning Analysis that I prepared for you.
+
+We are going to compare your property with:
+
+• 5 Similar Properties (Current competition) - What Buyers Can Pay.
+• 5 Sold Properties - What Buyers Did Pay.
+• 5 Expired/Withdrawn/Cancelled - What Buyers Refused to Pay.
+
+Here are my questions for you. (Ask for each ... ACTIVES 1st, SOLDS 2nd, and EXPIREDS 3rd)
+
+• What's the least expensive home we are competing with (Active)(Sold) (Expired) ... CIRCLE THEIR ANSWER
+• What's the most expensive home we are competing with (Active) (Sold) (Expired) ... CIRCLE THEIR ANSWER
+• Which home is most similar to yours ... (Active) (Sold) (Expired) ... CIRCLE THEIR ANSWER
+
+You said that you would like to have this property sold by _______, right? OK. Let's review our Seller's Cost Estimator to see how much money you will put in your pocket in the time frame that you want. Here is the range of values where your home should sell.
+
+• Pricing towards the left side will result in a SLOWER sale.
+• Pricing towards the right side will result in a FASTER sale.
+• Pricing towards the middle will result in a sale in the AVERAGE time on market.
+
+Now that you've seen these prices ... what price do you feel we should use to get this property sold for you in your timeframe? I will write that price in the listing agreement and let's simply ... SIGN THE LISTING AGREEMENT ... and let's get your property sold!
 
 
 Thank you for having me over. This should only take a few minutes. Let's go have a seat at the kitchen table.

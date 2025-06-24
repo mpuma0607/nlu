@@ -687,4 +687,27 @@ Who do you know that is thinking about SELLING or BUYING Real Estate in the next
 
 (Chunk Down if they can't think of anyone)
 Ok, who can you think of in your (office, church group, family, neighborhood) that may be thinking about moving soon.
-(Who do you
+
+Who do you know that:
+• Just got married or divorced
+• Just had a baby or became empty nesters
+• Got a new job or retired
+• Inherited property
+• Is outgrowing their current home
+• Wants to downsize
+
+Can I get their name and number so I can reach out to them? (_____)
+
+Thank you so much! I really appreciate your help. I'll let you know how it goes.
+
+Is there anything I can do for you? (_____)
+
+Great talking with you! Talk soon!`,
+            notes:
+              "This script systematically asks for referrals by chunking down into specific life events that trigger real estate needs. Always ask for contact information and follow up on results.",
+          },
+        ],
+      },
+    ],
+  },
+]

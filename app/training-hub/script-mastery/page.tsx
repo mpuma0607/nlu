@@ -905,5 +905,57 @@ Now that you've seen these prices ... what price do you feel we should use to ge
         },
       ],
     }
-  ]\
-}
+  ],
+},
+  {
+    id: "buyer-scripts",
+    name: "Buyer Scripts", 
+    description: "Scripts for buyer consultations and interactions",
+    icon: Home,
+    gradientFrom: "#0EA5E9",
+    gradientTo: "#0284C7",
+    tabs: [
+      {
+        id: "buyer-prequal",
+        name: "Buyer PreQual",
+        description: "Script for pre-qualifying buyers before consultation",
+        scripts: [
+          {
+            title: "Buyer Pre Qualification Script",
+            objective: "To confirm appointment details, assess financing status, and gather buyer requirements",
+            content: `Hi, this is________________________ with (your brokerage name) The reason I'm calling is to ...SET/CONFIRM our appointment...to get you into your next property...
+
+Would____ Or____work better for you. _______
+
+In order to make the most efficient use of our time...and provide you with the best service, I'd like to confirm some information and ask you a few questions prior to our meeting, Okay. _____(Super)
+
+Buyer's who ... get pre-approved for a mortgage ... are in a much better negotiating position than those who don't ... Have you, by any chance, already arranged financing for your new property._____(Good)
+
+If YES – Good for you! What lender are you working with. Super! Let me do you a favor ... let's see if our in house loan officer might be able to help you to ... get a better rate... I will have him/her call you when we are finished...
+
+If NO - Our In-House Loan Officers work with over 500 lenders to get you the best loan program. I will have one of our loan officers call you later today...
+
+And, how much of a down payment do you plan to invest. __________Great!
+
+And, what price ranges are you entertaining. $ To $ . Super!
+
+Ideally, when would you like to move into your new home. Great!
+
+Do you have to sell the property you are in now before you buy the new on...
+
+I'm going to be sending you a link to a very brief overview presentation that I'd like you to watch before our meeting...
+
+Let me confirm your e-mail address.____________________________
+
+I'm also going to send you a link to a cool service that I actually pay for ...for you... which is going to send you daily updates of everything new that hits the inventory...that matches your criteria...its going to allow you to have a great understanding between now and the time anything new comes on the market before (_________).
+
+When we get together, we're going to review all of your options as far as location...style of home...amenities...neighborhoods...everything you can possibly think of. In order to ...save us time ... I'd like to ask you to ...complete our Lifestyle Profile ... it will tell me your wants and needs better...so I can do the VERY BEST JOB for you. I'll e-mail it to you. (__) GREAT!
+
+What you are going to find is that we have a very thorough system for finding the right home for each of our clients. Quite frankly...I think it's the best system in the industry. When we get together on ____________, we'll review the entire process and I'll answer any questions that you may have.`,
+            notes: "This script systematically gathers buyer information while positioning your professional services. Always follow up with promised materials and confirm all appointments."
+          }
+        ]
+      }
+    ]
+  }
+]

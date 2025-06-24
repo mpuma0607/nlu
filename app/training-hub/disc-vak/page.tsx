@@ -241,6 +241,44 @@ export default function DISCVAKTrainingPage() {
                               </div>
                             </div>
 
+                            <div className="space-y-6 mt-6">
+                              <div
+                                className="relative w-full cursor-pointer hover:opacity-90 transition-opacity rounded-lg overflow-hidden"
+                                onClick={() => setExpandedImage("/images/disc-personality-traits-quadrant.gif")}
+                              >
+                                <Image
+                                  src="/images/disc-personality-traits-quadrant.gif"
+                                  alt="DISC Personality Traits Quadrant Overview"
+                                  width={1000}
+                                  height={1000}
+                                  className="w-full object-contain"
+                                />
+                                <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 flex items-center justify-center">
+                                  <span className="bg-white bg-opacity-75 px-3 py-1 rounded-full text-sm font-medium">
+                                    Click to expand
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div
+                                className="relative w-full cursor-pointer hover:opacity-90 transition-opacity rounded-lg overflow-hidden"
+                                onClick={() => setExpandedImage("/images/d-personality-comprehensive-chart.png")}
+                              >
+                                <Image
+                                  src="/images/d-personality-comprehensive-chart.png"
+                                  alt="D Personality Comprehensive Reference Chart"
+                                  width={1080}
+                                  height={900}
+                                  className="w-full object-contain"
+                                />
+                                <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 flex items-center justify-center">
+                                  <span className="bg-white bg-opacity-75 px-3 py-1 rounded-full text-sm font-medium">
+                                    Click to expand
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
                             <div className={`p-4 rounded-lg bg-red-500 bg-opacity-10 border border-red-200 mt-6`}>
                               <h4 className="font-bold mb-2">Key Traits:</h4>
                               <ul className="list-disc pl-6 space-y-1">

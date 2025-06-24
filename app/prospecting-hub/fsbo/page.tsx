@@ -127,38 +127,79 @@ export default function FSBOPage() {
 
                 <TabsContent value="phone-scripts" className="space-y-6 mt-6">
                   <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
-                    <h4 className="font-bold text-black mb-4 text-lg">FSBO Cold Call Script</h4>
+                    <h4 className="font-bold text-black mb-4 text-lg">FSBO Door Knock Script</h4>
                     <div className="text-sm text-gray-700 space-y-3 max-h-96 overflow-y-auto">
                       <p>
-                        <strong>Opening:</strong> Hi, is this [Name]? This is [Your Name] with [Brokerage]. I noticed
-                        your home for sale on [Street Name]. Do you have a quick minute?
+                        <strong>Opening:</strong> ____, I'm here about the home for sale... is it still available...
+                        ____ Great!
                       </p>
 
                       <p>
-                        <strong>Purpose:</strong> I'm not calling to try to get your listing. I'm calling because I work
-                        in your neighborhood and I'm curious - how's it going so far?
+                        <strong>Introduction:</strong> I'm ______ with (insert brokerage name), and I know you are going
+                        to try it on your own for a little while, and I'm here to interview for the job when you are
+                        ready.....and that's why ... I'm curious...
                       </p>
 
                       <div className="space-y-2">
                         <p>
                           <strong>Discovery Questions:</strong>
                         </p>
-                        <p>1. How long has it been on the market?</p>
-                        <p>2. How many showings have you had?</p>
-                        <p>3. Any offers yet?</p>
-                        <p>4. What made you decide to sell it yourself?</p>
-                        <p>5. Have you sold a home before?</p>
-                        <p>6. What's been the biggest challenge so far?</p>
+                        <p>1. If you sold this home ... where would you go next. __________ Great!</p>
+                        <p>2. How soon do you have to be there. _________________ No Problem!</p>
+                        <p>3. How long have you been trying to ... sell your property... on your own. ____ Wow!</p>
+                        <p>
+                          4. How would you rate your motivation to ... move ... on a scale of 1 to 10. ______ Great!
+                        </p>
+                        <p>5. If we were able to ... sell your home... in the next 30 days would that be OK. ___</p>
+                        <p>6. What methods are you using for marketing your home. _____Interesting!</p>
+                        <p>7. How did you determine your sales price. ________________ OK!</p>
+                        <p>8. Are you prepared to ... adjust your price down...when working with a buyer. __ Great!</p>
+                        <p>
+                          9. Why did you decide to sell yourself...rather than to ...hire the best ...Real Estate
+                          company. ________________Understandable!
+                        </p>
+                        <p>
+                          10. If you were to ... hire the best Company...what would you expect us to do ... to ...get
+                          your property sold... for you. ______________ Excellent!
+                        </p>
+                        <p>
+                          11. When do you think you will at least ... interview (your brokerage name)... for the job of
+                          selling your home. _____________ Wonderful!
+                        </p>
+                        <p>
+                          12. What would have to happen .... to cause you to ... make the decision ...to ... HIRE THE
+                          BEST COMPANY ... (your brokerage name)...for the job of selling your property. ___ OK!
+                        </p>
                       </div>
 
                       <p>
-                        <strong>Value Offer:</strong> Well, I'd love to help you succeed. I have some market data for
-                        your area that might be helpful. Would you mind if I sent that over?
+                        <strong>Value Proposition:</strong> Let's do this... let me ... show you what your house is
+                        REALLY worth in today's market and show you the tools that only (your brokerage name) has that
+                        allow us to sell 20-30 homes a day which is more than any of our competitors.... You do...
+                        expect the best ...don't you.... Of course!
                       </p>
 
                       <p>
-                        <strong>Close:</strong> If things don't work out the way you're hoping, would you be open to a
-                        conversation about other options?
+                        <strong>Close:</strong> This way... at least you REALLY ... know your options... and if ...it
+                        makes sense...it makes sense... if it doesn't it doesn't... either way ... let's ... find out...
+                        The worst case scenario is...you'll know what your house is REALLY going to sell for... that
+                        will be nice to know.. RIGHT!
+                      </p>
+
+                      <p>
+                        <strong>Appointment Setting:</strong> What would be the best time for me to come back by with
+                        today's real value, show you how much you would put in your pocket and interview for the job of
+                        selling your property? Either you will like what I have to say and want to ...hire us... or you
+                        won't want to ...hire us...and either one is fine....
+                      </p>
+
+                      <p>
+                        <strong>Final Close:</strong> What's better for you ___ or ____ Fantastic!!! See you then!
+                      </p>
+
+                      <p>
+                        When can I take a look at the property to ensure that I fully maximize the value? ____ or ____
+                        or right now?
                       </p>
                     </div>
                   </div>
@@ -167,31 +208,140 @@ export default function FSBOPage() {
                 <TabsContent value="email-scripts" className="space-y-6 mt-6">
                   <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
                     <h4 className="font-bold text-black mb-4 text-lg">FSBO Email Templates</h4>
-                    <div className="text-sm text-gray-700 space-y-4">
+                    <div className="text-sm text-gray-700 space-y-6 max-h-96 overflow-y-auto">
                       <div>
                         <p>
-                          <strong>Subject: Your Home on [Street Name]</strong>
+                          <strong>Email 1: Introduction and Value Proposition</strong>
+                        </p>
+                        <p>
+                          <strong>Subject: Local Expertise to Maximize Your FSBO Success</strong>
                         </p>
                         <div className="bg-white p-4 rounded border mt-2">
-                          <p>Hi [Name],</p>
+                          <p>Hello [Seller's Name],</p>
                           <p>
-                            I noticed your beautiful home for sale on [Street Name]. As a local real estate professional
-                            who works in your neighborhood, I wanted to reach out and see how things are going.
+                            As a dedicated local real estate agent, I've noticed your property on the FSBO listings. My
+                            expertise in [Your Area] real estate market positions me uniquely to assist you. While
+                            you're embarking on a FSBO journey, partnering with a professional can significantly enhance
+                            your success.
                           </p>
                           <p>
-                            I'm not writing to try to get your listing - I respect your decision to sell it yourself.
-                            I'm writing because I have some recent market data for your area that you might find
-                            helpful.
+                            My goal is to ensure your property sells for its highest potential value. This not only
+                            benefits you but also positively impacts my other clients by establishing higher market
+                            values in our community. Let's chat about how we can achieve the best outcome for your sale.
                           </p>
                           <p>
-                            Would you like me to send over a complimentary market analysis showing what similar homes
-                            have sold for recently? It might help you with your pricing strategy.
-                          </p>
-                          <p>Best of luck with your sale!</p>
-                          <p>
-                            [Your Name]
+                            Best regards,
                             <br />
-                            [Your Contact Info]
+                            [Your Name]
+                          </p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p>
+                          <strong>Email 2: Highlighting Local Market Knowledge</strong>
+                        </p>
+                        <p>
+                          <strong>Subject: Leverage My Local Market Insights for Your FSBO Sale</strong>
+                        </p>
+                        <div className="bg-white p-4 rounded border mt-2">
+                          <p>Hi [Seller's Name],</p>
+                          <p>
+                            I'm [Your Name], a real estate expert in [Your Area], and I've been following your FSBO
+                            listing. My deep understanding of our local market can be a vital asset in your home selling
+                            process.
+                          </p>
+                          <p>
+                            Selling at an optimal price point benefits not only you but also helps in maintaining robust
+                            property values for the entire neighborhood – something all my clients, present and future,
+                            greatly appreciate. Let's discuss how we can collaborate to maximize your sale price.
+                          </p>
+                          <p>
+                            Warm regards,
+                            <br />
+                            [Your Name]
+                          </p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p>
+                          <strong>Email 3: Focusing on Mutual Benefits</strong>
+                        </p>
+                        <p>
+                          <strong>Subject: Achieving Top Dollar for Your Home Benefits Us Both</strong>
+                        </p>
+                        <div className="bg-white p-4 rounded border mt-2">
+                          <p>Dear [Seller's Name],</p>
+                          <p>
+                            I'm reaching out as a seasoned real estate professional in [Your Area]. I see you're selling
+                            your home independently, and I admire your initiative. As someone deeply invested in the
+                            local property market, I understand how important it is for homes like yours to sell for
+                            their true worth.
+                          </p>
+                          <p>
+                            Achieving a successful sale at a great price not only fulfills your goals but also elevates
+                            the market, benefiting my other clients. I'd love to explore how we can work together for
+                            mutual success.
+                          </p>
+                          <p>
+                            Best,
+                            <br />
+                            [Your Name]
+                          </p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p>
+                          <strong>Email 4: Offering Support and Guidance</strong>
+                        </p>
+                        <p>
+                          <strong>Subject: Expert Guidance to Enhance Your FSBO Journey</strong>
+                        </p>
+                        <div className="bg-white p-4 rounded border mt-2">
+                          <p>Hello [Seller's Name],</p>
+                          <p>
+                            As a real estate agent specializing in [Your Area], I noticed your FSBO listing and wanted
+                            to offer my expertise. Navigating the FSBO route can be challenging, but with the right
+                            guidance, it's incredibly rewarding.
+                          </p>
+                          <p>
+                            By ensuring your home sells for the best possible price, we not only achieve your goal but
+                            also support the overall health of our local real estate market, benefiting all homeowners
+                            in the area. Let's talk about how we can make your sale a resounding success.
+                          </p>
+                          <p>
+                            Regards,
+                            <br />
+                            [Your Name]
+                          </p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p>
+                          <strong>Email 5: Emphasizing Community Impact</strong>
+                        </p>
+                        <p>
+                          <strong>Subject: Your FSBO Success Contributes to Our Community's Value</strong>
+                        </p>
+                        <div className="bg-white p-4 rounded border mt-2">
+                          <p>Hi [Seller's Name],</p>
+                          <p>
+                            I'm [Your Name], a local real estate agent, and I noticed your home listed as FSBO. Selling
+                            your home at a peak value is crucial for you and has a ripple effect throughout our
+                            community.
+                          </p>
+                          <p>
+                            By achieving the best possible sale price, we elevate the market standards, benefiting all
+                            property owners in the area, including my clients. I'd be thrilled to discuss how we can
+                            collaborate to maximize your home's value and positively impact our community.
+                          </p>
+                          <p>
+                            Sincerely,
+                            <br />
+                            [Your Name]
                           </p>
                         </div>
                       </div>
@@ -201,24 +351,57 @@ export default function FSBOPage() {
 
                 <TabsContent value="text-scripts" className="space-y-6 mt-6">
                   <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
-                    <h4 className="font-bold text-black mb-4 text-lg">FSBO Text Templates</h4>
+                    <h4 className="font-bold text-black mb-4 text-lg">FSBO SMS Templates</h4>
                     <div className="text-sm text-gray-700 space-y-4">
                       <div className="bg-white p-4 rounded border">
                         <p>
-                          <strong>Initial Contact:</strong>
+                          <strong>SMS 1: Introduction and Value Proposition</strong>
                         </p>
                         <p>
-                          "Hi [Name]! Saw your home for sale on [Street]. I work in your neighborhood. How's it going so
-                          far? Any way I can help?"
+                          "Hi [Seller's Name], I'm [Your Name], a local real estate expert. Noticed your FSBO listing. I
+                          can help maximize your sale price, benefiting you and our community. Let's talk! - [Your
+                          Name]"
                         </p>
                       </div>
+
                       <div className="bg-white p-4 rounded border">
                         <p>
-                          <strong>Follow-up:</strong>
+                          <strong>SMS 2: Highlighting Local Market Knowledge</strong>
                         </p>
                         <p>
-                          "Hi [Name], how's the sale going? I have some recent market data for your area if you'd find
-                          that helpful. No strings attached!"
+                          "Hello [Seller's Name], I'm [Your Name], specializing in [Your Area] real estate. Let's use my
+                          market insights to boost your FSBO sale and strengthen local property values. Interested? -
+                          [Your Name]"
+                        </p>
+                      </div>
+
+                      <div className="bg-white p-4 rounded border">
+                        <p>
+                          <strong>SMS 3: Focusing on Mutual Benefits</strong>
+                        </p>
+                        <p>
+                          "Hi [Seller's Name], I'm [Your Name], a real estate pro in [Your Area]. Your successful FSBO
+                          sale can elevate the market for all. Let's work together for top dollar! - [Your Name]"
+                        </p>
+                      </div>
+
+                      <div className="bg-white p-4 rounded border">
+                        <p>
+                          <strong>SMS 4: Offering Support and Guidance</strong>
+                        </p>
+                        <p>
+                          "Hey [Seller's Name], [Your Name] here, a real estate agent in [Your Area]. I can guide your
+                          FSBO journey for a rewarding sale, benefiting our local market. Let's connect! - [Your Name]"
+                        </p>
+                      </div>
+
+                      <div className="bg-white p-4 rounded border">
+                        <p>
+                          <strong>SMS 5: Emphasizing Community Impact</strong>
+                        </p>
+                        <p>
+                          "Hello [Seller's Name], I'm [Your Name] from [Your Area] real estate. Your FSBO success can
+                          uplift our community's property values. Let's collaborate for a great sale! - [Your Name]"
                         </p>
                       </div>
                     </div>

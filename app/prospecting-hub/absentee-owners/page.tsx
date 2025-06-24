@@ -63,46 +63,83 @@ export default function AbsenteeOwnersPage() {
             <CardContent>
               <div className="space-y-6">
                 <div>
-                  <h4 className="font-semibold text-black mb-3">Key Sources for Absentee Owners:</h4>
-                  <div className="grid grid-cols-1 gap-y-2 text-sm text-gray-600">
+                  <h4 className="font-semibold text-black mb-3">
+                    Professional Strategies for Finding Absentee Owners:
+                  </h4>
+                  <div className="grid grid-cols-1 gap-y-3 text-sm text-gray-600">
                     <div className="flex items-start">
                       <div className="w-2 h-2 bg-blue-500 rounded-full mr-3 mt-1.5"></div>
                       <p>
-                        <span className="font-medium">County Records:</span> Property tax records with different mailing
-                        addresses
+                        <span className="font-medium">Research Online Platforms:</span> Start with popular real estate
+                        websites that allow FSBO listings, like Zillow, Craigslist, FSBO.com, and ForSaleByOwner.com.
+                        These sites are frequently used by homeowners to list their properties directly.
                       </p>
                     </div>
                     <div className="flex items-start">
                       <div className="w-2 h-2 bg-blue-500 rounded-full mr-3 mt-1.5"></div>
                       <p>
-                        <span className="font-medium">Skip Tracing Services:</span> TLO, IRBsearch, BeenVerified
+                        <span className="font-medium">Utilize Social Media:</span> Social media platforms like Facebook,
+                        Instagram, and Nextdoor can be useful. Look for local real estate groups or community pages
+                        where homeowners might post FSBO listings.
                       </p>
                     </div>
                     <div className="flex items-start">
                       <div className="w-2 h-2 bg-blue-500 rounded-full mr-3 mt-1.5"></div>
                       <p>
-                        <span className="font-medium">Property Management Companies:</span> Network with local PMs
+                        <span className="font-medium">Drive Around Neighborhoods:</span> Take some time to drive through
+                        local neighborhoods. Look for "For Sale By Owner" signs in yards. This method can uncover
+                        listings that might not be advertised online.
                       </p>
                     </div>
                     <div className="flex items-start">
                       <div className="w-2 h-2 bg-blue-500 rounded-full mr-3 mt-1.5"></div>
                       <p>
-                        <span className="font-medium">Rental Listings:</span> Craigslist, Zillow rentals, Facebook
+                        <span className="font-medium">Network with Contacts:</span> Leverage your network of contacts.
+                        Inform them that you're looking for FSBO properties. Word-of-mouth can be a powerful tool in
+                        real estate.
                       </p>
                     </div>
                     <div className="flex items-start">
                       <div className="w-2 h-2 bg-blue-500 rounded-full mr-3 mt-1.5"></div>
                       <p>
-                        <span className="font-medium">Lead Services:</span> BiggerPockets, ListSource, PropertyRadar
+                        <span className="font-medium">Check Local Newspapers:</span> Some sellers still use local
+                        newspapers or community bulletins to advertise their properties. Regularly check these sources
+                        for any new listings.
                       </p>
                     </div>
                     <div className="flex items-start">
                       <div className="w-2 h-2 bg-blue-500 rounded-full mr-3 mt-1.5"></div>
                       <p>
-                        <span className="font-medium">Drive Neighborhoods:</span> Look for rental signs and
-                        tenant-occupied properties
+                        <span className="font-medium">Attend Community Events:</span> Engage in community events or
+                        local real estate meetings. These can be great opportunities to learn about FSBO properties
+                        before they hit the broader market.
                       </p>
                     </div>
+                    <div className="flex items-start">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3 mt-1.5"></div>
+                      <p>
+                        <span className="font-medium">Use Direct Mail Marketing:</span> Consider sending out direct mail
+                        to homeowners in your target areas. Sometimes, homeowners are considering selling but haven't
+                        listed their property yet.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Training Video */}
+                <div className="mt-8">
+                  <h4 className="font-semibold text-black mb-4">📹 Professional Training Video</h4>
+                  <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                    <iframe
+                      width="100%"
+                      height="315"
+                      src="https://www.youtube.com/embed/OAyGcei-gMo"
+                      title="Absentee Owner Prospecting Training"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="w-full"
+                    />
                   </div>
                 </div>
               </div>
@@ -167,42 +204,176 @@ export default function AbsenteeOwnersPage() {
                       </p>
                     </div>
                   </div>
+                  <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mt-6">
+                    <h4 className="font-bold text-black mb-4 text-lg">Out-of-Area Property Owner Script</h4>
+                    <div className="text-sm text-gray-700 space-y-3 max-h-96 overflow-y-auto">
+                      <p>
+                        <strong>Mirror and Match greeting:</strong> ____ (Repeat back their greeting exactly - match
+                        their Energy / tonality / vocabulary)
+                      </p>
+
+                      <p>
+                        <strong>Introduction:</strong> It's ______ (Your name) with (Insert brokerage name) here in
+                        _________(area)
+                      </p>
+
+                      <p>
+                        <strong>Purpose:</strong> I'm reaching out about the property that you own on ___________. (Ex.
+                        Oak Street) I live and work right here in ______ (area) and I'm checking on my out-of-area
+                        owners to see if there's anything I can do to bring some value to you since I'm here and it's
+                        sometimes difficult for you to check on your investment.
+                      </p>
+
+                      <p>
+                        <strong>Value Proposition:</strong> I don't want anything at all from you...just here to help
+                        out like I would hope someone would do for me if I lived away from my investment... for some
+                        I've been doing a drive by to check on things and take some pics...
+                      </p>
+
+                      <p>for others .... I've been doing a FaceTime /duo/skype walk around with them....</p>
+
+                      <p>for others I am connecting them with some handymen, contractors, .etc...</p>
+
+                      <p>
+                        for others...I'm emailing them values occasionally so they know what it's worth... . so..I'm
+                        curious ....what can I do to help you...
+                      </p>
+
+                      <p>
+                        <strong>Response Handling:</strong>
+                      </p>
+                      <p>If something.. ______ - Great I'm happy to help... I'm on it...</p>
+
+                      <p>
+                        If nothing..... Ok no problem, just know I'm right here if you need anything...this is my cell
+                        number so please ...save it now... as _(your name) ____real estate friend___(area) (ex. Jeff
+                        Beggins Real Estate Friend Orlando). ....if you ever need anything locally just ...reach out to
+                        me...anytime... and let's connect when you are in town...
+                      </p>
+
+                      <p>
+                        <strong>Close:</strong> Well, thanks for your time, great talking with you. I'll reach out from
+                        time to time to check on you, feel free to do the same.
+                      </p>
+                    </div>
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="email-scripts" className="space-y-6 mt-6">
                   <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
-                    <h4 className="font-bold text-black mb-4 text-lg">Absentee Owner Email Templates</h4>
-                    <div className="text-sm text-gray-700 space-y-4">
-                      <div>
+                    <h4 className="font-bold text-black mb-4 text-lg">Absentee Owner Email Campaign Series</h4>
+                    <div className="text-sm text-gray-700 space-y-6">
+                      <div className="bg-white p-4 rounded border">
                         <p>
-                          <strong>Subject: Your Property on [Street Name] in [City]</strong>
+                          <strong>EMAIL 1: Evaluating Financial Impact</strong>
                         </p>
-                        <div className="bg-white p-4 rounded border mt-2">
-                          <p>Hi [Name],</p>
+                        <p>
+                          <strong>Subject:</strong> Navigating Recent Changes in Florida Property Costs
+                        </p>
+                        <div className="mt-2 space-y-2">
+                          <p>Dear [Owner's Name],</p>
                           <p>
-                            I'm [Your Name], a local real estate professional here in [City]. I noticed you own property
-                            on [Street Name] but live in [Their City].
+                            Florida's real estate landscape has experienced some noteworthy changes recently, especially
+                            regarding insurance and property taxes. As an absentee owner, these shifts could have a
+                            substantial effect on your investment.
                           </p>
                           <p>
-                            I work with many out-of-area property owners and understand the unique challenges of
-                            managing a property from a distance. Whether it's dealing with tenants, maintenance issues,
-                            or just staying informed about the local market, it can be a lot to handle remotely.
+                            If you're reconsidering the financial feasibility of holding onto your property, I
+                            specialize in helping owners like you assess and maximize its current value.
                           </p>
-                          <p>I wanted to reach out and offer my assistance. I can help with:</p>
-                          <ul>
-                            <li>• Current market valuations and trends</li>
-                            <li>• Property management company referrals</li>
-                            <li>• Maintenance and repair contractor recommendations</li>
-                            <li>• Market timing advice if you're considering selling</li>
-                          </ul>
-                          <p>No obligation - just a local resource for you to use when needed.</p>
+                          <p>Reach out for a no-obligation discussion on how we can optimize your investment.</p>
+                          <p>Warm Regards, [Your Name]</p>
+                        </div>
+                      </div>
+
+                      <div className="bg-white p-4 rounded border">
+                        <p>
+                          <strong>EMAIL 2: Time-sensitive Alert</strong>
+                        </p>
+                        <p>
+                          <strong>Subject:</strong> Important Update: Florida Insurance & Property Taxes
+                        </p>
+                        <div className="mt-2 space-y-2">
+                          <p>Hello [Owner's Name],</p>
                           <p>
-                            Best regards,
-                            <br />
-                            [Your Name]
-                            <br />
-                            [Your Contact Info]
+                            Recent hikes in insurance and property taxes in Florida have left many absentee owners
+                            re-evaluating their position. With these increases, is your property still the investment
+                            you envisioned?
                           </p>
+                          <p>
+                            Should you feel the financials no longer make sense, my expertise lies in helping absentee
+                            owners like you navigate this terrain and maximize your property's value.
+                          </p>
+                          <p>Don't hesitate to contact me for insights tailored to your unique situation.</p>
+                          <p>Best, [Your Name]</p>
+                        </div>
+                      </div>
+
+                      <div className="bg-white p-4 rounded border">
+                        <p>
+                          <strong>EMAIL 3: Offering Solutions</strong>
+                        </p>
+                        <p>
+                          <strong>Subject:</strong> Is Your Florida Property Still Working for You?
+                        </p>
+                        <div className="mt-2 space-y-2">
+                          <p>Hi [Owner's Name],</p>
+                          <p>
+                            With Florida's recent upticks in insurance and property taxes, many absentee owners are
+                            grappling with the effects on their bottom line. Is your property still yielding the returns
+                            you expect?
+                          </p>
+                          <p>
+                            I have successfully guided many in your position, helping them pivot strategies and unlock
+                            their property's true potential. If the numbers aren't adding up for you, let's talk
+                            solutions.
+                          </p>
+                          <p>Warmly, [Your Name]</p>
+                        </div>
+                      </div>
+
+                      <div className="bg-white p-4 rounded border">
+                        <p>
+                          <strong>EMAIL 4: The Consultative Approach</strong>
+                        </p>
+                        <p>
+                          <strong>Subject:</strong> Let's Review Your Florida Property's Financial Health
+                        </p>
+                        <div className="mt-2 space-y-2">
+                          <p>Dear [Owner's Name],</p>
+                          <p>
+                            The recent changes in insurance and property taxes in Florida have prompted many absentee
+                            owners to take a closer look at their investments. I offer a comprehensive review to help
+                            you determine if your property is still aligned with your financial aspirations.
+                          </p>
+                          <p>
+                            If the rising costs have you second-guessing, allow me to help you understand your options
+                            and maximize its current value.
+                          </p>
+                          <p>Looking forward to assisting you, [Your Name]</p>
+                        </div>
+                      </div>
+
+                      <div className="bg-white p-4 rounded border">
+                        <p>
+                          <strong>EMAIL 5: Positioning for the Future</strong>
+                        </p>
+                        <p>
+                          <strong>Subject:</strong> Maximizing Your Florida Property in Today's Market
+                        </p>
+                        <div className="mt-2 space-y-2">
+                          <p>Hello [Owner's Name],</p>
+                          <p>
+                            Changes are afoot in Florida's property sector, particularly with the latest surge in
+                            insurance and property taxes. As an absentee owner, it's crucial to assess how these shifts
+                            impact your long-term plans.
+                          </p>
+                          <p>
+                            My specialty is in assisting owners like you navigate these waters, ensuring you're poised
+                            for success irrespective of market dynamics. Let's strategize together to ensure your
+                            property continues to be a valuable asset.
+                          </p>
+                          <p>Best wishes, [Your Name]</p>
                         </div>
                       </div>
                     </div>
@@ -211,24 +382,58 @@ export default function AbsenteeOwnersPage() {
 
                 <TabsContent value="text-scripts" className="space-y-6 mt-6">
                   <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
-                    <h4 className="font-bold text-black mb-4 text-lg">Absentee Owner Text Templates</h4>
+                    <h4 className="font-bold text-black mb-4 text-lg">Absentee Owner SMS Campaign Series</h4>
                     <div className="text-sm text-gray-700 space-y-4">
                       <div className="bg-white p-4 rounded border">
                         <p>
-                          <strong>Initial Contact:</strong>
+                          <strong>SMS 1: Investment Partnership</strong>
                         </p>
                         <p>
-                          "Hi [Name]! I'm [Your Name], a local agent in [City]. I help out-of-area owners with their
-                          properties on [Street]. How's it going managing from [Their City]?"
+                          "Hi [Owner's Name], I noticed you own a property in Florida but aren't currently residing
+                          there. Many owners in your position have partnered with us to maximize their investment
+                          returns. Curious to learn more?"
                         </p>
                       </div>
+
                       <div className="bg-white p-4 rounded border">
                         <p>
-                          <strong>Follow-up:</strong>
+                          <strong>SMS 2: Market Opportunity</strong>
                         </p>
                         <p>
-                          "Hi [Name], how's your property on [Street] doing? I have current market data for your area if
-                          you'd like to know what it's worth today. No strings attached!"
+                          "Hey [Owner's Name]! Florida's real estate market has seen some interesting shifts. Being an
+                          absentee owner, have you considered your property's current potential? Let's chat."
+                        </p>
+                      </div>
+
+                      <div className="bg-white p-4 rounded border">
+                        <p>
+                          <strong>SMS 3: Sunshine State Focus</strong>
+                        </p>
+                        <p>
+                          "☀️ Greetings, [Owner's Name]! Sunshine State properties are in demand. As you own a property
+                          in Florida but aren't local, we can help assess its value and opportunities. Interested?"
+                        </p>
+                      </div>
+
+                      <div className="bg-white p-4 rounded border">
+                        <p>
+                          <strong>SMS 4: Management Support</strong>
+                        </p>
+                        <p>
+                          "Hi [Owner's Name], managing a property from afar can be challenging. We've assisted many
+                          absentee owners in Florida, ensuring their homes are well-maintained and profitable. Fancy a
+                          chat?"
+                        </p>
+                      </div>
+
+                      <div className="bg-white p-4 rounded border">
+                        <p>
+                          <strong>SMS 5: Local Expertise</strong>
+                        </p>
+                        <p>
+                          "Hello [Owner's Name]! Owning a property in beautiful Florida is a dream for many. If you ever
+                          think of selling or need local insights, let's connect. We specialize in supporting absentee
+                          owners like you."
                         </p>
                       </div>
                     </div>

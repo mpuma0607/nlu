@@ -204,13 +204,13 @@ export default function DISCVAKTrainingPage() {
                             <h3 className="text-xl font-bold">"D" Personality - Dominant</h3>
 
                             <div className="grid md:grid-cols-2 gap-6">
-                              {/* D Personality Detailed Chart */}
+                              {/* D Personality Comprehensive Chart */}
                               <div
                                 className="relative w-full aspect-[4/3] cursor-pointer hover:opacity-90 transition-opacity border border-gray-200 rounded-lg overflow-hidden"
-                                onClick={() => setExpandedImage("/images/d-personality-comprehensive-chart.png")}
+                                onClick={() => setExpandedImage("/images/d-personality-detailed-chart.png")}
                               >
                                 <Image
-                                  src="/images/d-personality-comprehensive-chart.png"
+                                  src="/images/d-personality-detailed-chart.png"
                                   alt="D Personality Comprehensive Reference Chart"
                                   fill
                                   className="object-contain"
@@ -222,54 +222,16 @@ export default function DISCVAKTrainingPage() {
                                 </div>
                               </div>
 
-                              {/* DISC Traits Diagram */}
+                              {/* DISC Traits Quadrant */}
                               <div
                                 className="relative w-full aspect-[4/3] cursor-pointer hover:opacity-90 transition-opacity border border-gray-200 rounded-lg overflow-hidden"
-                                onClick={() => setExpandedImage("/images/disc-personality-traits-quadrant.gif")}
+                                onClick={() => setExpandedImage("/images/disc-traits-d.gif")}
                               >
                                 <Image
-                                  src="/images/disc-personality-traits-quadrant.gif"
+                                  src="/images/disc-traits-d.gif"
                                   alt="DISC Personality Traits Quadrant Overview"
                                   fill
                                   className="object-contain"
-                                />
-                                <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 flex items-center justify-center">
-                                  <span className="bg-white bg-opacity-75 px-3 py-1 rounded-full text-sm font-medium">
-                                    Click to expand
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="space-y-6 mt-6">
-                              <div
-                                className="relative w-full cursor-pointer hover:opacity-90 transition-opacity rounded-lg overflow-hidden"
-                                onClick={() => setExpandedImage("/images/disc-personality-traits-quadrant.gif")}
-                              >
-                                <Image
-                                  src="/images/disc-personality-traits-quadrant.gif"
-                                  alt="DISC Personality Traits Quadrant Overview"
-                                  width={1000}
-                                  height={1000}
-                                  className="w-full object-contain"
-                                />
-                                <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 flex items-center justify-center">
-                                  <span className="bg-white bg-opacity-75 px-3 py-1 rounded-full text-sm font-medium">
-                                    Click to expand
-                                  </span>
-                                </div>
-                              </div>
-
-                              <div
-                                className="relative w-full cursor-pointer hover:opacity-90 transition-opacity rounded-lg overflow-hidden"
-                                onClick={() => setExpandedImage("/images/d-personality-comprehensive-chart.png")}
-                              >
-                                <Image
-                                  src="/images/d-personality-comprehensive-chart.png"
-                                  alt="D Personality Comprehensive Reference Chart"
-                                  width={1080}
-                                  height={900}
-                                  className="w-full object-contain"
                                 />
                                 <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 flex items-center justify-center">
                                   <span className="bg-white bg-opacity-75 px-3 py-1 rounded-full text-sm font-medium">
@@ -774,13 +736,13 @@ export default function DISCVAKTrainingPage() {
 
                           <Card>
                             <CardContent className="pt-6">
-                              <h4 className="font-bold text-lg text-orange-600 mb-3">Kinesthetic Learners</h4>
+                              <h4 className="font-bold text-lg text-red-600 mb-3">Kinesthetic Learners</h4>
                               <ul className="list-disc pl-6 space-y-2 text-sm">
-                                <li>Process information through feeling/doing</li>
-                                <li>Prefer hands-on activities</li>
-                                <li>Say phrases like "That feels right"</li>
-                                <li>Use gestures and movement</li>
-                                <li>May touch objects while talking</li>
+                                <li>Process information through moving and doing</li>
+                                <li>Prefer hands-on activities and demonstrations</li>
+                                <li>Say phrases like "I can't grasp it"</li>
+                                <li>Learn by trial and error</li>
+                                <li>May fidget or move around</li>
                               </ul>
                             </CardContent>
                           </Card>

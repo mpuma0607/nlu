@@ -596,3 +596,37 @@ function parseCleanSections(text: string) {
 
   return sections
 }
+
+export async function generateContent(formData: {
+  contentType: string
+  topic: string
+  tone: string
+  length: string
+  audience: string
+  additionalContext?: string
+}) {
+  try {
+    const prompt = `Create ${formData.contentType} content about ${formData.topic}.
+
+Content Requirements:
+- Tone: ${formData.tone}
+- Length: ${formData.length}
+- Target Audience: ${formData.audience}
+${formData.additionalContext ? `- Additional Context: ${formData.additionalContext}` : ""}
+
+Please create engaging, professional content that matches these specifications.`
+
+    const { text: generatedContent } = await generateText({
+      model: openai("gpt-4o"),
+      prompt,
+    })
+
+    return {
+      content: generatedContent,
+      success: true,
+    }
+  } catch (error) {
+    console.error("Error generating content:", error)
+    throw new Error("Failed to generate content. Please try again.")
+  }
+}

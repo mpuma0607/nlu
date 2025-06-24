@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { BookOpen, Phone, Play } from "lucide-react"
+import { BookOpen, Phone, Play, Home } from "lucide-react"
 
 // Audio Player Component
 function AudioPlayer({ src, title }: { src: string; title: string }) {
@@ -622,4 +622,160 @@ Let's do this ... let me show you what your lot is REALLY worth in today's marke
       },
     ],
   },
-]
+  {
+    id: "listing-scripts",
+    name: "Listing Scripts",
+    description: "Scripts for listing presentations and seller interactions",
+    icon: Home,
+    gradientFrom: "#10B981",
+    gradientTo: "#059669",
+    tabs: [
+      {
+        id: "listing-prequal",
+        name: "Listing PreQual",
+        description: "Script for pre-qualifying sellers before the listing presentation",
+      scripts: [
+        {
+          title: "Listing PreQual Script",
+          objective:
+            "To confirm appointment details and gather essential information before the listing presentation",
+          content: `Mirror and Match greeting. (Repeat back their greeting exactly - match their energy / tonality / vocabulary)
+
+__________ it's ________________ with (Your brokerage). I'm calling to confirm our appointment at _____ on _____. Does that still work for you? In order to make the most efficient use of our time, I'd like to confirm some information and ask you a few questions.
+
+ASK QUESTIONS.
+REPEAT AND APPROVE THEIR ANSWERS.
+TAKE NOTES DURING THE CONVERSATION.
+
+• Are you interviewing more than one agent? Who?
+• Will all of the decision makers be at our meeting?
+• Where are you moving?
+• When would be the ideal date to close and move? How soon do you have to be there? Why? (reason for moving)
+• What do you feel is the approximate value of the home?
+• Will your plans change if you can't get your price? Why?
+• Have you already found your next home?
+• Have you already bought your next home? If not, I'd love to interview for the job of being your buyer's agent.
+• How much do you owe on your home?
+• Will you help finance the home for the buyer or do you need to take the cash out for the next home?
+• Do you need to sell this property in order to purchase your next?
+• How would you describe your home? (take notes, use their words for your marketing remarks)
+• How would you rate your home on a scale from 1 to 10?
+• What would make it a 10?
+• Why did you select this home ... what sold YOU?
+• What did you enjoy most about living here?
+• What do you think is the biggest drawback?
+• What is the best feature?
+• What's the most recent upgrade?
+• Have there been other improvements to the property?
+• What's the approximate age of the roof?
+• Age of appliances?
+
+I'd like to send over a brief video showing our marketing strategies. What's your preferred method of contact? Text or email? (send the Strategic Marketing Presentation video)
+
+I'd also like to email you our listing documents and disclosures for your review. This will be coming in an email from me through dotloop. (set up a listing loop and share with the seller)
+
+Here's a blank sample of our Strategic Positioning Analysis. I'll be back with one of these specifically prepared for your property for us to review together. (send blank example using the Listing Package in MoxiPresent)
+
+This will show:
+• Your top 5 competitors so we can evaluate the features and benefits vs your property
+• 5 most recent solds (that appraisers will see)
+• 5 most recent properties that have been rejected (no longer on the market)`,
+          notes:
+            "This script helps you gather crucial information before the presentation. Take detailed notes and use their own words in your marketing materials. Confirm all decision makers will be present and send all promised materials promptly.",
+        },
+      ],
+    },
+    {
+      id: "listing-presentation",
+      name: "Listing Presentation",
+      description: "Complete script for the listing presentation meeting",
+      scripts: [
+        {
+          title: "The Listing Presentation Script",
+          objective:
+            "To secure the listing agreement through a structured presentation focused on motivation and pricing",
+          content: `Mirror and Match greeting. (Repeat back their greeting exactly - match their energy / tonality / vocabulary)
+
+ASK QUESTIONS.
+REPEAT AND APPROVE THEIR ANSWERS.
+TAKE NOTES DURING THE CONVERSATION.
+
+
+Thank you for having me over. This should only take a few minutes. Let's go have a seat at the kitchen table.
+
+I wrote down 3 important questions for you ...
+
+• Have you absolutely decided to sell your property?
+
+• Will you position your property to sell versus the competition? Or do we position your property so it sits on the market?
+
+• (it's totally ok to say Yes to this one) Do you want (insert your brokerage name) to handle the sale for you?
+
+If they say yes, Go to the PRICING and SIGN THE CONTRACT.
+If "No" or they are not sure yet ... then continue on!
+
+TALK PRICE ONCE HIRED.
+
+At the end of my presentation, one of three things will happen ...
+
+• You'll have the opportunity to hire us.
+• You'll decide not to hire me
+• We'll decide not to market your property ... and any of these is fine. (This will only happen if we can't come to agreement on price and terms)
+
+Let's quickly take a moment to review the questions I asked you over the phone.
+
+• You said you were moving to (_______________) Right?
+• And you said you want to be there by (______________) Correct?
+• You think you would like to price your property at (_______________) Right?
+• And ... you said you owe (_________________) Right?
+• And ... you did (did not) want to hold seller financing (___________________) Correct?
+
+Did you have the opportunity to watch the presentation that I emailed to you?
+
+YES - Great! Any questions? What did you think about it?
+NO - No Problem. Please take a few minutes when you can. (or offer to watch it together)
+
+There are really only two issues we have to look at today.
+
+• Your motivation to sell your property ... and
+• The price we set on your property.
+
+Now ... It's important that you understand ... these are the only two issues in selling real estate today ... are we clear on that?
+
+I have prepared a Strategic Positioning Analysis for you.
+
+The purpose of the Strategic Positioning Analysis is to determine the value of your home in the eyes of the BUYER. Do you know how Buyers determine value? Buyers determine value by comparison shopping. They look at the price of your home based on its features and benefits, and they compare it with the features and benefits of similar homes that have sold recently or are currently on the market.
+
+What we have found is that if you want to increase VALUE: You need to either
+
+• Lower the price ... or...
+• Have more features and benefits for the same price.
+
+So ... unless you're planning to add more features/benefits to your home ... Are you? (NO) Then ... price is the only issue. Can I show you what I mean? Let's look at the Strategic Positioning Analysis that I prepared for you.
+
+We are going to compare your property with:
+
+• 5 Similar Properties (Current competition) - What Buyers Can Pay.
+• 5 Sold Properties - What Buyers Did Pay.
+• 5 Expired/Withdrawn/Cancelled - What Buyers Refused to Pay.
+
+Here are my questions for you. (Ask for each ... ACTIVES 1st, SOLDS 2nd, and EXPIREDS 3rd)
+
+• What's the least expensive home we are competing with (Active)(Sold) (Expired) ... CIRCLE THEIR ANSWER
+• What's the most expensive home we are competing with (Active) (Sold) (Expired) ... CIRCLE THEIR ANSWER
+• Which home is most similar to yours ... (Active) (Sold) (Expired) ... CIRCLE THEIR ANSWER
+
+You said that you would like to have this property sold by _______, right? OK. Let's review our Seller's Cost Estimator to see how much money you will put in your pocket in the time frame that you want. Here is the range of values where your home should sell.
+
+• Pricing towards the left side will result in a SLOWER sale.
+• Pricing towards the right side will result in a FASTER sale.
+• Pricing towards the middle will result in a sale in the AVERAGE time on market.
+
+Now that you've seen these prices ... what price do you feel we should use to get this property sold for you in your timeframe? I will write that price in the listing agreement and let's simply ... SIGN THE LISTING AGREEMENT ... and let's get your property sold!`,
+          notes:
+            "This presentation script focuses on two key issues: motivation and pricing. Use the Strategic Positioning Analysis to guide pricing discussions. Always aim to secure the listing agreement at the end of the presentation.",
+        },
+      ],
+    }
+  ]\
+}

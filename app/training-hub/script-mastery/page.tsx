@@ -272,8 +272,39 @@ const scriptCategories = [
             title: "Expired Listing Phone Script",
             objective:
               "To establish rapport with expired listing owners and secure an appointment to interview for the listing",
-            content:
-              "Mirror/Match Introduction ... I'm ______ from your brokerage name... The reason I'm here or calling is your property came up on our computer as an expired listing and what I am curious about is ... when I can interview for the job of getting this property sold for you... You do still want to SELL YOUR PROPERTY right...\n\nLet me ask you: REMEMBER TO FIND WAYS TO CONNECT\n\nIf you sold this property ... where would you go next. (_____) Wow! Find a way to Connect\n\nHow soon do you have to be there. (_____) Ouch!\n\nWhat do you think stopped your property from selling. (_____) Really!\n\nHow did you happen to pick the last company that you listed with. (_____) Great!\n\nWhat did that company do that you liked best. (_____) You're kidding!\n\nWhat do you feel they should have done to get your property sold for you. (_____) OK\n\nWhat will you expect from the next company that you choose. (_____) Terrific!\n\nHave you already chosen a company to work with. (_____) Wonderful!\n\nLet's do this... let me show you what your house is REALLY worth in today's market and ... show you the tools that only CENTURY 21 BEGGINS has ... that allow us to sell 20-30 homes a day which is more than any of our competitors. You do expect the best...right.\n\nThis way at least you REALLY ...know your options... and if it makes sense, it makes sense...if it doesn't, it doesn't.\n\nThe worst case scenario is...you'll know what your house is REALLY going to sell for... and that will be nice to know, right.\n\nSo... What would be the best time for me to come back with today's real value, show you how much money you would put in your pocket and interview for the job of selling your property.\n\nEither you will like what I have to say and want to ... hire us ... or you won't want to... hire us ...and either one is fine.\n\nWhat's better for you (_____) or (_____). Fantastic!!! See you then!\n\nWhen can I take a look around to ensure that I fully understand your property so I can ...maximize your value... Now since I'm here...or ___ or ___ at ___.",
+            content: `(Mirror/Match Introduction) ... I'm ______ from (your brokerage name)... The reason I'm here (or calling) is your property came up on our computer as an expired listing and what I am curious about is ... when I can interview for the job of getting this property sold for you... You do still want to SELL YOUR PROPERTY right...
+
+Let me ask you: (REMEMBER TO FIND WAYS TO CONNECT)
+
+If you sold this property ... where would you go next. (_____) Wow! (Find a way to Connect)
+
+How soon do you have to be there. (_____) Ouch!
+
+What do you think stopped your property from selling. (_____) Really!
+
+How did you happen to pick the last company that you listed with. (_____) Great!
+
+What did that company do that you liked best. (_____) You're kidding!
+
+What do you feel they should have done to get your property sold for you. (_____) OK
+
+What will you expect from the next company that you choose. (_____) Terrific!
+
+Have you already chosen a company to work with. (_____) Wonderful!
+
+Let's do this... let me show you what your house is REALLY worth in today's market and ... show you the tools that only CENTURY 21 BEGGINS has ... that allow us to sell 20-30 homes a day which is more than any of our competitors. You do expect the best...right.
+
+This way at least you REALLY ...know your options... and if it makes sense, it makes sense...if it doesn't, it doesn't.
+
+The worst case scenario is...you'll know what your house is REALLY going to sell for... and that will be nice to know, right.
+
+So... What would be the best time for me to come back with today's real value, show you how much money you would put in your pocket and interview for the job of selling your property.
+
+Either you will like what I have to say and want to ... hire us ... or you won't want to... hire us ...and either one is fine.
+
+What's better for you (_____) or (_____). Fantastic!!! See you then!
+
+When can I take a look around to ensure that I fully understand your property so I can ...maximize your value... Now since I'm here...or ___ or ___ at ___.`,
             notes:
               "This script emphasizes building rapport through questions and positioning yourself as interviewing for the job. Fill in the blanks with specific times and personalize the company references as needed.",
           },
@@ -298,8 +329,43 @@ const scriptCategories = [
             title: "FSBO Door Knock Script - 15 Step System",
             objective:
               "To establish rapport with FSBO sellers through systematic questioning and secure an appointment using a proven 15-step process",
-            content:
-              "____, I'm here about the home for sale... is it still available... ____ Great!\n\nI'm ______ with insert brokerage name, and I know you are going to try it on your own for a little while, and I'm here to interview for the job when you are ready.....and that's why ... I'm curious...\n\n1. If you sold this home ... where would you go next. __________ Great!\n\n2. How soon do you have to be there. _________________ No Problem!\n\n3. How long have you been trying to ... sell your property... on your own. ____ Wow!\n\n4. How would you rate your motivation to ... move ... on a scale of 1 to 10. ______ Great!\n\n5. If we were able to ... sell your home... in the next 30 days would that be OK. ___\n\n6. What methods are you using for marketing your home. _____Interesting!\n\n7. How did you determine your sales price. ________________ OK!\n\n8. Are you prepared to ... adjust your price down...when working with a buyer. __ Great!\n\n9. Why did you decide to sell yourself...rather than to ...hire the best ...Real Estate company. ________________Understandable!\n\n10. If you were to ... hire the best Company...what would you expect us to do ... to ...get your property sold... for you. ______________ Excellent!\n\n11. When do you think you will at least ... interview your brokerage name... for the job of selling your home. _____________ Wonderful!\n\n12. What would have to happen .... to cause you to ... make the decision ...to ... HIRE THE BEST COMPANY ... your brokerage name...for the job of selling your property. ___ OK!\n\n13. Let's do this... let me ... show you what your house is REALLY worth in today's market and show you the tools that only your brokerage name has that allow us to sell 20-30 homes a day which is more than any of our competitors.... You do... expect the best ...don't you.... Of course!\n\n14. This way... at least you REALLY ... know your options... and if ...it makes sense...it makes sense... if it doesn't it doesn't... either way ... let's ... find out... The worst case scenario is...you'll know what your house is REALLY going to sell for... that will be nice to know.. RIGHT!\n\n15. What would be the best time for me to come back by with today's real value, show you how much you would put in your pocket and interview for the job of selling your property? Either you will like what I have to say and want to ...hire us... or you won't want to ...hire us...and either one is fine....\n\nWhat's better for you ___ or ____ Fantastic!!! See you then!\n\nWhen can I take a look at the property to ensure that I fully maximize the value? ____ or ____ or right now?",
+            content: `____, I'm here about the home for sale... is it still available... ____ Great!
+
+I'm ______ with (insert brokerage name), and I know you are going to try it on your own for a little while, and I'm here to interview for the job when you are ready.....and that's why ... I'm curious...
+
+1. If you sold this home ... where would you go next. __________ Great!
+
+2. How soon do you have to be there. _________________ No Problem!
+
+3. How long have you been trying to ... sell your property... on your own. ____ Wow!
+
+4. How would you rate your motivation to ... move ... on a scale of 1 to 10. ______ Great!
+
+5. If we were able to ... sell your home... in the next 30 days would that be OK. ___
+
+6. What methods are you using for marketing your home. _____Interesting!
+
+7. How did you determine your sales price. ________________ OK!
+
+8. Are you prepared to ... adjust your price down...when working with a buyer. __ Great!
+
+9. Why did you decide to sell yourself...rather than to ...hire the best ...Real Estate company. ________________Understandable!
+
+10. If you were to ... hire the best Company...what would you expect us to do ... to ...get your property sold... for you. ______________ Excellent!
+
+11. When do you think you will at least ... interview (your brokerage name)... for the job of selling your home. _____________ Wonderful!
+
+12. What would have to happen .... to cause you to ... make the decision ...to ... HIRE THE BEST COMPANY ... (your brokerage name)...for the job of selling your property. ___ OK!
+
+13. Let's do this... let me ... show you what your house is REALLY worth in today's market and show you the tools that only (your brokerage name) has that allow us to sell 20-30 homes a day which is more than any of our competitors.... You do... expect the best ...don't you.... Of course!
+
+14. This way... at least you REALLY ... know your options... and if ...it makes sense...it makes sense... if it doesn't it doesn't... either way ... let's ... find out... The worst case scenario is...you'll know what your house is REALLY going to sell for... that will be nice to know.. RIGHT!
+
+15. What would be the best time for me to come back by with today's real value, show you how much you would put in your pocket and interview for the job of selling your property? Either you will like what I have to say and want to ...hire us... or you won't want to ...hire us...and either one is fine....
+
+What's better for you ___ or ____ Fantastic!!! See you then!
+
+When can I take a look at the property to ensure that I fully maximize the value? ____ or ____ or right now?`,
             notes:
               "This comprehensive 15-step system builds rapport systematically. Practice the flow and timing between questions. Each question serves a specific purpose in uncovering motivation and building trust. Audio training files provide real-world examples of this script in action.",
           },
@@ -323,8 +389,13 @@ const scriptCategories = [
           {
             title: "Commission Objection Response",
             objective: "To address commission concerns while demonstrating value",
-            content:
-              "I understand your concern about commission. Let me ask you this - if I could show you that by working with me, you'll actually net more money in your pocket even after paying commission, would that be worth discussing?\n\nHere's what most people don't realize: The difference between a professional marketing your home and trying to do it yourself often results in a higher sale price that more than covers the commission.\n\nPlus, consider the time, stress, and potential legal issues you avoid. When you factor in the marketing costs, your time value, and the expertise in negotiations, most sellers find they come out ahead.\n\nWould you like me to show you exactly how this works with some recent examples?",
+            content: `I understand your concern about commission. Let me ask you this - if I could show you that by working with me, you'll actually net more money in your pocket even after paying commission, would that be worth discussing?
+
+Here's what most people don't realize: The difference between a professional marketing your home and trying to do it yourself often results in a higher sale price that more than covers the commission.
+
+Plus, consider the time, stress, and potential legal issues you avoid. When you factor in the marketing costs, your time value, and the expertise in negotiations, most sellers find they come out ahead.
+
+Would you like me to show you exactly how this works with some recent examples?`,
             notes:
               "Focus on value and net proceeds rather than just commission percentage. Use specific examples when possible.",
           },
@@ -349,26 +420,49 @@ const scriptCategories = [
             title: "Listing PreQual Script",
             objective:
               "To confirm appointment details and gather essential information before the listing presentation",
-            content:
-              "Mirror and Match greeting. Repeat back their greeting exactly - match their energy / tonality / vocabulary\n\n__________ it's ________________ with Your brokerage. I'm calling to confirm our appointment at _____ on _____. Does that still work for you? In order to make the most efficient use of our time, I'd like to confirm some information and ask you a few questions.\n\nASK QUESTIONS.\nREPEAT AND APPROVE THEIR ANSWERS.\nTAKE NOTES DURING THE CONVERSATION.\n\n• Are you interviewing more than one agent? Who?\n• Will all of the decision makers be at our meeting?\n• Where are you moving?\n• When would be the ideal date to close and move? How soon do you have to be there? Why? reason for moving\n• What do you feel is the approximate value of the home?\n• Will your plans change if you can't get your price? Why?\n• Have you already found your next home?\n• Have you already bought your next home? If not, I'd love to interview for the job of being your buyer's agent.\n• How much do you owe on your home?\n• Will you help finance the home for the buyer or do you need to take the cash out for the next home?\n• Do you need to sell this property in order to purchase your next?\n• How would you describe your home? take notes, use their words for your marketing remarks\n• How would you rate your home on a scale from 1 to 10?\n• What would make it a 10?\n• Why did you select this home ... what sold YOU?\n• What did you enjoy most about living here?\n• What do you think is the biggest drawback?\n• What is the best feature?\n• What's the most recent upgrade?\n• Have there been other improvements to the property?\n• What's the approximate age of the roof?\n• Age of appliances?\n\nI'd like to send over a brief video showing our marketing strategies. What's your preferred method of contact? Text or email? send the Strategic Marketing Presentation video\n\nI'd also like to email you our listing documents and disclosures for your review. This will be coming in an email from me through dotloop. set up a listing loop and share with the seller\n\nHere's a blank sample of our Strategic Positioning Analysis. I'll be back with one of these specifically prepared for your property for us to review together. send blank example using the Listing Package in MoxiPresent\n\nThis will show:\n• Your top 5 competitors so we can evaluate the features and benefits vs your property\n• 5 most recent solds that appraisers will see\n• 5 most recent properties that have been rejected no longer on the market",
+            content: `Mirror and Match greeting. (Repeat back their greeting exactly - match their energy / tonality / vocabulary)
+
+__________ it's ________________ with (Your brokerage). I'm calling to confirm our appointment at _____ on _____. Does that still work for you? In order to make the most efficient use of our time, I'd like to confirm some information and ask you a few questions.
+
+ASK QUESTIONS.
+REPEAT AND APPROVE THEIR ANSWERS.
+TAKE NOTES DURING THE CONVERSATION.
+
+• Are you interviewing more than one agent? Who?
+• Will all of the decision makers be at our meeting?
+• Where are you moving?
+• When would be the ideal date to close and move? How soon do you have to be there? Why? (reason for moving)
+• What do you feel is the approximate value of the home?
+• Will your plans change if you can't get your price? Why?
+• Have you already found your next home?
+• Have you already bought your next home? If not, I'd love to interview for the job of being your buyer's agent.
+• How much do you owe on your home?
+• Will you help finance the home for the buyer or do you need to take the cash out for the next home?
+• Do you need to sell this property in order to purchase your next?
+• How would you describe your home? (take notes, use their words for your marketing remarks)
+• How would you rate your home on a scale from 1 to 10?
+• What would make it a 10?
+• Why did you select this home ... what sold YOU?
+• What did you enjoy most about living here?
+• What do you think is the biggest drawback?
+• What is the best feature?
+• What's the most recent upgrade?
+• Have there been other improvements to the property?
+• What's the approximate age of the roof?
+• Age of appliances?
+
+I'd like to send over a brief video showing our marketing strategies. What's your preferred method of contact? Text or email? (send the Strategic Marketing Presentation video)
+
+I'd also like to email you our listing documents and disclosures for your review. This will be coming in an email from me through dotloop. (set up a listing loop and share with the seller)
+
+Here's a blank sample of our Strategic Positioning Analysis. I'll be back with one of these specifically prepared for your property for us to review together. (send blank example using the Listing Package in MoxiPresent)
+
+This will show:
+• Your top 5 competitors so we can evaluate the features and benefits vs your property
+• 5 most recent solds (that appraisers will see)
+• 5 most recent properties that have been rejected (no longer on the market)`,
             notes:
-              "This script helps you gather crucial information before the presentation. Take detailed notes and use their own words in your marketing materials. Confirm all decision makers will be present and send all promised materials promptly.",
-          },
-        ],
-      },
-      {
-        id: "listing-presentation",
-        name: "Listing Presentation",
-        description: "Complete script for the listing presentation meeting",
-        scripts: [
-          {
-            title: "The Listing Presentation Script",
-            objective:
-              "To secure the listing agreement through a structured presentation focused on motivation and pricing",
-            content:
-              "Mirror and Match greeting. Repeat back their greeting exactly - match their energy / tonality / vocabulary\n\nASK QUESTIONS.\nREPEAT AND APPROVE THEIR ANSWERS.\nTAKE NOTES DURING THE CONVERSATION.\n\nThank you for having me over. This should only take a few minutes. Let's go have a seat at the kitchen table.\n\nI wrote down 3 important questions for you ...\n\n• Have you absolutely decided to sell your property?\n\n• Will you position your property to sell versus the competition? Or do we position your property so it sits on the market?\n\n• it's totally ok to say Yes to this one Do you want insert your brokerage name to handle the sale for you?\n\nIf they say yes, Go to the PRICING and SIGN THE CONTRACT.\nIf No or they are not sure yet ... then continue on!\n\nTALK PRICE ONCE HIRED.\n\nAt the end of my presentation, one of three things will happen ...\n\n• You'll have the opportunity to hire us.\n• You'll decide not to hire me\n• We'll decide not to market your property ... and any of these is fine. This will only happen if we can't come to agreement on price and terms\n\nLet's quickly take a moment to review the questions I asked you over the phone.\n\n• You said you were moving to _______________ Right?\n• And you said you want to be there by ______________ Correct?\n• You think you would like to price your property at _______________ Right?\n• And ... you said you owe _________________ Right?\n• And ... you did did not want to hold seller financing ___________________ Correct?\n\nDid you have the opportunity to watch the presentation that I emailed to you?\n\nYES - Great! Any questions? What did you think about it?\nNO - No Problem. Please take a few minutes when you can. or offer to watch it together\n\nThere are really only two issues we have to look at today.\n\n• Your motivation to sell your property ... and\n• The price we set on your property.\n\nNow ... It's important that you understand ... these are the only two issues in selling real estate today ... are we clear on that?\n\nI have prepared a Strategic Positioning Analysis for you.\n\nThe purpose of the Strategic Positioning Analysis is to determine the value of your home in the eyes of the BUYER. Do you know how Buyers determine value? Buyers determine value by comparison shopping. They look at the price of your home based on its features and benefits, and they compare it with the features and benefits of similar homes that have sold recently or are currently on the market.\n\nWhat we have found is that if you want to increase VALUE: You need to either\n\n• Lower the price ... or...\n• Have more features and benefits for the same price.\n\nSo ... unless you're planning to add more features/benefits to your home ... Are you? NO Then ... price is the only issue. Can I show you what I mean? Let's look at the Strategic Positioning Analysis that I prepared for you.\n\nWe are going to compare your property with:\n\n• 5 Similar Properties Current competition - What Buyers Can Pay.\n• 5 Sold Properties - What Buyers Did Pay.\n• 5 Expired/Withdrawn/Cancelled - What Buyers Refused to Pay.\n\nHere are my questions for you. Ask for each ... ACTIVES 1st, SOLDS 2nd, and EXPIREDS 3rd\n\n• What's the least expensive home we are competing with Active Sold Expired ... CIRCLE THEIR ANSWER\n• What's the most expensive home we are competing with Active Sold Expired ... CIRCLE THEIR ANSWER\n• Which home is most similar to yours ... Active Sold Expired ... CIRCLE THEIR ANSWER\n\nYou said that you would like to have this property sold by _______, right? OK. Let's review our Seller's Cost Estimator to see how much money you will put in your pocket in the time frame that you want. Here is the range of values where your home should sell.\n\n• Pricing towards the left side will result in a SLOWER sale.\n\n• Pricing towards the right side will result in a FASTER sale.\n\n• Pricing towards the middle will result in a sale in the AVERAGE time on market.\n\nNow that you've seen these prices ... what price do you feel we should use to get this property sold for you in your timeframe? I will write that price in the listing agreement and let's simply ... SIGN THE LISTING AGREEMENT ... and let's get your property sold!",
-            notes:
-              "This presentation script focuses on two key issues: motivation and pricing. Use the Strategic Positioning Analysis to guide pricing discussions. Always aim to secure the listing agreement at the end of the presentation.",
+              "This script helps you gather crucial information before the presentation. Take detailed notes and use their own words in your marketing materials. Confirm all decision makers will be present and confirm all promised materials promptly.",
           },
         ],
       },
@@ -390,8 +484,35 @@ const scriptCategories = [
           {
             title: "Buyer Pre Qualification Script",
             objective: "To confirm appointment details, assess financing status, and gather buyer requirements",
-            content:
-              "Hi, this is________________________ with your brokerage name The reason I'm calling is to ...SET/CONFIRM our appointment...to get you into your next property...\n\nWould____ Or____work better for you. _______\n\nIn order to make the most efficient use of our time...and provide you with the best service, I'd like to confirm some information and ask you a few questions prior to our meeting, Okay. _____Super\n\nBuyer's who ... get pre-approved for a mortgage ... are in a much better negotiating position than those who don't ... Have you, by any chance, already arranged financing for your new property._____Good\n\nIf YES – Good for you! What lender are you working with. Super! Let me do you a favor ... let's see if our in house loan officer might be able to help you to ... get a better rate... I will have him/her call you when we are finished...\n\nIf NO - Our In-House Loan Officers work with over 500 lenders to get you the best loan program. I will have one of our loan officers call you later today...\n\nAnd, how much of a down payment do you plan to invest. __________Great!\n\nAnd, what price ranges are you entertaining. $ To $ . Super!\n\nIdeally, when would you like to move into your new home. Great!\n\nDo you have to sell the property you are in now before you buy the new on...\n\nI'm going to be sending you a link to a very brief overview presentation that I'd like you to watch before our meeting...\n\nLet me confirm your e-mail address.____________________________\n\nI'm also going to send you a link to a cool service that I actually pay for ...for you... which is going to send you daily updates of everything new that hits the inventory...that matches your criteria...its going to allow you to have a great understanding between now and the time anything new comes on the market before _________.\n\nWhen we get together, we're going to review all of your options as far as location...style of home...amenities...neighborhoods...everything you can possibly think of. In order to ...save us time ... I'd like to ask you to ...complete our Lifestyle Profile ... it will tell me your wants and needs better...so I can do the VERY BEST JOB for you. I'll e-mail it to you. __ GREAT!\n\nWhat you are going to find is that we have a very thorough system for finding the right home for each of our clients. Quite frankly...I think it's the best system in the industry. When we get together on ____________, we'll review the entire process and I'll answer any questions that you may have.",
+            content: `Hi, this is________________________ with (your brokerage name) The reason I'm calling is to ...SET/CONFIRM our appointment...to get you into your next property...
+
+Would____ Or____work better for you. _______
+
+In order to make the most efficient use of our time...and provide you with the best service, I'd like to confirm some information and ask you a few questions prior to our meeting, Okay. _____(Super)
+
+Buyer's who ... get pre-approved for a mortgage ... are in a much better negotiating position than those who don't ... Have you, by any chance, already arranged financing for your new property._____(Good)
+
+If YES – Good for you! What lender are you working with. Super! Let me do you a favor ... let's see if our in house loan officer might be able to help you to ... get a better rate... I will have him/her call you when we are finished...
+
+If NO - Our In-House Loan Officers work with over 500 lenders to get you the best loan program. I will have one of our loan officers call you later today...
+
+And, how much of a down payment do you plan to invest. __________Great!
+
+And, what price ranges are you entertaining. $ To $ . Super!
+
+Ideally, when would you like to move into your new home. Great!
+
+Do you have to sell the property you are in now before you buy the new on...
+
+I'm going to be sending you a link to a very brief overview presentation that I'd like you to watch before our meeting...
+
+Let me confirm your e-mail address.____________________________
+
+I'm also going to send you a link to a cool service that I actually pay for ...for you... which is going to send you daily updates of everything new that hits the inventory...that matches your criteria...its going to allow you to have a great understanding between now and the time anything new comes on the market before (_________).
+
+When we get together, we're going to review all of your options as far as location...style of home...amenities...neighborhoods...everything you can possibly think of. In order to ...save us time ... I'd like to ask you to ...complete our Lifestyle Profile ... it will tell me your wants and needs better...so I can do the VERY BEST JOB for you. I'll e-mail it to you. (__) GREAT!
+
+What you are going to find is that we have a very thorough system for finding the right home for each of our clients. Quite frankly...I think it's the best system in the industry. When we get together on ____________, we'll review the entire process and I'll answer any questions that you may have.`,
             notes:
               "This script systematically gathers buyer information while positioning your professional services. Always follow up with promised materials and confirm all appointments.",
           },

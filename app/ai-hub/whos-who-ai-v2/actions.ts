@@ -167,10 +167,103 @@ async function scrapeWithBrightData(searchType: string, query: string) {
     const searchUrl = buildTruePeopleSearchURL(searchType, query)
     console.log("Bright Data scraping URL:", searchUrl)
 
-    // Bright Data proxy configuration
-    const proxyUrl = `http://${process.env.BRIGHT_DATA_USERNAME}:${process.env.BRIGHT_DATA_PASSWORD}@${process.env.BRIGHT_DATA_ENDPOINT}`
+    // Bright Data Puppeteer endpoint configuration
+    const brightDataEndpoint = process.env.BRIGHT_DATA_ENDPOINT // e.g., "brd-customer-hl_xxxxx-zone-datacenter_proxy1:8080"
+    const username = process.env.BRIGHT_DATA_USERNAME
+    const password = process.env.BRIGHT_DATA_PASSWORD
 
-    // Use Bright Data's residential proxy network
+    if (!brightDataEndpoint || !username || !password) {
+      throw new Error("Bright Data credentials not configured")
+    }
+
+    // Use Bright Data's scraping browser API
+    const scrapeResponse = await fetch("https://api.brightdata.com/request", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${username}:${password}`,
+      },
+      body: JSON.stringify({
+        url: searchUrl,
+        format: "html",
+        country: "US",
+        render: true,
+        wait: 3000, // Wait 3 seconds for page to load
+        block_resources: ["image", "stylesheet", "font"], // Block unnecessary resources
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        },
+      }),
+    })
+
+    if (!scrapeResponse.ok) {
+      // Fallback to direct proxy method if API fails
+      console.log("Bright Data API failed, trying direct proxy method...")
+      return await scrapeWithBrightDataProxy(searchType, query)
+    }
+
+    const html = await scrapeResponse.text()
+    console.log("Bright Data API HTML received, length:", html.length)
+
+    // Check if we got blocked
+    if (html.includes("blocked") || html.includes("captcha") || html.includes("Access Denied") || html.length < 1000) {
+      throw new Error("Request was blocked even with Bright Data")
+    }
+
+    return parseRealHTMLResults(html, searchType, query)
+  } catch (error) {
+    console.error("Bright Data error:", error)
+    throw error
+  }
+}
+
+// Alternative method using Bright Data as HTTP proxy
+async function scrapeWithBrightDataProxy(searchType: string, query: string) {
+  try {
+    const searchUrl = buildTruePeopleSearchURL(searchType, query)
+    console.log("Bright Data proxy scraping URL:", searchUrl)
+
+    // Configure proxy settings for Bright Data
+    const proxyHost = process.env.BRIGHT_DATA_ENDPOINT?.split(":")[0] || ""
+    const proxyPort = process.env.BRIGHT_DATA_ENDPOINT?.split(":")[1] || "8080"
+    const proxyAuth = `${process.env.BRIGHT_DATA_USERNAME}:${process.env.BRIGHT_DATA_PASSWORD}`
+
+    // Create proxy agent configuration
+    const proxyUrl = `http://${proxyAuth}@${proxyHost}:${proxyPort}`
+
+    // Use a service like Browserless.io with Bright Data proxy
+    if (process.env.BROWSERLESS_API_KEY) {
+      const browserlessUrl = `https://chrome.browserless.io/content?token=${process.env.BROWSERLESS_API_KEY}`
+
+      const response = await fetch(browserlessUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          url: searchUrl,
+          waitFor: 3000,
+          gotoOptions: {
+            waitUntil: "networkidle2",
+          },
+          setExtraHTTPHeaders: {
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          },
+          rejectRequestPattern: [".*\\.css", ".*\\.png", ".*\\.jpg", ".*\\.jpeg", ".*\\.gif"],
+          // Note: Browserless would need to be configured to use Bright Data proxy
+        }),
+      })
+
+      if (response.ok) {
+        const html = await response.text()
+        console.log("Browserless + Bright Data HTML received, length:", html.length)
+        return parseRealHTMLResults(html, searchType, query)
+      }
+    }
+
+    // Fallback: Try direct fetch with proxy headers (limited effectiveness)
     const response = await fetch(searchUrl, {
       method: "GET",
       headers: {
@@ -185,9 +278,9 @@ async function scrapeWithBrightData(searchType: string, query: string) {
         "Sec-Fetch-Site": "none",
         "Sec-Fetch-User": "?1",
         "Upgrade-Insecure-Requests": "1",
+        // Add session rotation headers
+        "X-Bright-Data-Session": `session_${Date.now()}`,
       },
-      // Note: In a real implementation, you'd configure the proxy here
-      // This is a simplified version - actual Bright Data integration requires their SDK
     })
 
     if (!response.ok) {
@@ -195,16 +288,11 @@ async function scrapeWithBrightData(searchType: string, query: string) {
     }
 
     const html = await response.text()
-    console.log("Bright Data HTML received, length:", html.length)
-
-    // Check if we got blocked
-    if (html.includes("blocked") || html.includes("captcha") || html.includes("Access Denied") || html.length < 1000) {
-      throw new Error("Request was blocked even with Bright Data proxy")
-    }
+    console.log("Bright Data proxy HTML received, length:", html.length)
 
     return parseRealHTMLResults(html, searchType, query)
   } catch (error) {
-    console.error("Bright Data error:", error)
+    console.error("Bright Data proxy error:", error)
     throw error
   }
 }

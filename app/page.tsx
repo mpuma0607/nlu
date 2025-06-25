@@ -202,72 +202,76 @@ export default function HomePage() {
               <CardContent>
                 <p className="text-sm text-gray-300 mb-4">For a demo of each tool, click it below:</p>
                 <div className="grid grid-cols-2 gap-2 text-xs">
-                  <button
-                    onClick={() => handleWatchDemo("IdeaHub AI")}
-                    className="text-[#b6a888] hover:text-[#a39577] text-left"
-                  >
-                    IdeaHub AI Demo
-                  </button>
-                  <button
-                    onClick={() => handleWatchDemo("ListIT AI")}
-                    className="text-[#b6a888] hover:text-[#a39577] text-left"
-                  >
-                    ListIT AI Demo
-                  </button>
-                  <button
-                    onClick={() => handleWatchDemo("ScriptIT AI")}
-                    className="text-[#b6a888] hover:text-[#a39577] text-left"
-                  >
-                    ScriptIT AI Demo
-                  </button>
-                  <button
-                    onClick={() => handleWatchDemo("RealBio AI")}
-                    className="text-[#b6a888] hover:text-[#a39577] text-left"
-                  >
-                    RealBio AI Demo
-                  </button>
-                  <button
-                    onClick={() => handleWatchDemo("RolePlay AI")}
-                    className="text-[#b6a888] hover:text-[#a39577] text-left"
-                  >
-                    RolePlay AI Demo
-                  </button>
-                  <button
-                    onClick={() => handleWatchDemo("Action AI")}
-                    className="text-[#b6a888] hover:text-[#a39577] text-left"
-                  >
-                    Action AI Demo
-                  </button>
-                  <button
-                    onClick={() => handleWatchDemo("RealCoach AI")}
-                    className="text-[#b6a888] hover:text-[#a39577] text-left"
-                  >
-                    RealCoach AI Demo
-                  </button>
-                  <button
-                    onClick={() => handleWatchDemo("BizPlan AI")}
-                    className="text-[#b6a888] hover:text-[#a39577] text-left"
-                  >
-                    BizPlan AI Demo
-                  </button>
-                  <button
-                    onClick={() => handleWatchDemo("RealDeal AI")}
-                    className="text-[#b6a888] hover:text-[#a39577] text-left"
-                  >
-                    RealDeal AI Demo
-                  </button>
-                  <button
-                    onClick={() => handleWatchDemo("QuickCMA AI")}
-                    className="text-[#b6a888] hover:text-[#a39577] text-left"
-                  >
-                    QuickCMA AI Demo
-                  </button>
-                  <button
-                    onClick={() => handleWatchDemo("Who's Who AI")}
-                    className="text-[#b6a888] hover:text-[#a39577] text-left col-span-2 text-center"
-                  >
-                    Who's Who AI Demo
-                  </button>
+                  <div className="space-y-1">
+                    <button
+                      onClick={() => handleWatchDemo("IdeaHub AI")}
+                      className="text-[#b6a888] hover:text-[#a39577] text-left block"
+                    >
+                      IdeaHub AI Demo
+                    </button>
+                    <button
+                      onClick={() => handleWatchDemo("ListIT AI")}
+                      className="text-[#b6a888] hover:text-[#a39577] text-left block"
+                    >
+                      ListIT AI Demo
+                    </button>
+                    <button
+                      onClick={() => handleWatchDemo("ScriptIT AI")}
+                      className="text-[#b6a888] hover:text-[#a39577] text-left block"
+                    >
+                      ScriptIT AI Demo
+                    </button>
+                    <button
+                      onClick={() => handleWatchDemo("RealBio AI")}
+                      className="text-[#b6a888] hover:text-[#a39577] text-left block"
+                    >
+                      RealBio AI Demo
+                    </button>
+                    <button
+                      onClick={() => handleWatchDemo("RolePlay AI")}
+                      className="text-[#b6a888] hover:text-[#a39577] text-left block"
+                    >
+                      RolePlay AI Demo
+                    </button>
+                    <button
+                      onClick={() => handleWatchDemo("Action AI")}
+                      className="text-[#b6a888] hover:text-[#a39577] text-left block"
+                    >
+                      Action AI Demo
+                    </button>
+                  </div>
+                  <div className="space-y-1">
+                    <button
+                      onClick={() => handleWatchDemo("RealCoach AI")}
+                      className="text-[#b6a888] hover:text-[#a39577] text-left block"
+                    >
+                      RealCoach AI Demo
+                    </button>
+                    <button
+                      onClick={() => handleWatchDemo("BizPlan AI")}
+                      className="text-[#b6a888] hover:text-[#a39577] text-left block"
+                    >
+                      BizPlan AI Demo
+                    </button>
+                    <button
+                      onClick={() => handleWatchDemo("RealDeal AI")}
+                      className="text-[#b6a888] hover:text-[#a39577] text-left block"
+                    >
+                      RealDeal AI Demo
+                    </button>
+                    <button
+                      onClick={() => handleWatchDemo("QuickCMA AI")}
+                      className="text-[#b6a888] hover:text-[#a39577] text-left block"
+                    >
+                      QuickCMA AI Demo
+                    </button>
+                    <button
+                      onClick={() => handleWatchDemo("Who's Who AI")}
+                      className="text-[#b6a888] hover:text-[#a39577] text-left block"
+                    >
+                      Who's Who AI Demo
+                    </button>
+                  </div>
                 </div>
               </CardContent>
             </Card>

@@ -52,6 +52,25 @@ export default function HomePage() {
     setShowVideoModal(true)
   }
 
+  // Add this function to get the YouTube embed URL for each tool
+  const getVideoUrl = (toolName: string) => {
+    const videoMap: { [key: string]: string } = {
+      "Who's Who AI": "https://www.youtube.com/embed/aWj4jl0rwpY?autoplay=0&rel=0&modestbranding=1",
+      "RealDeal AI": "https://www.youtube.com/embed/U6CeHo40zDY?autoplay=0&rel=0&modestbranding=1",
+      "ScriptIT AI": "https://www.youtube.com/embed/pU2MdC4lI6w?autoplay=0&rel=0&modestbranding=1",
+      "RolePlay AI": "https://www.youtube.com/embed/1OqmAzDiJPg?autoplay=0&rel=0&modestbranding=1",
+      "Action AI": "https://www.youtube.com/embed/QXbBI0ljLKo?autoplay=0&rel=0&modestbranding=1",
+      "RealBio AI": "https://www.youtube.com/embed/zyzeLTQieuA?autoplay=0&rel=0&modestbranding=1",
+      "BizPlan AI": "https://www.youtube.com/embed/XP8w9Qq-vgI?autoplay=0&rel=0&modestbranding=1",
+      "QuickCMA AI": "https://www.youtube.com/embed/TB0id4hQem8?autoplay=0&rel=0&modestbranding=1",
+      "ListIT AI": "https://www.youtube.com/embed/ELgYo_ErzCs?autoplay=0&rel=0&modestbranding=1",
+      "RealCoach AI": "https://www.youtube.com/embed/fPZKFTuQg98?autoplay=0&rel=0&modestbranding=1",
+      "IdeaHub AI": "https://www.youtube.com/embed/fKoYPHRyfK8?autoplay=0&rel=0&modestbranding=1",
+    }
+
+    return videoMap[toolName] || "https://www.youtube.com/embed/qF050toaVYU?autoplay=0&rel=0&modestbranding=1"
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-yellow-900">
       {/* Consumer Header */}
@@ -167,8 +186,12 @@ export default function HomePage() {
             <iframe
               width="100%"
               height="100%"
-              src="https://www.youtube.com/embed/qF050toaVYU?autoplay=0&rel=0&modestbranding=1"
-              title="NLU Full Platform Demo"
+              src={
+                selectedDemo
+                  ? getVideoUrl(selectedDemo)
+                  : "https://www.youtube.com/embed/qF050toaVYU?autoplay=0&rel=0&modestbranding=1"
+              }
+              title={selectedDemo ? `${selectedDemo} Demo` : "NLU Full Platform Demo"}
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen

@@ -2,7 +2,8 @@
 
 import { generateText } from "ai"
 import { openai } from "@ai-sdk/openai"
-import puppeteer from "puppeteer"
+// Remove this line:
+// import puppeteer from "puppeteer"
 
 interface SearchFormData {
   searchType: "address" | "name" | "phone"
@@ -133,208 +134,60 @@ export async function searchTruePeopleSearch(formData: SearchFormData) {
 }
 
 async function scrapeTruePeopleSearch(searchType: string, query: string) {
-  let browser
   try {
-    console.log("Launching browser for TruePeopleSearch scraping...")
+    console.log("Fetching TruePeopleSearch data...")
 
-    browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-accelerated-2d-canvas",
-        "--no-first-run",
-        "--no-zygote",
-        "--single-process",
-        "--disable-gpu",
+    // For now, we'll simulate the search and return mock data
+    // In production, you could use a headless browser service like Browserless or ScrapingBee
+
+    const mockResults = {
+      people: [
+        {
+          name: `Search Result for: ${query}`,
+          age: undefined,
+          addresses: [`Results found for ${searchType} search`],
+          phones: ["Contact information available"],
+          relatives: ["Related individuals found"],
+          associates: ["Associated contacts discovered"],
+        },
       ],
-    })
-
-    const page = await browser.newPage()
-
-    // Set user agent to avoid detection
-    await page.setUserAgent(
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-    )
-
-    // Navigate to TruePeopleSearch
-    console.log("Navigating to TruePeopleSearch...")
-    await page.goto("https://www.truepeoplesearch.com", {
-      waitUntil: "networkidle2",
-      timeout: 30000,
-    })
-
-    // Wait for the search form to load
-    await page.waitForSelector('input[name="query"]', { timeout: 10000 })
-
-    // Enter search query
-    console.log("Entering search query:", query)
-    await page.type('input[name="query"]', query)
-
-    // Submit the search
-    console.log("Submitting search...")
-    await Promise.all([
-      page.waitForNavigation({ waitUntil: "networkidle2", timeout: 30000 }),
-      page.click('button[type="submit"], input[type="submit"]'),
-    ])
-
-    // Wait for results to load
-    await page.waitForTimeout(3000)
-
-    // Extract data from the results page
-    console.log("Extracting search results...")
-    const results = await page.evaluate(() => {
-      const data = {
-        people: [],
-        addresses: [],
-        phones: [],
-        relatives: [],
-        associates: [],
-      }
-
-      // Extract people information
-      const personCards = document.querySelectorAll(".card, .person-card, .result-card, [data-person]")
-      personCards.forEach((card) => {
-        try {
-          const nameElement = card.querySelector(".name, .person-name, h3, h4, .title")
-          const ageElement = card.querySelector(".age, .person-age, [data-age]")
-          const addressElements = card.querySelectorAll(".address, .location, .addr")
-          const phoneElements = card.querySelectorAll(".phone, .tel, [data-phone]")
-
-          if (nameElement) {
-            const person = {
-              name: nameElement.textContent?.trim() || "",
-              age: ageElement ? Number.parseInt(ageElement.textContent?.replace(/\D/g, "") || "0") : undefined,
-              addresses: Array.from(addressElements).map((el) => el.textContent?.trim() || ""),
-              phones: Array.from(phoneElements).map((el) => el.textContent?.trim() || ""),
-              relatives: [],
-              associates: [],
-            }
-
-            // Extract relatives
-            const relativesSection = card.querySelector(".relatives, .family, .related")
-            if (relativesSection) {
-              const relativeLinks = relativesSection.querySelectorAll("a, .relative-name")
-              person.relatives = Array.from(relativeLinks).map((el) => el.textContent?.trim() || "")
-            }
-
-            // Extract associates
-            const associatesSection = card.querySelector(".associates, .connections, .known")
-            if (associatesSection) {
-              const associateLinks = associatesSection.querySelectorAll("a, .associate-name")
-              person.associates = Array.from(associateLinks).map((el) => el.textContent?.trim() || "")
-            }
-
-            if (person.name) {
-              data.people.push(person)
-            }
-          }
-        } catch (e) {
-          console.log("Error extracting person data:", e)
-        }
-      })
-
-      // Extract address information
-      const addressCards = document.querySelectorAll(".address-card, .property-card, [data-address]")
-      addressCards.forEach((card) => {
-        try {
-          const addressElement = card.querySelector(".address, .property-address, .addr")
-          const residentsElements = card.querySelectorAll(".resident, .current-resident, .occupant")
-          const previousElements = card.querySelectorAll(".previous, .former, .past-resident")
-
-          if (addressElement) {
-            const address = {
-              address: addressElement.textContent?.trim() || "",
-              residents: Array.from(residentsElements).map((el) => el.textContent?.trim() || ""),
-              previousResidents: Array.from(previousElements).map((el) => el.textContent?.trim() || ""),
-              propertyType: undefined,
-              yearBuilt: undefined,
-            }
-
-            // Try to extract property details
-            const typeElement = card.querySelector(".property-type, .type")
-            if (typeElement) {
-              address.propertyType = typeElement.textContent?.trim()
-            }
-
-            const yearElement = card.querySelector(".year-built, .built, [data-year]")
-            if (yearElement) {
-              const year = Number.parseInt(yearElement.textContent?.replace(/\D/g, "") || "0")
-              if (year > 1800 && year <= new Date().getFullYear()) {
-                address.yearBuilt = year
-              }
-            }
-
-            if (address.address) {
-              data.addresses.push(address)
-            }
-          }
-        } catch (e) {
-          console.log("Error extracting address data:", e)
-        }
-      })
-
-      // Extract phone information
-      const phoneElements = document.querySelectorAll(".phone-result, .phone-card, [data-phone-result]")
-      phoneElements.forEach((element) => {
-        try {
-          const phoneElement = element.querySelector(".phone, .number, .tel")
-          const ownerElement = element.querySelector(".owner, .name, .person")
-          const carrierElement = element.querySelector(".carrier, .provider, .network")
-          const locationElement = element.querySelector(".location, .city, .area")
-
-          if (phoneElement && ownerElement) {
-            const phone = {
-              phone: phoneElement.textContent?.trim() || "",
-              owner: ownerElement.textContent?.trim() || "",
-              carrier: carrierElement?.textContent?.trim(),
-              location: locationElement?.textContent?.trim(),
-              type: undefined,
-            }
-
-            // Try to determine phone type
-            const typeElement = element.querySelector(".type, .line-type")
-            if (typeElement) {
-              phone.type = typeElement.textContent?.trim()
-            }
-
-            if (phone.phone && phone.owner) {
-              data.phones.push(phone)
-            }
-          }
-        } catch (e) {
-          console.log("Error extracting phone data:", e)
-        }
-      })
-
-      // Get all text content for fallback parsing
-      const pageText = document.body.textContent || ""
-
-      return {
-        ...data,
-        pageText: pageText.substring(0, 5000), // First 5000 chars for AI processing
-        url: window.location.href,
-        title: document.title,
-      }
-    })
-
-    console.log("Scraped results:", {
-      people: results.people.length,
-      addresses: results.addresses.length,
-      phones: results.phones.length,
-      hasPageText: !!results.pageText,
-    })
-
-    return results
-  } catch (error) {
-    console.error("Scraping error:", error)
-    return {
-      error: `Failed to scrape TruePeopleSearch: ${error instanceof Error ? error.message : "Unknown error"}`,
+      addresses:
+        searchType === "address"
+          ? [
+              {
+                address: query,
+                residents: ["Current residents found"],
+                previousResidents: ["Previous residents identified"],
+                propertyType: "Residential",
+                yearBuilt: undefined,
+              },
+            ]
+          : [],
+      phones:
+        searchType === "phone"
+          ? [
+              {
+                phone: query,
+                owner: "Owner information found",
+                carrier: "Carrier identified",
+                location: "Location determined",
+                type: "Mobile/Landline",
+              },
+            ]
+          : [],
+      pageText: `Search completed for ${searchType}: ${query}. This is a demonstration of the TruePeopleSearch integration. In production, this would contain actual scraped data from TruePeopleSearch.com.`,
+      url: "https://www.truepeoplesearch.com",
+      title: "TruePeopleSearch Results",
     }
-  } finally {
-    if (browser) {
-      await browser.close()
+
+    // Add a note about the demo mode
+    console.log("Demo mode: Returning mock data. To enable real scraping, integrate with a headless browser service.")
+
+    return mockResults
+  } catch (error) {
+    console.error("Search error:", error)
+    return {
+      error: `Failed to search TruePeopleSearch: ${error instanceof Error ? error.message : "Unknown error"}`,
     }
   }
 }
@@ -418,6 +271,8 @@ function processScrapedData(scrapedData: any, searchType: string, query: string)
 async function generateAISummary(results: any, searchType: string, query: string) {
   try {
     const prompt = `You are a professional investigative researcher creating a comprehensive summary of people search results.
+
+**DEMO MODE**: This is a demonstration of the TruePeopleSearch integration. In production, this would contain real scraped data.
 
 Search Type: ${searchType}
 Search Query: ${query}

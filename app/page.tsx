@@ -1,7 +1,42 @@
 "use client"
 
+import { BoltIcon, DevicePhoneMobileIcon, GlobeAmericasIcon, ScaleIcon, BrainIcon } from "@heroicons/react/24/outline"
 import { useState } from "react"
-import { CheckCircle, X } from "lucide-react"
+import { X } from "lucide-react"
+
+const features = [
+  {
+    name: "Competitive exchange rates",
+    description:
+      "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.",
+    icon: GlobeAmericasIcon,
+  },
+  {
+    name: "No hidden fees",
+    description:
+      "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.",
+    icon: ScaleIcon,
+  },
+  {
+    name: "Transfers are instant",
+    description:
+      "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.",
+    icon: BoltIcon,
+  },
+  {
+    name: "Mobile notifications",
+    description:
+      "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.",
+    icon: DevicePhoneMobileIcon,
+  },
+]
+
+const aiHubFeatures = [
+  "AI-powered listing descriptions",
+  "Custom script generation",
+  "Professional bio creation",
+  "Market analysis tools",
+]
 
 export default function Home() {
   const [email, setEmail] = useState("")
@@ -29,16 +64,16 @@ export default function Home() {
   }
 
   return (
-    <div className="bg-white py-24 sm:py-32">
+    <div className="bg-gray-900 py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl lg:text-center">
-          <h2 className="text-base font-semibold leading-7 text-green-600">AI-Powered Real Estate Tools</h2>
-          <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            Automate Your Real Estate Business
+          <h2 className="text-base font-semibold leading-7 text-indigo-600">Automated Real Estate Solutions</h2>
+          <p className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            Everything you need to automate your real estate business.
           </p>
-          <p className="mt-6 text-lg leading-8 text-gray-600">
-            Supercharge your real estate workflow with our suite of AI-driven tools. From lead generation to closing,
-            we've got you covered.
+          <p className="mt-6 text-lg leading-8 text-gray-300">
+            From lead generation to closing, we've got you covered. Join the waitlist to be the first to experience the
+            future of real estate.
           </p>
         </div>
         <div className="mx-auto mt-16 max-w-2xl sm:mt-20 text-center">
@@ -53,79 +88,156 @@ export default function Home() {
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full rounded-md border-0 px-4 py-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:max-w-xs"
+                  className="block w-full rounded-md border-0 px-4 py-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs"
                 />
               </div>
               <div className="mt-3 sm:mt-0 sm:ml-3">
                 <button
                   type="submit"
-                  className="block w-full rounded-md bg-green-600 px-4 py-3 font-semibold text-white shadow hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2"
+                  className="block w-full rounded-md bg-indigo-600 px-4 py-3 font-semibold text-white shadow hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2"
                 >
                   {submitted ? "Submitting..." : "Join the Waitlist"}
                 </button>
               </div>
             </div>
-            <p className="mt-3 text-sm leading-6 text-gray-500">
+            <p className="mt-3 text-sm leading-6 text-gray-300">
               By joining the waitlist, you agree to our{" "}
-              <a href="#" className="font-semibold text-green-600">
+              <a href="#" className="font-semibold text-white">
                 Terms of Service
               </a>{" "}
               and{" "}
-              <a href="#" className="font-semibold text-green-600">
+              <a href="#" className="font-semibold text-white">
                 Privacy Policy
               </a>
               .
             </p>
           </form>
         </div>
-
-        <div className="mx-auto mt-16 max-w-2xl sm:mt-20">
-          <h3 className="text-lg font-semibold leading-7 text-gray-900">AI Hub</h3>
-          <p className="mt-2 text-base leading-8 text-gray-600">
-            Explore our suite of AI tools designed to streamline your real estate business.
-          </p>
-
-          {/* AI Tools List with Demo Links */}
-          <ul className="space-y-2 text-sm text-gray-400">
-            <li className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500" />
-                IdeaHub AI
+        <div className="mt-24 sm:mt-32 lg:mt-40">
+          <div className="grid grid-cols-1 gap-x-8 gap-y-20 lg:grid-cols-3">
+            {features.map((feature) => (
+              <div key={feature.name} className="mx-auto max-w-md">
+                <div className="text-center">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500">
+                    <feature.icon className="h-8 w-8 text-white" aria-hidden="true" />
+                  </div>
+                  <h3 className="mt-6 text-lg font-semibold leading-8 text-white">{feature.name}</h3>
+                  <p className="mt-2 text-base leading-7 text-gray-300">{feature.description}</p>
+                </div>
               </div>
-              <button onClick={() => setShowVideoModal(true)} className="text-[#b6a888] hover:text-[#a39577] text-xs">
-                Watch Demo
-              </button>
-            </li>
-            <li className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500" />
-                ListIT AI
+            ))}
+            <div className="mx-auto max-w-md">
+              <div className="text-center">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500">
+                  <BrainIcon className="h-8 w-8 text-white" aria-hidden="true" />
+                </div>
+                <h3 className="mt-6 text-lg font-semibold leading-8 text-white">AI Hub</h3>
+                {/* AI Tools List with Demo Links */}
+                <ul className="mt-4 space-y-2 text-sm text-gray-300">
+                  <li className="flex items-center justify-between">
+                    IdeaHub AI
+                    <button
+                      onClick={() => setShowVideoModal(true)}
+                      className="text-[#b6a888] hover:text-[#a39577] text-xs"
+                    >
+                      Watch Demo
+                    </button>
+                  </li>
+                  <li className="flex items-center justify-between">
+                    ListIT AI
+                    <button
+                      onClick={() => setShowVideoModal(true)}
+                      className="text-[#b6a888] hover:text-[#a39577] text-xs"
+                    >
+                      Watch Demo
+                    </button>
+                  </li>
+                  <li className="flex items-center justify-between">
+                    ScriptIT AI
+                    <button
+                      onClick={() => setShowVideoModal(true)}
+                      className="text-[#b6a888] hover:text-[#a39577] text-xs"
+                    >
+                      Watch Demo
+                    </button>
+                  </li>
+                  <li className="flex items-center justify-between">
+                    RealBio AI
+                    <button
+                      onClick={() => setShowVideoModal(true)}
+                      className="text-[#b6a888] hover:text-[#a39577] text-xs"
+                    >
+                      Watch Demo
+                    </button>
+                  </li>
+                  <li className="flex items-center justify-between">
+                    RolePlay AI
+                    <button
+                      onClick={() => setShowVideoModal(true)}
+                      className="text-[#b6a888] hover:text-[#a39577] text-xs"
+                    >
+                      Watch Demo
+                    </button>
+                  </li>
+                  <li className="flex items-center justify-between">
+                    Action AI
+                    <button
+                      onClick={() => setShowVideoModal(true)}
+                      className="text-[#b6a888] hover:text-[#a39577] text-xs"
+                    >
+                      Watch Demo
+                    </button>
+                  </li>
+                  <li className="flex items-center justify-between">
+                    RealCoach AI
+                    <button
+                      onClick={() => setShowVideoModal(true)}
+                      className="text-[#b6a888] hover:text-[#a39577] text-xs"
+                    >
+                      Watch Demo
+                    </button>
+                  </li>
+                  <li className="flex items-center justify-between">
+                    BizPlan AI
+                    <button
+                      onClick={() => setShowVideoModal(true)}
+                      className="text-[#b6a888] hover:text-[#a39577] text-xs"
+                    >
+                      Watch Demo
+                    </button>
+                  </li>
+                  <li className="flex items-center justify-between">
+                    RealDeal AI
+                    <button
+                      onClick={() => setShowVideoModal(true)}
+                      className="text-[#b6a888] hover:text-[#a39577] text-xs"
+                    >
+                      Watch Demo
+                    </button>
+                  </li>
+                  <li className="flex items-center justify-between">
+                    QuickCMA AI
+                    <button
+                      onClick={() => setShowVideoModal(true)}
+                      className="text-[#b6a888] hover:text-[#a39577] text-xs"
+                    >
+                      Watch Demo
+                    </button>
+                  </li>
+                  <li className="flex items-center justify-between">
+                    Who's Who AI
+                    <button
+                      onClick={() => setShowVideoModal(true)}
+                      className="text-[#b6a888] hover:text-[#a39577] text-xs"
+                    >
+                      Watch Demo
+                    </button>
+                  </li>
+                </ul>
               </div>
-              <button onClick={() => setShowVideoModal(true)} className="text-[#b6a888] hover:text-[#a39577] text-xs">
-                Watch Demo
-              </button>
-            </li>
-            <li className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500" />
-                ScriptIT AI
-              </div>
-              <button onClick={() => setShowVideoModal(true)} className="text-[#b6a888] hover:text-[#a39577] text-xs">
-                Watch Demo
-              </button>
-            </li>
-            <li className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500" />
-                RealBio AI
-              </div>
-              <button onClick={() => setShowVideoModal(true)} className="text-[#b6a888] hover:text-[#a39577] text-xs">
-                Watch Demo
-              </button>
-            </li>
-          </ul>
+            </div>
+          </div>
         </div>
-
         {/* Demo Video Modal */}
         {selectedDemo && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">

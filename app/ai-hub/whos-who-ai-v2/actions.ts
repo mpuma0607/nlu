@@ -61,14 +61,15 @@ interface AssociateResult {
   addresses: string[]
 }
 
-export async function searchTruePeopleSearch(formData: SearchFormData) {
+// Main search function that the form expects
+export async function searchPeopleData(query: string, searchType: "address" | "name" | "phone") {
   try {
     console.log("=== TruePeopleSearch Integration ===")
-    console.log("Search Type:", formData.searchType)
-    console.log("Query:", formData.query)
+    console.log("Search Type:", searchType)
+    console.log("Query:", query)
 
     // Use fetch-based scraping instead of Puppeteer
-    const scrapedData = await fetchTruePeopleSearch(formData.searchType, formData.query)
+    const scrapedData = await fetchTruePeopleSearch(searchType, query)
 
     if (!scrapedData || scrapedData.error) {
       return {
@@ -78,44 +79,17 @@ export async function searchTruePeopleSearch(formData: SearchFormData) {
     }
 
     // Process and structure the scraped data
-    const processedResults = processScrapedData(scrapedData, formData.searchType, formData.query)
+    const processedResults = processScrapedData(scrapedData, searchType, query)
 
     // Generate AI summary
-    const aiSummary = await generateAISummary(processedResults, formData.searchType, formData.query)
+    const aiSummary = await generateAISummary(processedResults, searchType, query)
 
     const finalResult: SearchResult = {
       summary: aiSummary,
-      searchType: formData.searchType,
-      searchQuery: formData.query,
+      searchType: searchType,
+      searchQuery: query,
       results: processedResults,
       rawData: scrapedData,
-    }
-
-    // Send email with results
-    try {
-      const emailResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/send-whos-who-v2-email`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: formData.email,
-            searchType: formData.searchType,
-            query: formData.query,
-            summary: aiSummary,
-            results: processedResults,
-            rawData: scrapedData,
-          }),
-        },
-      )
-
-      if (!emailResponse.ok) {
-        console.error("Failed to send email:", await emailResponse.text())
-      }
-    } catch (emailError) {
-      console.error("Email error:", emailError)
     }
 
     return {
@@ -129,6 +103,83 @@ export async function searchTruePeopleSearch(formData: SearchFormData) {
       error: error instanceof Error ? error.message : "Failed to retrieve search results",
     }
   }
+}
+
+// CMA generation function
+export async function generateCMA(address: string) {
+  try {
+    console.log("Generating CMA for:", address)
+
+    // Mock CMA data - in production this would integrate with real estate APIs
+    const mockCMA = {
+      address,
+      estimatedValue: "$" + (Math.floor(Math.random() * 500000) + 200000).toLocaleString(),
+      pricePerSqFt: "$" + (Math.floor(Math.random() * 100) + 150),
+      marketTrend: Math.random() > 0.5 ? "Appreciating" : "Stable",
+      comparableHomes: [
+        {
+          address: "Similar property nearby",
+          soldPrice: "$" + (Math.floor(Math.random() * 500000) + 200000).toLocaleString(),
+          soldDate: "2024-01-15",
+          sqft: Math.floor(Math.random() * 1000) + 1500,
+        },
+        {
+          address: "Another comparable home",
+          soldPrice: "$" + (Math.floor(Math.random() * 500000) + 200000).toLocaleString(),
+          soldDate: "2024-02-20",
+          sqft: Math.floor(Math.random() * 1000) + 1500,
+        },
+      ],
+      summary: `Based on recent comparable sales in the area, this property at ${address} is estimated to be worth approximately $${(Math.floor(Math.random() * 500000) + 200000).toLocaleString()}. The local market shows ${Math.random() > 0.5 ? "stable" : "appreciating"} pricing with moderate activity over the past 12 months.`,
+    }
+
+    return {
+      success: true,
+      data: mockCMA,
+    }
+  } catch (error) {
+    console.error("CMA generation error:", error)
+    return {
+      success: false,
+      error: "Failed to generate CMA",
+    }
+  }
+}
+
+// Email sending function
+export async function sendWhosWhoV2Email(email: string, results: any, cmaResults?: any) {
+  try {
+    console.log("Sending Who's Who V2 email to:", email)
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/send-whos-who-v2-email`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        results,
+        cmaResults,
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to send email")
+    }
+
+    return { success: true }
+  } catch (error) {
+    console.error("Email sending error:", error)
+    return {
+      success: false,
+      error: "Failed to send email report",
+    }
+  }
+}
+
+// Legacy function for backward compatibility
+export async function searchTruePeopleSearch(formData: SearchFormData) {
+  return await searchPeopleData(formData.query, formData.searchType)
 }
 
 async function fetchTruePeopleSearch(searchType: string, query: string) {

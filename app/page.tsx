@@ -200,56 +200,75 @@ export default function HomePage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2 text-sm text-gray-400">
-                  <li className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      IdeaHub AI
-                    </div>
-                    <button
-                      onClick={() => handleWatchDemo("IdeaHub AI")}
-                      className="text-[#b6a888] hover:text-[#a39577] text-xs"
-                    >
-                      Watch Demo
-                    </button>
-                  </li>
-                  <li className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      ListIT AI
-                    </div>
-                    <button
-                      onClick={() => handleWatchDemo("ListIT AI")}
-                      className="text-[#b6a888] hover:text-[#a39577] text-xs"
-                    >
-                      Watch Demo
-                    </button>
-                  </li>
-                  <li className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      ScriptIT AI
-                    </div>
-                    <button
-                      onClick={() => handleWatchDemo("ScriptIT AI")}
-                      className="text-[#b6a888] hover:text-[#a39577] text-xs"
-                    >
-                      Watch Demo
-                    </button>
-                  </li>
-                  <li className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      RealBio AI
-                    </div>
-                    <button
-                      onClick={() => handleWatchDemo("RealBio AI")}
-                      className="text-[#b6a888] hover:text-[#a39577] text-xs"
-                    >
-                      Watch Demo
-                    </button>
-                  </li>
-                </ul>
+                <p className="text-sm text-gray-300 mb-4">For a demo of each tool, click it below:</p>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <button
+                    onClick={() => handleWatchDemo("IdeaHub AI")}
+                    className="text-[#b6a888] hover:text-[#a39577] text-left"
+                  >
+                    IdeaHub AI Demo
+                  </button>
+                  <button
+                    onClick={() => handleWatchDemo("ListIT AI")}
+                    className="text-[#b6a888] hover:text-[#a39577] text-left"
+                  >
+                    ListIT AI Demo
+                  </button>
+                  <button
+                    onClick={() => handleWatchDemo("ScriptIT AI")}
+                    className="text-[#b6a888] hover:text-[#a39577] text-left"
+                  >
+                    ScriptIT AI Demo
+                  </button>
+                  <button
+                    onClick={() => handleWatchDemo("RealBio AI")}
+                    className="text-[#b6a888] hover:text-[#a39577] text-left"
+                  >
+                    RealBio AI Demo
+                  </button>
+                  <button
+                    onClick={() => handleWatchDemo("RolePlay AI")}
+                    className="text-[#b6a888] hover:text-[#a39577] text-left"
+                  >
+                    RolePlay AI Demo
+                  </button>
+                  <button
+                    onClick={() => handleWatchDemo("Action AI")}
+                    className="text-[#b6a888] hover:text-[#a39577] text-left"
+                  >
+                    Action AI Demo
+                  </button>
+                  <button
+                    onClick={() => handleWatchDemo("RealCoach AI")}
+                    className="text-[#b6a888] hover:text-[#a39577] text-left"
+                  >
+                    RealCoach AI Demo
+                  </button>
+                  <button
+                    onClick={() => handleWatchDemo("BizPlan AI")}
+                    className="text-[#b6a888] hover:text-[#a39577] text-left"
+                  >
+                    BizPlan AI Demo
+                  </button>
+                  <button
+                    onClick={() => handleWatchDemo("RealDeal AI")}
+                    className="text-[#b6a888] hover:text-[#a39577] text-left"
+                  >
+                    RealDeal AI Demo
+                  </button>
+                  <button
+                    onClick={() => handleWatchDemo("QuickCMA AI")}
+                    className="text-[#b6a888] hover:text-[#a39577] text-left"
+                  >
+                    QuickCMA AI Demo
+                  </button>
+                  <button
+                    onClick={() => handleWatchDemo("Who's Who AI")}
+                    className="text-[#b6a888] hover:text-[#a39577] text-left col-span-2 text-center"
+                  >
+                    Who's Who AI Demo
+                  </button>
+                </div>
               </CardContent>
             </Card>
 

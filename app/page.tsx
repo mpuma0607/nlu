@@ -7,6 +7,7 @@ export default function Home() {
   const [email, setEmail] = useState("")
   const [submitted, setSubmitted] = useState(false)
   const [selectedDemo, setSelectedDemo] = useState<string | null>(null)
+  const [showVideoModal, setShowVideoModal] = useState(false)
 
   const handleSubmit = async (e: any) => {
     e.preventDefault()
@@ -85,39 +86,44 @@ export default function Home() {
           </p>
 
           {/* AI Tools List with Demo Links */}
-          <div className="space-y-3">
-            {[
-              { name: "IdeaHub AI", description: "Social Media Content Generation" },
-              { name: "RealBio", description: "Professional Agent Bio Creation" },
-              { name: "ListIT", description: "Property Listing Descriptions" },
-              { name: "ScriptIT", description: "Custom Real Estate Scripts" },
-              { name: "RolePlay AI", description: "Voice Conversation Practice" },
-              { name: "Action AI", description: "Daily Prospecting Action Plans" },
-              { name: "RealCoach AI", description: "Personalized Business Coaching" },
-              { name: "BizPlan AI", description: "90-Day Business Plan Generator" },
-              { name: "RealDeal AI", description: "Contract Analysis & Summarization" },
-              { name: "QuickCMA AI", description: "Comparative Market Analysis Tool" },
-              { name: "Who's Who AI", description: "Property Owner Skip Tracing" },
-              { name: "GoalScreen AI", description: "Custom Goal Wallpaper Generator" },
-              { name: "PropBot AI", description: "Intelligent Property Search & Analysis" },
-            ].map((tool, index) => (
-              <div key={index} className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                  <div>
-                    <span className="font-medium text-gray-900">{tool.name}</span>
-                    <span className="text-gray-600 ml-2">- {tool.description}</span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setSelectedDemo(tool.name.toLowerCase().replace(/\s+/g, "-"))}
-                  className="text-green-600 hover:text-green-700 font-medium text-sm whitespace-nowrap ml-4"
-                >
-                  Watch Demo
-                </button>
+          <ul className="space-y-2 text-sm text-gray-400">
+            <li className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                IdeaHub AI
               </div>
-            ))}
-          </div>
+              <button onClick={() => setShowVideoModal(true)} className="text-[#b6a888] hover:text-[#a39577] text-xs">
+                Watch Demo
+              </button>
+            </li>
+            <li className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                ListIT AI
+              </div>
+              <button onClick={() => setShowVideoModal(true)} className="text-[#b6a888] hover:text-[#a39577] text-xs">
+                Watch Demo
+              </button>
+            </li>
+            <li className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                ScriptIT AI
+              </div>
+              <button onClick={() => setShowVideoModal(true)} className="text-[#b6a888] hover:text-[#a39577] text-xs">
+                Watch Demo
+              </button>
+            </li>
+            <li className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                RealBio AI
+              </div>
+              <button onClick={() => setShowVideoModal(true)} className="text-[#b6a888] hover:text-[#a39577] text-xs">
+                Watch Demo
+              </button>
+            </li>
+          </ul>
         </div>
 
         {/* Demo Video Modal */}

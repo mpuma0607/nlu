@@ -68,20 +68,33 @@ export async function searchPeopleData(query: string, searchType: "address" | "n
     console.log("Search Type:", searchType)
     console.log("Query:", query)
 
-    // Use ScrapingBee API for reliable scraping
-    let scrapedData = await scrapeWithScrapingBee(searchType, query)
+    // Try multiple scraping methods in order of preference
+    let scrapedData = null
+
+    // Method 1: Browserless.io (if API key available)
+    if (process.env.BROWSERLESS_API_KEY) {
+      console.log("Trying Browserless.io...")
+      scrapedData = await scrapeWithBrowserless(searchType, query)
+    }
+
+    // Method 2: ScraperAPI (if API key available)
+    if (!scrapedData && process.env.SCRAPERAPI_KEY) {
+      console.log("Trying ScraperAPI...")
+      scrapedData = await scrapeWithScraperAPI(searchType, query)
+    }
+
+    // Method 3: Direct fetch with advanced techniques
+    if (!scrapedData) {
+      console.log("Trying advanced direct fetch...")
+      scrapedData = await scrapeWithAdvancedFetch(searchType, query)
+    }
 
     if (!scrapedData || scrapedData.error) {
-      console.log("ScrapingBee failed, trying direct fetch...")
-      // Fallback to direct fetch
-      const directData = await fetchTruePeopleSearchDirect(searchType, query)
-      if (!directData || directData.error) {
-        return {
-          success: false,
-          error: "Unable to retrieve real data from TruePeopleSearch. Please try again later.",
-        }
+      return {
+        success: false,
+        error:
+          "Unable to retrieve real data from TruePeopleSearch. The service may be temporarily blocking requests. Please try again later.",
       }
-      scrapedData = directData
     }
 
     // Process and structure the scraped data
@@ -111,29 +124,50 @@ export async function searchPeopleData(query: string, searchType: "address" | "n
   }
 }
 
-async function scrapeWithScrapingBee(searchType: string, query: string) {
+async function scrapeWithBrowserless(searchType: string, query: string) {
   try {
-    // Build TruePeopleSearch URL
-    let searchUrl = "https://www.truepeoplesearch.com/results?"
+    const searchUrl = buildTruePeopleSearchURL(searchType, query)
+    console.log("Browserless scraping URL:", searchUrl)
 
-    if (searchType === "name") {
-      const nameParts = query.trim().split(" ")
-      const firstName = nameParts[0] || ""
-      const lastName = nameParts.slice(1).join(" ") || ""
-      searchUrl += `name=${encodeURIComponent(firstName)}&lastname=${encodeURIComponent(lastName)}`
-    } else if (searchType === "address") {
-      searchUrl += `citystatezip=${encodeURIComponent(query)}`
-    } else if (searchType === "phone") {
-      const cleanPhone = query.replace(/\D/g, "")
-      searchUrl += `phoneno=${encodeURIComponent(cleanPhone)}`
+    const browserlessUrl = `https://chrome.browserless.io/content?token=${process.env.BROWSERLESS_API_KEY}`
+
+    const response = await fetch(browserlessUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        url: searchUrl,
+        waitFor: 2000, // Wait 2 seconds for page to load
+        gotoOptions: {
+          waitUntil: "networkidle2",
+        },
+        rejectRequestPattern: [".*\\.css", ".*\\.png", ".*\\.jpg", ".*\\.jpeg", ".*\\.gif"], // Block unnecessary resources
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error(`Browserless API error: ${response.status}`)
     }
 
-    console.log("Scraping URL:", searchUrl)
+    const html = await response.text()
+    console.log("Browserless HTML received, length:", html.length)
 
-    // Use ScrapingBee API (you'd need to sign up and get an API key)
-    const scrapingBeeUrl = `https://app.scrapingbee.com/api/v1/?api_key=${process.env.SCRAPINGBEE_API_KEY}&url=${encodeURIComponent(searchUrl)}&render_js=true&premium_proxy=true&country_code=us`
+    return parseRealHTMLResults(html, searchType, query)
+  } catch (error) {
+    console.error("Browserless error:", error)
+    return null
+  }
+}
 
-    const response = await fetch(scrapingBeeUrl, {
+async function scrapeWithScraperAPI(searchType: string, query: string) {
+  try {
+    const searchUrl = buildTruePeopleSearchURL(searchType, query)
+    console.log("ScraperAPI scraping URL:", searchUrl)
+
+    const scraperApiUrl = `http://api.scraperapi.com?api_key=${process.env.SCRAPERAPI_KEY}&url=${encodeURIComponent(searchUrl)}&render=true&country_code=us`
+
+    const response = await fetch(scraperApiUrl, {
       method: "GET",
       headers: {
         Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -141,84 +175,125 @@ async function scrapeWithScrapingBee(searchType: string, query: string) {
     })
 
     if (!response.ok) {
-      throw new Error(`ScrapingBee API error: ${response.status}`)
+      throw new Error(`ScraperAPI error: ${response.status}`)
     }
 
     const html = await response.text()
-    console.log("HTML received from ScrapingBee, length:", html.length)
+    console.log("ScraperAPI HTML received, length:", html.length)
 
     return parseRealHTMLResults(html, searchType, query)
   } catch (error) {
-    console.error("ScrapingBee error:", error)
-    return { error: "ScrapingBee failed" }
+    console.error("ScraperAPI error:", error)
+    return null
   }
 }
 
-async function fetchTruePeopleSearchDirect(searchType: string, query: string) {
+async function scrapeWithAdvancedFetch(searchType: string, query: string) {
   try {
-    console.log("Attempting direct fetch to TruePeopleSearch...")
+    const searchUrl = buildTruePeopleSearchURL(searchType, query)
+    console.log("Advanced fetch URL:", searchUrl)
 
-    // Build search URL
-    let searchUrl = "https://www.truepeoplesearch.com/results?"
-
-    if (searchType === "name") {
-      const nameParts = query.trim().split(" ")
-      const firstName = nameParts[0] || ""
-      const lastName = nameParts.slice(1).join(" ") || ""
-      searchUrl += `name=${encodeURIComponent(firstName)}&lastname=${encodeURIComponent(lastName)}`
-    } else if (searchType === "address") {
-      searchUrl += `citystatezip=${encodeURIComponent(query)}`
-    } else if (searchType === "phone") {
-      const cleanPhone = query.replace(/\D/g, "")
-      searchUrl += `phoneno=${encodeURIComponent(cleanPhone)}`
-    }
-
-    console.log("Direct fetch URL:", searchUrl)
-
-    // Use multiple user agents and headers to avoid blocking
-    const userAgents = [
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    // Use multiple strategies
+    const strategies = [
+      // Strategy 1: Standard headers
+      {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+          "Accept-Language": "en-US,en;q=0.9",
+          "Accept-Encoding": "gzip, deflate, br",
+          "Cache-Control": "max-age=0",
+          "Sec-Fetch-Dest": "document",
+          "Sec-Fetch-Mode": "navigate",
+          "Sec-Fetch-Site": "none",
+          "Sec-Fetch-User": "?1",
+          "Upgrade-Insecure-Requests": "1",
+        },
+      },
+      // Strategy 2: Mobile user agent
+      {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
+          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          "Accept-Language": "en-US,en;q=0.5",
+        },
+      },
+      // Strategy 3: Different browser
+      {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:120.0) Gecko/20100101 Firefox/120.0",
+          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+          "Accept-Language": "en-US,en;q=0.5",
+        },
+      },
     ]
 
-    const randomUserAgent = userAgents[Math.floor(Math.random() * userAgents.length)]
+    for (const strategy of strategies) {
+      try {
+        console.log("Trying strategy with User-Agent:", strategy.headers["User-Agent"].substring(0, 50) + "...")
 
-    const response = await fetch(searchUrl, {
-      method: "GET",
-      headers: {
-        "User-Agent": randomUserAgent,
-        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Accept-Encoding": "gzip, deflate, br",
-        DNT: "1",
-        Connection: "keep-alive",
-        "Upgrade-Insecure-Requests": "1",
-        "Sec-Fetch-Dest": "document",
-        "Sec-Fetch-Mode": "navigate",
-        "Sec-Fetch-Site": "none",
-        "Sec-Fetch-User": "?1",
-        "Cache-Control": "max-age=0",
-      },
-    })
+        const response = await fetch(searchUrl, {
+          method: "GET",
+          headers: strategy.headers,
+        })
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
+        if (!response.ok) {
+          console.log(`Strategy failed with status: ${response.status}`)
+          continue
+        }
+
+        const html = await response.text()
+        console.log(`Strategy success! HTML length: ${html.length}`)
+
+        // Check if we got blocked
+        if (
+          html.includes("blocked") ||
+          html.includes("captcha") ||
+          html.includes("Access Denied") ||
+          html.length < 1000
+        ) {
+          console.log("Strategy blocked or minimal content")
+          continue
+        }
+
+        const parsed = parseRealHTMLResults(html, searchType, query)
+        if (parsed && (parsed.people.length > 0 || parsed.addresses.length > 0 || parsed.phones.length > 0)) {
+          return parsed
+        }
+      } catch (strategyError) {
+        console.log("Strategy error:", strategyError)
+        continue
+      }
+
+      // Add delay between attempts
+      await new Promise((resolve) => setTimeout(resolve, 1000))
     }
 
-    const html = await response.text()
-    console.log("Direct fetch HTML received, length:", html.length)
-
-    // Check if we got blocked
-    if (html.includes("blocked") || html.includes("captcha") || html.includes("Access Denied") || html.length < 1000) {
-      throw new Error("Request was blocked or returned minimal content")
-    }
-
-    return parseRealHTMLResults(html, searchType, query)
+    throw new Error("All strategies failed")
   } catch (error) {
-    console.error("Direct fetch error:", error)
-    return { error: "Direct fetch failed" }
+    console.error("Advanced fetch error:", error)
+    return null
   }
+}
+
+function buildTruePeopleSearchURL(searchType: string, query: string) {
+  let searchUrl = "https://www.truepeoplesearch.com/results?"
+
+  if (searchType === "name") {
+    const nameParts = query.trim().split(" ")
+    const firstName = nameParts[0] || ""
+    const lastName = nameParts.slice(1).join(" ") || ""
+    searchUrl += `name=${encodeURIComponent(firstName)}&lastname=${encodeURIComponent(lastName)}`
+  } else if (searchType === "address") {
+    searchUrl += `citystatezip=${encodeURIComponent(query)}`
+  } else if (searchType === "phone") {
+    const cleanPhone = query.replace(/\D/g, "")
+    searchUrl += `phoneno=${encodeURIComponent(cleanPhone)}`
+  }
+
+  return searchUrl
 }
 
 function parseRealHTMLResults(html: string, searchType: string, query: string) {
@@ -229,66 +304,95 @@ function parseRealHTMLResults(html: string, searchType: string, query: string) {
     const addresses: any[] = []
     const phones: any[] = []
 
-    // More sophisticated parsing for TruePeopleSearch
+    // Enhanced parsing for TruePeopleSearch structure
 
-    // Extract person cards (TruePeopleSearch uses specific class names)
-    const personCardRegex = /<div[^>]*class="[^"]*card[^"]*"[^>]*>(.*?)<\/div>/gis
-    const personMatches = html.match(personCardRegex) || []
+    // Method 1: Look for person cards with various class patterns
+    const personPatterns = [
+      /<div[^>]*class="[^"]*card[^"]*person[^"]*"[^>]*>(.*?)<\/div>/gis,
+      /<div[^>]*class="[^"]*result[^"]*"[^>]*>(.*?)<\/div>/gis,
+      /<div[^>]*class="[^"]*person[^"]*"[^>]*>(.*?)<\/div>/gis,
+    ]
 
-    console.log(`Found ${personMatches.length} potential person cards`)
+    for (const pattern of personPatterns) {
+      const matches = html.match(pattern) || []
+      console.log(`Pattern found ${matches.length} matches`)
 
-    personMatches.forEach((card, index) => {
-      try {
-        // Extract name
-        const nameMatch =
-          card.match(/<h4[^>]*class="[^"]*h4[^"]*"[^>]*>([^<]+)</i) ||
-          card.match(/<div[^>]*class="[^"]*name[^"]*"[^>]*>([^<]+)</i) ||
-          card.match(/<span[^>]*class="[^"]*name[^"]*"[^>]*>([^<]+)</i)
+      matches.forEach((card) => {
+        try {
+          // Extract name with multiple patterns
+          const namePatterns = [
+            /<h[1-6][^>]*>([^<]+)<\/h[1-6]>/i,
+            /<div[^>]*class="[^"]*name[^"]*"[^>]*>([^<]+)<\/div>/i,
+            /<span[^>]*class="[^"]*name[^"]*"[^>]*>([^<]+)<\/span>/i,
+            /<a[^>]*class="[^"]*name[^"]*"[^>]*>([^<]+)<\/a>/i,
+          ]
 
-        if (nameMatch) {
-          const name = nameMatch[1].trim()
+          let name = ""
+          for (const namePattern of namePatterns) {
+            const nameMatch = card.match(namePattern)
+            if (nameMatch && nameMatch[1].trim().length > 2) {
+              name = nameMatch[1].trim()
+              break
+            }
+          }
 
-          // Extract age
-          const ageMatch = card.match(/age[^>]*>(\d+)</i) || card.match(/(\d{2,3})\s*years?\s*old/i)
-          const age = ageMatch ? Number.parseInt(ageMatch[1]) : undefined
+          if (name) {
+            // Extract age
+            const ageMatch = card.match(/(?:age|years?\s*old)[^>]*>(\d+)/i) || card.match(/(\d{2,3})\s*years?\s*old/i)
+            const age = ageMatch ? Number.parseInt(ageMatch[1]) : undefined
 
-          // Extract addresses
-          const addressMatches = card.match(/\d+[^,]+,\s*[^,]+,\s*[A-Z]{2}\s+\d{5}/g) || []
+            // Extract addresses with better patterns
+            const addressMatches =
+              card.match(
+                /\d+[^,\n]+(?:St|Ave|Rd|Dr|Ln|Blvd|Way|Ct|Pl|Circle|Drive|Street|Avenue|Road|Lane|Boulevard|Court|Place)[^,]*,\s*[^,\n]+,\s*[A-Z]{2}\s+\d{5}(?:-\d{4})?/gi,
+              ) || []
 
-          // Extract phone numbers
-          const phoneMatches =
-            card.match(/$$\d{3}$$\s*\d{3}-\d{4}/g) || card.match(/\d{3}-\d{3}-\d{4}/g) || card.match(/\d{10}/g) || []
+            // Extract phone numbers with multiple formats
+            const phonePatterns = [
+              /$$\d{3}$$\s*\d{3}-\d{4}/g,
+              /\d{3}-\d{3}-\d{4}/g,
+              /\d{3}\.\d{3}\.\d{4}/g,
+              /$$\d{3}$$\s*\d{3}-\d{4}/g,
+            ]
 
-          // Extract relatives (look for "Related to" or similar sections)
-          const relativesSection = card.match(/(?:related|relatives?|family)[^>]*>(.*?)(?:<\/div>|<div)/is)
-          const relatives = relativesSection ? relativesSection[1].match(/[A-Z][a-z]+\s+[A-Z][a-z]+/g) || [] : []
+            let phoneMatches: string[] = []
+            for (const phonePattern of phonePatterns) {
+              const matches = card.match(phonePattern) || []
+              phoneMatches = phoneMatches.concat(matches)
+            }
 
-          if (name && name.length > 2) {
+            // Extract relatives
+            const relativesSection = card.match(
+              /(?:related|relatives?|family|associates?)[^>]*>(.*?)(?:<\/div>|<div|$)/is,
+            )
+            const relatives = relativesSection ? relativesSection[1].match(/[A-Z][a-z]+\s+[A-Z][a-z]+/g) || [] : []
+
             people.push({
               name,
               age,
-              addresses: addressMatches,
-              phones: phoneMatches.map((p) => p.replace(/\D/g, "").replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3")),
-              relatives: relatives.slice(0, 5), // Limit to 5 relatives
-              associates: [], // Associates are harder to extract reliably
+              addresses: [...new Set(addressMatches)], // Remove duplicates
+              phones: [...new Set(phoneMatches.map((p) => formatPhone(p)))], // Format and dedupe
+              relatives: [...new Set(relatives.slice(0, 5))], // Limit and dedupe
+              associates: [],
             })
           }
+        } catch (cardError) {
+          console.error("Error parsing card:", cardError)
         }
-      } catch (cardError) {
-        console.error(`Error parsing card ${index}:`, cardError)
-      }
-    })
+      })
+    }
 
     // Extract standalone addresses
     const addressMatches =
       html.match(
-        /\d+\s+[A-Za-z\s]+(?:St|Ave|Rd|Dr|Ln|Blvd|Way|Ct|Pl|Circle|Drive|Street|Avenue|Road|Lane|Boulevard|Court|Place)[^,]*,\s*[A-Za-z\s]+,\s*[A-Z]{2}\s+\d{5}(?:-\d{4})?/g,
+        /\d+\s+[A-Za-z\s]+(?:St|Ave|Rd|Dr|Ln|Blvd|Way|Ct|Pl|Circle|Drive|Street|Avenue|Road|Lane|Boulevard|Court|Place)[^,]*,\s*[A-Za-z\s]+,\s*[A-Z]{2}\s+\d{5}(?:-\d{4})?/gi,
       ) || []
 
     addressMatches.forEach((address) => {
-      if (!addresses.find((a) => a.address === address)) {
+      const cleanAddress = address.trim()
+      if (!addresses.find((a) => a.address === cleanAddress)) {
         addresses.push({
-          address: address.trim(),
+          address: cleanAddress,
           residents: [],
           previousResidents: [],
           propertyType: undefined,
@@ -300,9 +404,10 @@ function parseRealHTMLResults(html: string, searchType: string, query: string) {
     // Extract standalone phone numbers
     const phoneMatches = html.match(/$$\d{3}$$\s*\d{3}-\d{4}/g) || []
     phoneMatches.forEach((phone) => {
-      if (!phones.find((p) => p.phone === phone)) {
+      const formattedPhone = formatPhone(phone)
+      if (!phones.find((p) => p.phone === formattedPhone)) {
         phones.push({
-          phone: phone.trim(),
+          phone: formattedPhone,
           owner: "Information available",
           carrier: undefined,
           location: undefined,
@@ -311,26 +416,29 @@ function parseRealHTMLResults(html: string, searchType: string, query: string) {
       }
     })
 
-    console.log(`Parsed results: ${people.length} people, ${addresses.length} addresses, ${phones.length} phones`)
+    console.log(`Final parsed results: ${people.length} people, ${addresses.length} addresses, ${phones.length} phones`)
 
-    // If we found actual data, return it
-    if (people.length > 0 || addresses.length > 0 || phones.length > 0) {
-      return {
-        people,
-        addresses,
-        phones,
-        pageText: html.substring(0, 5000), // More text for AI analysis
-        url: `https://www.truepeoplesearch.com/results?${searchType}=${query}`,
-        title: "TruePeopleSearch Results",
-        isRealData: true,
-      }
-    } else {
-      throw new Error("No data found in HTML")
+    return {
+      people,
+      addresses,
+      phones,
+      pageText: html.substring(0, 5000),
+      url: buildTruePeopleSearchURL(searchType, query),
+      title: "TruePeopleSearch Results",
+      isRealData: true,
     }
   } catch (error) {
     console.error("HTML parsing error:", error)
     throw error
   }
+}
+
+function formatPhone(phone: string): string {
+  const cleaned = phone.replace(/\D/g, "")
+  if (cleaned.length === 10) {
+    return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`
+  }
+  return phone
 }
 
 // CMA generation function

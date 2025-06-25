@@ -66,6 +66,7 @@ export default function HomePage() {
       "ListIT AI": "https://www.youtube.com/embed/ELgYo_ErzCs?autoplay=0&rel=0&modestbranding=1",
       "RealCoach AI": "https://www.youtube.com/embed/fPZKFTuQg98?autoplay=0&rel=0&modestbranding=1",
       "IdeaHub AI": "https://www.youtube.com/embed/fKoYPHRyfK8?autoplay=0&rel=0&modestbranding=1",
+      "PropBot AI": "https://www.youtube.com/embed/m7RZC9TAe3g?autoplay=0&rel=0&modestbranding=1",
     }
 
     return videoMap[toolName] || "https://www.youtube.com/embed/qF050toaVYU?autoplay=0&rel=0&modestbranding=1"
@@ -219,7 +220,7 @@ export default function HomePage() {
                 <Brain className="h-12 w-12 text-[#b6a888] mb-4" />
                 <CardTitle className="text-white">AI Hub</CardTitle>
                 <CardDescription className="text-gray-300">
-                  11 powerful AI tools including ListIt, ScriptIt, RealBio, ActionAI, and more
+                  12 powerful AI tools including ListIt, ScriptIt, RealBio, ActionAI, and more
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -293,6 +294,12 @@ export default function HomePage() {
                       className="text-[#b6a888] hover:text-[#a39577] text-left block"
                     >
                       Who's Who AI Demo
+                    </button>
+                    <button
+                      onClick={() => handleWatchDemo("PropBot AI")}
+                      className="text-[#b6a888] hover:text-[#a39577] text-left block"
+                    >
+                      PropBot AI Demo
                     </button>
                   </div>
                 </div>

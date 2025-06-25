@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { MessageSquare, Sparkles } from "lucide-react"
-import ScriptForm from "@/components/script-form"
+import ScriptForm from "./script-form"
 
 export default function ScriptITPage() {
   return (

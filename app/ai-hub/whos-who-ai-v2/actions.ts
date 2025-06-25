@@ -17,7 +17,7 @@ interface SearchResult {
     people: PersonResult[]
     addresses: AddressResult[]
     phones: PhoneResult[]
-    relatives: PersonResult[]
+    relatives: RelativeResult[]
     associates: AssociateResult[]
   }
   rawData: any
@@ -67,89 +67,93 @@ export async function searchPeopleData(query: string, searchType: "address" | "n
     console.log("=== Hybrid TruePeopleSearch Integration ===")
     console.log("Search Type:", searchType)
     console.log("Query:", query)
-    console.log("Environment Check:")
-    console.log(
-      "- BRIGHT_DATA_PUPPETEER_ENDPOINT:",
-      process.env.BRIGHT_DATA_PUPPETEER_ENDPOINT ? "✅ Set" : "❌ Missing",
-    )
-    console.log("- BRIGHT_DATA_USERNAME:", process.env.BRIGHT_DATA_USERNAME ? "✅ Set" : "❌ Missing")
-    console.log("- BRIGHT_DATA_PASSWORD:", process.env.BRIGHT_DATA_PASSWORD ? "✅ Set" : "❌ Missing")
-    console.log("- SCRAPERAPI_KEY:", process.env.SCRAPERAPI_KEY ? "✅ Set" : "❌ Missing")
+    console.log("Timestamp:", new Date().toISOString())
+
+    // Environment check with better error handling
+    const envCheck = {
+      brightDataEndpoint: !!process.env.BRIGHT_DATA_PUPPETEER_ENDPOINT,
+      brightDataUsername: !!process.env.BRIGHT_DATA_USERNAME,
+      brightDataPassword: !!process.env.BRIGHT_DATA_PASSWORD,
+      scraperApiKey: !!process.env.SCRAPERAPI_KEY,
+    }
+
+    console.log("Environment Check:", envCheck)
 
     let scrapedData = null
     let method = "unknown"
-    let lastError = ""
+    const errors: string[] = []
 
     // Method 1: Advanced Direct Fetch (Free - Try First)
     console.log("🆓 Trying advanced direct fetch...")
     try {
       scrapedData = await scrapeWithAdvancedFetch(searchType, query)
-      if (
-        scrapedData &&
-        (scrapedData.people?.length > 0 || scrapedData.addresses?.length > 0 || scrapedData.phones?.length > 0)
-      ) {
+      if (scrapedData && hasValidData(scrapedData)) {
         method = "direct-fetch"
         console.log("✅ Direct fetch successful!")
       } else {
         scrapedData = null
-        console.log("❌ Direct fetch returned no data")
+        console.log("❌ Direct fetch returned no valid data")
       }
     } catch (error) {
-      lastError = `Direct fetch: ${error instanceof Error ? error.message : String(error)}`
-      console.log("❌ Direct fetch failed:", lastError)
+      const errorMsg = `Direct fetch: ${error instanceof Error ? error.message : String(error)}`
+      errors.push(errorMsg)
+      console.log("❌ Direct fetch failed:", errorMsg)
     }
 
     // Method 2: Bright Data Puppeteer (Paid - Backup)
-    if (!scrapedData && process.env.BRIGHT_DATA_PUPPETEER_ENDPOINT) {
+    if (!scrapedData && envCheck.brightDataEndpoint && envCheck.brightDataUsername && envCheck.brightDataPassword) {
       console.log("💰 Trying Bright Data Puppeteer...")
       try {
         scrapedData = await scrapeWithBrightData(searchType, query)
-        if (
-          scrapedData &&
-          (scrapedData.people?.length > 0 || scrapedData.addresses?.length > 0 || scrapedData.phones?.length > 0)
-        ) {
+        if (scrapedData && hasValidData(scrapedData)) {
           method = "bright-data-puppeteer"
           console.log("✅ Bright Data Puppeteer successful!")
         } else {
           scrapedData = null
-          console.log("❌ Bright Data returned no data")
+          console.log("❌ Bright Data returned no valid data")
         }
       } catch (error) {
-        lastError = `Bright Data: ${error instanceof Error ? error.message : String(error)}`
-        console.log("❌ Bright Data Puppeteer failed:", lastError)
+        const errorMsg = `Bright Data: ${error instanceof Error ? error.message : String(error)}`
+        errors.push(errorMsg)
+        console.log("❌ Bright Data Puppeteer failed:", errorMsg)
       }
-    } else if (!process.env.BRIGHT_DATA_PUPPETEER_ENDPOINT) {
+    } else if (!envCheck.brightDataEndpoint) {
       console.log("⚠️ Bright Data not configured - skipping")
+      errors.push("Bright Data: Not configured")
     }
 
     // Method 3: ScraperAPI (Paid - Final Backup)
-    if (!scrapedData && process.env.SCRAPERAPI_KEY) {
+    if (!scrapedData && envCheck.scraperApiKey) {
       console.log("🔄 Trying ScraperAPI...")
       try {
         scrapedData = await scrapeWithScraperAPI(searchType, query)
-        if (
-          scrapedData &&
-          (scrapedData.people?.length > 0 || scrapedData.addresses?.length > 0 || scrapedData.phones?.length > 0)
-        ) {
+        if (scrapedData && hasValidData(scrapedData)) {
           method = "scraperapi"
           console.log("✅ ScraperAPI successful!")
         } else {
           scrapedData = null
-          console.log("❌ ScraperAPI returned no data")
+          console.log("❌ ScraperAPI returned no valid data")
         }
       } catch (error) {
-        lastError = `ScraperAPI: ${error instanceof Error ? error.message : String(error)}`
-        console.log("❌ ScraperAPI failed:", lastError)
+        const errorMsg = `ScraperAPI: ${error instanceof Error ? error.message : String(error)}`
+        errors.push(errorMsg)
+        console.log("❌ ScraperAPI failed:", errorMsg)
       }
-    } else if (!process.env.SCRAPERAPI_KEY) {
+    } else if (!envCheck.scraperApiKey) {
       console.log("⚠️ ScraperAPI not configured - skipping")
+      errors.push("ScraperAPI: Not configured")
     }
 
     if (!scrapedData) {
-      console.log("❌ All methods failed. Last error:", lastError)
+      console.log("❌ All methods failed. Errors:", errors)
       return {
         success: false,
-        error: `Unable to retrieve data from TruePeopleSearch. All scraping methods failed. Last error: ${lastError}. Please check the debug endpoint at /api/test-scraping-debug for more details.`,
+        error: `Unable to retrieve data from TruePeopleSearch. All scraping methods failed.\n\nErrors:\n${errors.join("\n")}\n\nPlease check the debug endpoint at /api/test-scraping-debug for more details.`,
+        debug: {
+          environmentCheck: envCheck,
+          errors: errors,
+          timestamp: new Date().toISOString(),
+        },
       }
     }
 
@@ -178,8 +182,24 @@ export async function searchPeopleData(query: string, searchType: "address" | "n
     return {
       success: false,
       error: `Failed to retrieve search results: ${error instanceof Error ? error.message : String(error)}`,
+      debug: {
+        errorType: error instanceof Error ? error.constructor.name : typeof error,
+        stack: error instanceof Error ? error.stack : undefined,
+        timestamp: new Date().toISOString(),
+      },
     }
   }
+}
+
+// Helper function to check if scraped data has valid results
+function hasValidData(scrapedData: any): boolean {
+  if (!scrapedData) return false
+
+  const hasPeople = scrapedData.people?.length > 0
+  const hasAddresses = scrapedData.addresses?.length > 0
+  const hasPhones = scrapedData.phones?.length > 0
+
+  return hasPeople || hasAddresses || hasPhones
 }
 
 async function scrapeWithBrightData(searchType: string, query: string) {
@@ -187,25 +207,24 @@ async function scrapeWithBrightData(searchType: string, query: string) {
     const searchUrl = buildTruePeopleSearchURL(searchType, query)
     console.log("Bright Data Puppeteer scraping URL:", searchUrl)
 
-    const puppeteerEndpoint = process.env.BRIGHT_DATA_PUPPETEER_ENDPOINT
-    const username = process.env.BRIGHT_DATA_USERNAME
-    const password = process.env.BRIGHT_DATA_PASSWORD
-
-    if (!puppeteerEndpoint || !username || !password) {
-      throw new Error("Bright Data Puppeteer credentials not configured")
-    }
+    const puppeteerEndpoint = process.env.BRIGHT_DATA_PUPPETEER_ENDPOINT!
+    const username = process.env.BRIGHT_DATA_USERNAME!
+    const password = process.env.BRIGHT_DATA_PASSWORD!
 
     console.log("Using Bright Data endpoint:", puppeteerEndpoint)
 
     // Method 1: Try Bright Data's Scraping Browser API
     console.log("Trying Bright Data Scraping Browser API...")
+
+    const cleanEndpoint = puppeteerEndpoint.replace(/^https?:\/\//, "")
+    const apiUrl = `https://${cleanEndpoint}/v1/browser/scrape`
+
+    console.log("API URL:", apiUrl)
+
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
+
     try {
-      // Remove protocol if present and construct proper API URL
-      const cleanEndpoint = puppeteerEndpoint.replace(/^https?:\/\//, "")
-      const apiUrl = `https://${cleanEndpoint}/v1/browser/scrape`
-
-      console.log("API URL:", apiUrl)
-
       const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
@@ -228,8 +247,10 @@ async function scrapeWithBrightData(searchType: string, query: string) {
           },
           session_id: `session_${Date.now()}`,
         }),
+        signal: controller.signal,
       })
 
+      clearTimeout(timeoutId)
       console.log("Bright Data API response status:", response.status)
 
       if (response.ok) {
@@ -240,7 +261,6 @@ async function scrapeWithBrightData(searchType: string, query: string) {
         try {
           result = JSON.parse(responseText)
         } catch {
-          // If not JSON, treat as HTML
           result = { html: responseText }
         }
 
@@ -249,7 +269,6 @@ async function scrapeWithBrightData(searchType: string, query: string) {
         if (html && html.length > 1000) {
           console.log("Bright Data Scraping Browser API success! HTML length:", html.length)
 
-          // Check if blocked
           if (html.includes("blocked") || html.includes("captcha") || html.includes("Access Denied")) {
             console.log("Content appears to be blocked")
             throw new Error("Content blocked even with Bright Data")
@@ -258,57 +277,16 @@ async function scrapeWithBrightData(searchType: string, query: string) {
           return parseRealHTMLResults(html, searchType, query)
         } else {
           console.log("HTML too short or empty:", html?.length || 0)
+          throw new Error("Received empty or minimal HTML content")
         }
       } else {
         const errorText = await response.text()
         console.log("API error response:", errorText)
         throw new Error(`API error: ${response.status} - ${errorText}`)
       }
-    } catch (apiError) {
-      console.log("Bright Data API method failed:", apiError)
+    } finally {
+      clearTimeout(timeoutId)
     }
-
-    // Method 2: Try alternative approach
-    console.log("Trying alternative Bright Data method...")
-    try {
-      // Try different API endpoint structure
-      const cleanEndpoint = puppeteerEndpoint.replace(/^https?:\/\//, "").replace(/:8080$/, "")
-      const altApiUrl = `https://api.brightdata.com/request`
-
-      const response = await fetch(altApiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${Buffer.from(`${username}:${password}`).toString("base64")}`,
-        },
-        body: JSON.stringify({
-          url: searchUrl,
-          format: "html",
-          country: "US",
-          render: true,
-          wait: 3000,
-          block_resources: ["image", "stylesheet", "font"],
-          headers: {
-            "User-Agent":
-              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-          },
-          session_id: `session_${Date.now()}`,
-        }),
-      })
-
-      if (response.ok) {
-        const html = await response.text()
-        console.log("Alternative method HTML received, length:", html.length)
-
-        if (html && html.length > 1000 && !html.includes("blocked") && !html.includes("captcha")) {
-          return parseRealHTMLResults(html, searchType, query)
-        }
-      }
-    } catch (altError) {
-      console.log("Alternative method failed:", altError)
-    }
-
-    throw new Error("All Bright Data methods failed")
   } catch (error) {
     console.error("Bright Data Puppeteer error:", error)
     throw error
@@ -323,28 +301,42 @@ async function scrapeWithScraperAPI(searchType: string, query: string) {
     const scraperApiUrl = `http://api.scraperapi.com?api_key=${process.env.SCRAPERAPI_KEY}&url=${encodeURIComponent(searchUrl)}&render=true&country_code=us&premium=true`
 
     console.log("Making ScraperAPI request...")
-    const response = await fetch(scraperApiUrl, {
-      method: "GET",
-      headers: {
-        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-      },
-    })
 
-    console.log("ScraperAPI response status:", response.status)
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
 
-    if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(`ScraperAPI error: ${response.status} - ${errorText}`)
+    try {
+      const response = await fetch(scraperApiUrl, {
+        method: "GET",
+        headers: {
+          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        },
+        signal: controller.signal,
+      })
+
+      clearTimeout(timeoutId)
+      console.log("ScraperAPI response status:", response.status)
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`ScraperAPI error: ${response.status} - ${errorText}`)
+      }
+
+      const html = await response.text()
+      console.log("ScraperAPI HTML received, length:", html.length)
+
+      if (html.includes("blocked") || html.includes("captcha") || html.includes("Access Denied")) {
+        throw new Error("ScraperAPI request was blocked")
+      }
+
+      if (html.length < 1000) {
+        throw new Error("ScraperAPI returned minimal content")
+      }
+
+      return parseRealHTMLResults(html, searchType, query)
+    } finally {
+      clearTimeout(timeoutId)
     }
-
-    const html = await response.text()
-    console.log("ScraperAPI HTML received, length:", html.length)
-
-    if (html.includes("blocked") || html.includes("captcha") || html.includes("Access Denied")) {
-      throw new Error("ScraperAPI request was blocked")
-    }
-
-    return parseRealHTMLResults(html, searchType, query)
   } catch (error) {
     console.error("ScraperAPI error:", error)
     throw error
@@ -356,7 +348,6 @@ async function scrapeWithAdvancedFetch(searchType: string, query: string) {
     const searchUrl = buildTruePeopleSearchURL(searchType, query)
     console.log("Advanced fetch URL:", searchUrl)
 
-    // Use multiple strategies with different approaches
     const strategies = [
       {
         name: "Chrome Desktop",
@@ -391,11 +382,16 @@ async function scrapeWithAdvancedFetch(searchType: string, query: string) {
       try {
         console.log(`Trying strategy: ${strategy.name}`)
 
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 15000) // 15 second timeout
+
         const response = await fetch(searchUrl, {
           method: "GET",
           headers: strategy.headers,
+          signal: controller.signal,
         })
 
+        clearTimeout(timeoutId)
         console.log(`${strategy.name} response status:`, response.status)
 
         if (!response.ok) {
@@ -406,7 +402,6 @@ async function scrapeWithAdvancedFetch(searchType: string, query: string) {
         const html = await response.text()
         console.log(`${strategy.name} HTML length: ${html.length}`)
 
-        // Check if we got blocked or minimal content
         if (
           html.includes("blocked") ||
           html.includes("captcha") ||
@@ -420,7 +415,7 @@ async function scrapeWithAdvancedFetch(searchType: string, query: string) {
         }
 
         const parsed = parseRealHTMLResults(html, searchType, query)
-        if (parsed && (parsed.people.length > 0 || parsed.addresses.length > 0 || parsed.phones.length > 0)) {
+        if (parsed && hasValidData(parsed)) {
           console.log(`${strategy.name} found real data!`)
           return parsed
         } else {
@@ -431,7 +426,6 @@ async function scrapeWithAdvancedFetch(searchType: string, query: string) {
         continue
       }
 
-      // Add delay between attempts to avoid rate limiting
       await new Promise((resolve) => setTimeout(resolve, 2000))
     }
 
@@ -484,7 +478,6 @@ function parseRealHTMLResults(html: string, searchType: string, query: string) {
 
       matches.forEach((card, index) => {
         try {
-          // Extract name with multiple patterns
           const namePatterns = [
             /<h[1-6][^>]*>([^<]+)<\/h[1-6]>/i,
             /<div[^>]*class="[^"]*name[^"]*"[^>]*>([^<]+)<\/div>/i,
@@ -505,17 +498,14 @@ function parseRealHTMLResults(html: string, searchType: string, query: string) {
           if (name && name.length > 2) {
             console.log(`Found person: ${name}`)
 
-            // Extract age
             const ageMatch = card.match(/(?:age|years?\s*old)[^>]*>(\d+)/i) || card.match(/(\d{2,3})\s*years?\s*old/i)
             const age = ageMatch ? Number.parseInt(ageMatch[1]) : undefined
 
-            // Extract addresses
             const addressMatches =
               card.match(
                 /\d+[^,\n]+(?:St|Ave|Rd|Dr|Ln|Blvd|Way|Ct|Pl|Circle|Drive|Street|Avenue|Road|Lane|Boulevard|Court|Place)[^,]*,\s*[^,\n]+,\s*[A-Z]{2}\s+\d{5}(?:-\d{4})?/gi,
               ) || []
 
-            // Extract phone numbers
             const phonePatterns = [
               /$$\d{3}$$\s*\d{3}-\d{4}/g,
               /\d{3}-\d{3}-\d{4}/g,
@@ -529,7 +519,6 @@ function parseRealHTMLResults(html: string, searchType: string, query: string) {
               phoneMatches = phoneMatches.concat(matches)
             }
 
-            // Extract relatives
             const relativesSection = card.match(
               /(?:related|relatives?|family|associates?|aka|also\s*known)[^>]*>(.*?)(?:<\/div>|<div|$)/is,
             )
@@ -539,7 +528,6 @@ function parseRealHTMLResults(html: string, searchType: string, query: string) {
               relatives = relativeMatches.filter((rel) => rel !== name && rel.length > 3)
             }
 
-            // Only add if we have meaningful data
             if (name && (addressMatches.length > 0 || phoneMatches.length > 0 || relatives.length > 0)) {
               people.push({
                 name,
@@ -582,7 +570,6 @@ function formatPhone(phone: string): string {
   return phone
 }
 
-// CMA generation function
 export async function generateCMA(address: string) {
   try {
     console.log("Generating CMA for:", address)

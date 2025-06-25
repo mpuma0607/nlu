@@ -167,7 +167,7 @@ async function scrapeWithBrightData(searchType: string, query: string) {
     const searchUrl = buildTruePeopleSearchURL(searchType, query)
     console.log("Bright Data Puppeteer scraping URL:", searchUrl)
 
-    // Bright Data Puppeteer endpoint (e.g., "brd-customer-hl_xxxxx-zone-scraping_browser1:8080")
+    // Use the actual Bright Data Puppeteer endpoint from environment variables
     const puppeteerEndpoint = process.env.BRIGHT_DATA_PUPPETEER_ENDPOINT
     const username = process.env.BRIGHT_DATA_USERNAME
     const password = process.env.BRIGHT_DATA_PASSWORD
@@ -176,59 +176,78 @@ async function scrapeWithBrightData(searchType: string, query: string) {
       throw new Error("Bright Data Puppeteer credentials not configured")
     }
 
-    // Use Bright Data's Puppeteer endpoint
-    const wsEndpoint = `wss://${username}:${password}@${puppeteerEndpoint}`
+    console.log("Using Bright Data endpoint:", puppeteerEndpoint)
 
-    // Since we can't use Puppeteer directly in Next.js server actions,
-    // we'll use their HTTP API for Puppeteer automation
-    const brightDataApiUrl = `https://${username}:${password}@${puppeteerEndpoint.replace(":8080", "")}/api/v1/browser`
-
-    const response = await fetch(brightDataApiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        cmd: "request",
-        url: searchUrl,
-        options: {
-          waitUntil: "networkidle2",
-          timeout: 30000,
-          viewport: {
-            width: 1920,
-            height: 1080,
-          },
-          userAgent:
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-          blockResources: ["image", "stylesheet", "font", "media"],
-          extraHeaders: {
-            "Accept-Language": "en-US,en;q=0.9",
-            Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-          },
+    // Method 1: Try Bright Data's Scraping Browser API
+    try {
+      const response = await fetch(`https://${puppeteerEndpoint}/v1/browser/scrape`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`,
         },
-      }),
-    })
+        body: JSON.stringify({
+          url: searchUrl,
+          render: true,
+          format: "html",
+          country: "US",
+          wait: 3000,
+          timeout: 30000,
+          block_resources: ["image", "stylesheet", "font", "media"],
+          headers: {
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.9",
+          },
+          session_id: `session_${Date.now()}`,
+        }),
+      })
 
-    if (!response.ok) {
-      console.log("Bright Data API failed, trying alternative method...")
-      return await scrapeWithBrightDataAlternative(searchType, query)
+      if (response.ok) {
+        const result = await response.json()
+        const html = result.html || result.content || result.body
+
+        if (html && html.length > 1000) {
+          console.log("Bright Data Scraping Browser API success! HTML length:", html.length)
+          return parseRealHTMLResults(html, searchType, query)
+        }
+      }
+    } catch (apiError) {
+      console.log("Bright Data API method failed:", apiError)
     }
 
-    const result = await response.json()
-    const html = result.content || result.html || result.body
+    // Method 2: Try direct connection to Puppeteer endpoint
+    try {
+      const wsEndpoint = `wss://${username}:${password}@${puppeteerEndpoint}`
+      console.log("Attempting WebSocket connection to:", puppeteerEndpoint)
 
-    if (!html) {
-      throw new Error("No HTML content received from Bright Data")
+      // Since we can't use Puppeteer directly in server actions, use HTTP proxy method
+      const proxyResponse = await fetch(searchUrl, {
+        method: "GET",
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+          "Accept-Language": "en-US,en;q=0.9",
+          "X-Bright-Data-Session": `session_${Date.now()}`,
+          "X-Bright-Data-Endpoint": puppeteerEndpoint,
+        },
+      })
+
+      if (proxyResponse.ok) {
+        const html = await proxyResponse.text()
+        console.log("Bright Data proxy method HTML received, length:", html.length)
+
+        if (html && html.length > 1000 && !html.includes("blocked") && !html.includes("captcha")) {
+          return parseRealHTMLResults(html, searchType, query)
+        }
+      }
+    } catch (proxyError) {
+      console.log("Bright Data proxy method failed:", proxyError)
     }
 
-    console.log("Bright Data Puppeteer HTML received, length:", html.length)
-
-    // Check if we got blocked
-    if (html.includes("blocked") || html.includes("captcha") || html.includes("Access Denied") || html.length < 1000) {
-      throw new Error("Request was blocked even with Bright Data Puppeteer")
-    }
-
-    return parseRealHTMLResults(html, searchType, query)
+    throw new Error("All Bright Data methods failed")
   } catch (error) {
     console.error("Bright Data Puppeteer error:", error)
     throw error
@@ -249,14 +268,17 @@ async function scrapeWithBrightDataAlternative(searchType: string, query: string
       throw new Error("Bright Data credentials not configured")
     }
 
-    // Use Bright Data's scraping browser service via their API
-    const apiUrl = `https://api.brightdata.com/request`
+    // Extract the base domain from the endpoint
+    const baseDomain = endpoint.split(":")[0]
+
+    // Use Bright Data's web scraping API
+    const apiUrl = `https://${baseDomain}/api/v1/scrape`
 
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${Buffer.from(`${username}:${password}`).toString("base64")}`,
+        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`,
       },
       body: JSON.stringify({
         url: searchUrl,
@@ -271,7 +293,7 @@ async function scrapeWithBrightDataAlternative(searchType: string, query: string
           Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
           "Accept-Language": "en-US,en;q=0.9",
         },
-        session_id: `session_${Date.now()}`, // Rotate sessions
+        session_id: `session_${Date.now()}`,
       }),
     })
 
@@ -280,7 +302,9 @@ async function scrapeWithBrightDataAlternative(searchType: string, query: string
       throw new Error(`Bright Data API error: ${response.status} - ${errorText}`)
     }
 
-    const html = await response.text()
+    const result = await response.json()
+    const html = result.html || result.content || result.body || (await response.text())
+
     console.log("Bright Data alternative HTML received, length:", html.length)
 
     return parseRealHTMLResults(html, searchType, query)

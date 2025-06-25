@@ -64,18 +64,24 @@ interface AssociateResult {
 // Main search function that the form expects
 export async function searchPeopleData(query: string, searchType: "address" | "name" | "phone") {
   try {
-    console.log("=== TruePeopleSearch Integration ===")
+    console.log("=== Real TruePeopleSearch Integration ===")
     console.log("Search Type:", searchType)
     console.log("Query:", query)
 
-    // Use fetch-based scraping instead of Puppeteer
-    const scrapedData = await fetchTruePeopleSearch(searchType, query)
+    // Use ScrapingBee API for reliable scraping
+    let scrapedData = await scrapeWithScrapingBee(searchType, query)
 
     if (!scrapedData || scrapedData.error) {
-      return {
-        success: false,
-        error: scrapedData?.error || "Failed to retrieve search results from TruePeopleSearch",
+      console.log("ScrapingBee failed, trying direct fetch...")
+      // Fallback to direct fetch
+      const directData = await fetchTruePeopleSearchDirect(searchType, query)
+      if (!directData || directData.error) {
+        return {
+          success: false,
+          error: "Unable to retrieve real data from TruePeopleSearch. Please try again later.",
+        }
       }
+      scrapedData = directData
     }
 
     // Process and structure the scraped data
@@ -100,8 +106,230 @@ export async function searchPeopleData(query: string, searchType: "address" | "n
     console.error("TruePeopleSearch error:", error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to retrieve search results",
+      error: "Failed to retrieve real search results. The service may be temporarily unavailable.",
     }
+  }
+}
+
+async function scrapeWithScrapingBee(searchType: string, query: string) {
+  try {
+    // Build TruePeopleSearch URL
+    let searchUrl = "https://www.truepeoplesearch.com/results?"
+
+    if (searchType === "name") {
+      const nameParts = query.trim().split(" ")
+      const firstName = nameParts[0] || ""
+      const lastName = nameParts.slice(1).join(" ") || ""
+      searchUrl += `name=${encodeURIComponent(firstName)}&lastname=${encodeURIComponent(lastName)}`
+    } else if (searchType === "address") {
+      searchUrl += `citystatezip=${encodeURIComponent(query)}`
+    } else if (searchType === "phone") {
+      const cleanPhone = query.replace(/\D/g, "")
+      searchUrl += `phoneno=${encodeURIComponent(cleanPhone)}`
+    }
+
+    console.log("Scraping URL:", searchUrl)
+
+    // Use ScrapingBee API (you'd need to sign up and get an API key)
+    const scrapingBeeUrl = `https://app.scrapingbee.com/api/v1/?api_key=${process.env.SCRAPINGBEE_API_KEY}&url=${encodeURIComponent(searchUrl)}&render_js=true&premium_proxy=true&country_code=us`
+
+    const response = await fetch(scrapingBeeUrl, {
+      method: "GET",
+      headers: {
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`ScrapingBee API error: ${response.status}`)
+    }
+
+    const html = await response.text()
+    console.log("HTML received from ScrapingBee, length:", html.length)
+
+    return parseRealHTMLResults(html, searchType, query)
+  } catch (error) {
+    console.error("ScrapingBee error:", error)
+    return { error: "ScrapingBee failed" }
+  }
+}
+
+async function fetchTruePeopleSearchDirect(searchType: string, query: string) {
+  try {
+    console.log("Attempting direct fetch to TruePeopleSearch...")
+
+    // Build search URL
+    let searchUrl = "https://www.truepeoplesearch.com/results?"
+
+    if (searchType === "name") {
+      const nameParts = query.trim().split(" ")
+      const firstName = nameParts[0] || ""
+      const lastName = nameParts.slice(1).join(" ") || ""
+      searchUrl += `name=${encodeURIComponent(firstName)}&lastname=${encodeURIComponent(lastName)}`
+    } else if (searchType === "address") {
+      searchUrl += `citystatezip=${encodeURIComponent(query)}`
+    } else if (searchType === "phone") {
+      const cleanPhone = query.replace(/\D/g, "")
+      searchUrl += `phoneno=${encodeURIComponent(cleanPhone)}`
+    }
+
+    console.log("Direct fetch URL:", searchUrl)
+
+    // Use multiple user agents and headers to avoid blocking
+    const userAgents = [
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    ]
+
+    const randomUserAgent = userAgents[Math.floor(Math.random() * userAgents.length)]
+
+    const response = await fetch(searchUrl, {
+      method: "GET",
+      headers: {
+        "User-Agent": randomUserAgent,
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Encoding": "gzip, deflate, br",
+        DNT: "1",
+        Connection: "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+        "Sec-Fetch-User": "?1",
+        "Cache-Control": "max-age=0",
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    const html = await response.text()
+    console.log("Direct fetch HTML received, length:", html.length)
+
+    // Check if we got blocked
+    if (html.includes("blocked") || html.includes("captcha") || html.includes("Access Denied") || html.length < 1000) {
+      throw new Error("Request was blocked or returned minimal content")
+    }
+
+    return parseRealHTMLResults(html, searchType, query)
+  } catch (error) {
+    console.error("Direct fetch error:", error)
+    return { error: "Direct fetch failed" }
+  }
+}
+
+function parseRealHTMLResults(html: string, searchType: string, query: string) {
+  try {
+    console.log("Parsing real HTML results...")
+
+    const people: any[] = []
+    const addresses: any[] = []
+    const phones: any[] = []
+
+    // More sophisticated parsing for TruePeopleSearch
+
+    // Extract person cards (TruePeopleSearch uses specific class names)
+    const personCardRegex = /<div[^>]*class="[^"]*card[^"]*"[^>]*>(.*?)<\/div>/gis
+    const personMatches = html.match(personCardRegex) || []
+
+    console.log(`Found ${personMatches.length} potential person cards`)
+
+    personMatches.forEach((card, index) => {
+      try {
+        // Extract name
+        const nameMatch =
+          card.match(/<h4[^>]*class="[^"]*h4[^"]*"[^>]*>([^<]+)</i) ||
+          card.match(/<div[^>]*class="[^"]*name[^"]*"[^>]*>([^<]+)</i) ||
+          card.match(/<span[^>]*class="[^"]*name[^"]*"[^>]*>([^<]+)</i)
+
+        if (nameMatch) {
+          const name = nameMatch[1].trim()
+
+          // Extract age
+          const ageMatch = card.match(/age[^>]*>(\d+)</i) || card.match(/(\d{2,3})\s*years?\s*old/i)
+          const age = ageMatch ? Number.parseInt(ageMatch[1]) : undefined
+
+          // Extract addresses
+          const addressMatches = card.match(/\d+[^,]+,\s*[^,]+,\s*[A-Z]{2}\s+\d{5}/g) || []
+
+          // Extract phone numbers
+          const phoneMatches =
+            card.match(/$$\d{3}$$\s*\d{3}-\d{4}/g) || card.match(/\d{3}-\d{3}-\d{4}/g) || card.match(/\d{10}/g) || []
+
+          // Extract relatives (look for "Related to" or similar sections)
+          const relativesSection = card.match(/(?:related|relatives?|family)[^>]*>(.*?)(?:<\/div>|<div)/is)
+          const relatives = relativesSection ? relativesSection[1].match(/[A-Z][a-z]+\s+[A-Z][a-z]+/g) || [] : []
+
+          if (name && name.length > 2) {
+            people.push({
+              name,
+              age,
+              addresses: addressMatches,
+              phones: phoneMatches.map((p) => p.replace(/\D/g, "").replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3")),
+              relatives: relatives.slice(0, 5), // Limit to 5 relatives
+              associates: [], // Associates are harder to extract reliably
+            })
+          }
+        }
+      } catch (cardError) {
+        console.error(`Error parsing card ${index}:`, cardError)
+      }
+    })
+
+    // Extract standalone addresses
+    const addressMatches =
+      html.match(
+        /\d+\s+[A-Za-z\s]+(?:St|Ave|Rd|Dr|Ln|Blvd|Way|Ct|Pl|Circle|Drive|Street|Avenue|Road|Lane|Boulevard|Court|Place)[^,]*,\s*[A-Za-z\s]+,\s*[A-Z]{2}\s+\d{5}(?:-\d{4})?/g,
+      ) || []
+
+    addressMatches.forEach((address) => {
+      if (!addresses.find((a) => a.address === address)) {
+        addresses.push({
+          address: address.trim(),
+          residents: [],
+          previousResidents: [],
+          propertyType: undefined,
+          yearBuilt: undefined,
+        })
+      }
+    })
+
+    // Extract standalone phone numbers
+    const phoneMatches = html.match(/$$\d{3}$$\s*\d{3}-\d{4}/g) || []
+    phoneMatches.forEach((phone) => {
+      if (!phones.find((p) => p.phone === phone)) {
+        phones.push({
+          phone: phone.trim(),
+          owner: "Information available",
+          carrier: undefined,
+          location: undefined,
+          type: undefined,
+        })
+      }
+    })
+
+    console.log(`Parsed results: ${people.length} people, ${addresses.length} addresses, ${phones.length} phones`)
+
+    // If we found actual data, return it
+    if (people.length > 0 || addresses.length > 0 || phones.length > 0) {
+      return {
+        people,
+        addresses,
+        phones,
+        pageText: html.substring(0, 5000), // More text for AI analysis
+        url: `https://www.truepeoplesearch.com/results?${searchType}=${query}`,
+        title: "TruePeopleSearch Results",
+        isRealData: true,
+      }
+    } else {
+      throw new Error("No data found in HTML")
+    }
+  } catch (error) {
+    console.error("HTML parsing error:", error)
+    throw error
   }
 }
 
@@ -182,197 +410,6 @@ export async function searchTruePeopleSearch(formData: SearchFormData) {
   return await searchPeopleData(formData.query, formData.searchType)
 }
 
-async function fetchTruePeopleSearch(searchType: string, query: string) {
-  try {
-    console.log("Fetching TruePeopleSearch data via HTTP...")
-
-    // Build search URL
-    let searchUrl = "https://www.truepeoplesearch.com/results?"
-
-    if (searchType === "name") {
-      const nameParts = query.trim().split(" ")
-      const firstName = nameParts[0] || ""
-      const lastName = nameParts.slice(1).join(" ") || ""
-      searchUrl += `name=${encodeURIComponent(firstName)}&lastname=${encodeURIComponent(lastName)}`
-    } else if (searchType === "address") {
-      searchUrl += `citystatezip=${encodeURIComponent(query)}`
-    } else if (searchType === "phone") {
-      const cleanPhone = query.replace(/\D/g, "")
-      searchUrl += `phoneno=${encodeURIComponent(cleanPhone)}`
-    }
-
-    console.log("Fetching URL:", searchUrl)
-
-    // Fetch the page with proper headers
-    const response = await fetch(searchUrl, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
-        "Accept-Encoding": "gzip, deflate, br",
-        DNT: "1",
-        Connection: "keep-alive",
-        "Upgrade-Insecure-Requests": "1",
-      },
-    })
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
-
-    const html = await response.text()
-    console.log("HTML fetched, length:", html.length)
-
-    // Parse the HTML to extract data
-    const extractedData = parseHTMLResults(html, searchType, query)
-
-    return extractedData
-  } catch (error) {
-    console.error("Fetch error:", error)
-
-    // Return enhanced mock data as fallback
-    return generateEnhancedMockData(searchType, query)
-  }
-}
-
-function parseHTMLResults(html: string, searchType: string, query: string) {
-  try {
-    // Basic HTML parsing - in production you'd use a proper HTML parser
-    const people: any[] = []
-    const addresses: any[] = []
-    const phones: any[] = []
-
-    // Look for common patterns in TruePeopleSearch results
-    // This is a simplified parser - real implementation would be more robust
-
-    // Extract names (look for common name patterns)
-    const nameMatches = html.match(/class="h4"[^>]*>([^<]+)</g) || []
-    nameMatches.forEach((match) => {
-      const name = match
-        .replace(/class="h4"[^>]*>/, "")
-        .replace(/<.*$/, "")
-        .trim()
-      if (name && name.length > 2) {
-        people.push({
-          name,
-          age: undefined,
-          addresses: [],
-          phones: [],
-          relatives: [],
-          associates: [],
-        })
-      }
-    })
-
-    // Extract phone numbers
-    const phoneMatches = html.match(/$$\d{3}$$\s*\d{3}-\d{4}/g) || []
-    phoneMatches.forEach((phone) => {
-      phones.push({
-        phone: phone.trim(),
-        owner: "Owner information available",
-        carrier: undefined,
-        location: undefined,
-        type: undefined,
-      })
-    })
-
-    // Extract addresses
-    const addressMatches =
-      html.match(/\d+\s+[A-Za-z\s]+(?:St|Ave|Rd|Dr|Ln|Blvd|Way|Ct|Pl)[^,]*,\s*[A-Za-z\s]+,\s*[A-Z]{2}\s+\d{5}/g) || []
-    addressMatches.forEach((address) => {
-      addresses.push({
-        address: address.trim(),
-        residents: [],
-        previousResidents: [],
-        propertyType: undefined,
-        yearBuilt: undefined,
-      })
-    })
-
-    console.log(`Parsed results: ${people.length} people, ${addresses.length} addresses, ${phones.length} phones`)
-
-    return {
-      people,
-      addresses,
-      phones,
-      pageText: html.substring(0, 2000), // First 2000 chars for AI analysis
-      url: `https://www.truepeoplesearch.com/results?${searchType}=${query}`,
-      title: "TruePeopleSearch Results",
-    }
-  } catch (error) {
-    console.error("HTML parsing error:", error)
-    return generateEnhancedMockData(searchType, query)
-  }
-}
-
-function generateEnhancedMockData(searchType: string, query: string) {
-  // Generate realistic mock data based on search type and query
-  const mockData = {
-    people: [] as any[],
-    addresses: [] as any[],
-    phones: [] as any[],
-    pageText: `Search results for ${searchType}: ${query}`,
-    url: `https://www.truepeoplesearch.com/results?${searchType}=${query}`,
-    title: "TruePeopleSearch Results",
-  }
-
-  if (searchType === "name") {
-    const [firstName, ...lastNameParts] = query.split(" ")
-    const lastName = lastNameParts.join(" ") || "Smith"
-
-    mockData.people.push({
-      name: `${firstName} ${lastName}`,
-      age: Math.floor(Math.random() * 50) + 25,
-      addresses: [
-        `${Math.floor(Math.random() * 9999) + 1} Main St, Anytown, FL 12345`,
-        `${Math.floor(Math.random() * 9999) + 1} Oak Ave, Somewhere, FL 67890`,
-      ],
-      phones: [
-        `(${Math.floor(Math.random() * 900) + 100}) ${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}`,
-      ],
-      relatives: [`Jane ${lastName}`, `Michael ${lastName}`, `Sarah Johnson`],
-      associates: [`Robert Wilson`, `Lisa Brown`],
-    })
-  } else if (searchType === "address") {
-    mockData.addresses.push({
-      address: query,
-      residents: [`John Smith`, `Jane Smith`],
-      previousResidents: [`Robert Johnson`, `Mary Davis`],
-      propertyType: "Single Family Home",
-      yearBuilt: Math.floor(Math.random() * 50) + 1970,
-    })
-
-    mockData.people.push({
-      name: "John Smith",
-      age: 45,
-      addresses: [query],
-      phones: [`(555) 123-4567`],
-      relatives: [`Jane Smith`, `Michael Smith`],
-      associates: [`Robert Wilson`],
-    })
-  } else if (searchType === "phone") {
-    mockData.phones.push({
-      phone: query,
-      owner: "John Smith",
-      carrier: "Verizon Wireless",
-      location: "Tampa, FL",
-      type: "Mobile",
-    })
-
-    mockData.people.push({
-      name: "John Smith",
-      age: 45,
-      addresses: [`123 Main St, Tampa, FL 33601`],
-      phones: [query],
-      relatives: [`Jane Smith`],
-      associates: [`Robert Wilson`],
-    })
-  }
-
-  return mockData
-}
-
 function processScrapedData(scrapedData: any, searchType: string, query: string) {
   const results = {
     people: [] as PersonResult[],
@@ -451,7 +488,7 @@ function processScrapedData(scrapedData: any, searchType: string, query: string)
 
 async function generateAISummary(results: any, searchType: string, query: string) {
   try {
-    const prompt = `You are a professional investigative researcher creating a comprehensive summary of people search results.
+    const prompt = `You are a professional investigative researcher creating a comprehensive summary of people search results from TruePeopleSearch.com.
 
 Search Type: ${searchType}
 Search Query: ${query}
@@ -475,11 +512,15 @@ Create a professional, comprehensive summary that includes:
 5. **Key Insights**: Important patterns, connections, or notable information
 6. **Professional Recommendations**: How to use this information effectively for real estate prospecting
 
+IMPORTANT: Only include information that was actually found in the search results. Do not make up or assume information that is not present in the data.
+
 Format the summary in a clear, professional manner that would be suitable for a real estate professional. Focus on actionable information and maintain a respectful, professional tone throughout.
 
 If the search was by address, emphasize property ownership and resident information.
 If the search was by name, focus on contact details and address history.
-If the search was by phone, highlight owner identification and associated information.`
+If the search was by phone, highlight owner identification and associated information.
+
+If no results were found, clearly state that no information was available for this search query.`
 
     const { text: summary } = await generateText({
       model: openai("gpt-4o"),

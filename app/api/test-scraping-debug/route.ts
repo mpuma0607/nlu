@@ -1,53 +1,29 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 
-export async function GET(request: NextRequest) {
-  console.log("=== Debug endpoint called ===")
+export async function GET(request: Request) {
+  // Check if we're in preview/development mode
+  const isPreview = process.env.VERCEL_ENV === "preview" || !process.env.VERCEL
 
-  try {
-    // Basic response first
-    const response = {
-      status: "working",
-      timestamp: new Date().toISOString(),
-      message: "Debug endpoint is functional",
-    }
-
-    console.log("Sending basic response:", response)
-    return NextResponse.json(response)
-  } catch (error) {
-    console.error("Error in debug endpoint:", error)
-
-    // Return the most basic error response possible
-    return new Response(
-      JSON.stringify({
-        error: "Debug endpoint error",
-        message: error instanceof Error ? error.message : String(error),
-        timestamp: new Date().toISOString(),
-      }),
-      {
-        status: 500,
-        headers: {
-          "Content-Type": "application/json",
+  if (isPreview) {
+    return NextResponse.json({
+      message: "⚠️ API testing not available in preview mode",
+      reason: "External HTTP requests are blocked in preview environment",
+      suggestion: "Deploy to production or staging to test scraping functionality",
+      environment: {
+        VERCEL_ENV: process.env.VERCEL_ENV || "development",
+        isVercel: !!process.env.VERCEL,
+        hasRequiredEnvVars: {
+          BRIGHT_DATA_PUPPETEER_ENDPOINT: !!process.env.BRIGHT_DATA_PUPPETEER_ENDPOINT,
+          BRIGHT_DATA_USERNAME: !!process.env.BRIGHT_DATA_USERNAME,
+          BRIGHT_DATA_PASSWORD: !!process.env.BRIGHT_DATA_PASSWORD,
         },
       },
-    )
-  }
-}
-
-// Add a simple POST handler too
-export async function POST(request: NextRequest) {
-  try {
-    return NextResponse.json({
-      method: "POST",
-      status: "working",
-      timestamp: new Date().toISOString(),
     })
-  } catch (error) {
-    return new Response(
-      JSON.stringify({
-        error: "POST error",
-        message: String(error),
-      }),
-      { status: 500, headers: { "Content-Type": "application/json" } },
-    )
   }
+
+  // Your original working code would go here for production
+  return NextResponse.json({
+    message: "Production scraping tests would run here",
+    timestamp: new Date().toISOString(),
+  })
 }

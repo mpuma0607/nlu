@@ -63,7 +63,7 @@ export function WhosWhoV2Form() {
 
     try {
       const result = await searchPeopleData(searchQuery, searchType)
-      if (result.success) {
+      if (result.success && result.data) {
         setResults(result.data)
       } else {
         setError(result.error || "Search failed")
@@ -79,7 +79,7 @@ export function WhosWhoV2Form() {
     setCmaLoading(true)
     try {
       const result = await generateCMA(address)
-      if (result.success) {
+      if (result.success && result.data) {
         setCmaResults(result.data)
       } else {
         setError(result.error || "CMA generation failed")
@@ -107,6 +107,16 @@ export function WhosWhoV2Form() {
     } finally {
       setEmailLoading(false)
     }
+  }
+
+  // Safe array access with default empty arrays
+  const safeResults = results || {
+    people: [],
+    addresses: [],
+    phones: [],
+    summary: "",
+    searchType: "",
+    searchQuery: "",
   }
 
   return (
@@ -185,11 +195,11 @@ export function WhosWhoV2Form() {
             </CardHeader>
             <CardContent>
               <div className="bg-blue-50 p-4 rounded-lg">
-                <p className="text-gray-700 leading-relaxed">{results.summary}</p>
+                <p className="text-gray-700 leading-relaxed">{safeResults.summary}</p>
               </div>
               <div className="mt-4 flex items-center gap-2">
-                <Badge variant="outline">Search Type: {results.searchType}</Badge>
-                <Badge variant="outline">Query: {results.searchQuery}</Badge>
+                <Badge variant="outline">Search Type: {safeResults.searchType}</Badge>
+                <Badge variant="outline">Query: {safeResults.searchQuery}</Badge>
               </div>
             </CardContent>
           </Card>
@@ -197,197 +207,225 @@ export function WhosWhoV2Form() {
           {/* Results Tabs */}
           <Tabs defaultValue="people" className="w-full">
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="people">People ({results.people.length})</TabsTrigger>
-              <TabsTrigger value="addresses">Addresses ({results.addresses.length})</TabsTrigger>
-              <TabsTrigger value="phones">Phones ({results.phones.length})</TabsTrigger>
+              <TabsTrigger value="people">People ({(safeResults.people || []).length})</TabsTrigger>
+              <TabsTrigger value="addresses">Addresses ({(safeResults.addresses || []).length})</TabsTrigger>
+              <TabsTrigger value="phones">Phones ({(safeResults.phones || []).length})</TabsTrigger>
               <TabsTrigger value="connections">Connections</TabsTrigger>
             </TabsList>
 
             <TabsContent value="people" className="space-y-4">
-              {results.people.map((person, index) => (
-                <Card key={index}>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <User className="h-5 w-5" />
-                      {person.name}
-                      {person.age && <Badge variant="secondary">Age {person.age}</Badge>}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {person.addresses.length > 0 && (
-                      <div>
-                        <h4 className="font-semibold flex items-center gap-2 mb-2">
-                          <MapPin className="h-4 w-4" />
-                          Addresses
-                        </h4>
-                        <div className="space-y-1">
-                          {person.addresses.map((address, i) => (
-                            <div key={i} className="flex items-center justify-between bg-gray-50 p-2 rounded">
-                              <span className="text-sm">{address}</span>
-                              {searchType === "address" && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleGenerateCMA(address)}
-                                  disabled={cmaLoading}
-                                >
-                                  {cmaLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : "Generate CMA"}
-                                </Button>
-                              )}
-                            </div>
-                          ))}
+              {(safeResults.people || []).length > 0 ? (
+                (safeResults.people || []).map((person, index) => (
+                  <Card key={index}>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <User className="h-5 w-5" />
+                        {person.name}
+                        {person.age && <Badge variant="secondary">Age {person.age}</Badge>}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {(person.addresses || []).length > 0 && (
+                        <div>
+                          <h4 className="font-semibold flex items-center gap-2 mb-2">
+                            <MapPin className="h-4 w-4" />
+                            Addresses
+                          </h4>
+                          <div className="space-y-1">
+                            {(person.addresses || []).map((address, i) => (
+                              <div key={i} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                                <span className="text-sm">{address}</span>
+                                {searchType === "address" && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleGenerateCMA(address)}
+                                    disabled={cmaLoading}
+                                  >
+                                    {cmaLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : "Generate CMA"}
+                                  </Button>
+                                )}
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
-                    {person.phones.length > 0 && (
-                      <div>
-                        <h4 className="font-semibold flex items-center gap-2 mb-2">
-                          <Phone className="h-4 w-4" />
-                          Phone Numbers
-                        </h4>
-                        <div className="grid gap-1">
-                          {person.phones.map((phone, i) => (
-                            <span key={i} className="text-sm bg-gray-50 p-2 rounded">
-                              {phone}
-                            </span>
-                          ))}
+                      {(person.phones || []).length > 0 && (
+                        <div>
+                          <h4 className="font-semibold flex items-center gap-2 mb-2">
+                            <Phone className="h-4 w-4" />
+                            Phone Numbers
+                          </h4>
+                          <div className="grid gap-1">
+                            {(person.phones || []).map((phone, i) => (
+                              <span key={i} className="text-sm bg-gray-50 p-2 rounded">
+                                {phone}
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
-                    {person.emails.length > 0 && (
-                      <div>
-                        <h4 className="font-semibold flex items-center gap-2 mb-2">
-                          <Mail className="h-4 w-4" />
-                          Email Addresses
-                        </h4>
-                        <div className="grid gap-1">
-                          {person.emails.map((email, i) => (
-                            <span key={i} className="text-sm bg-gray-50 p-2 rounded">
-                              {email}
-                            </span>
-                          ))}
+                      {(person.emails || []).length > 0 && (
+                        <div>
+                          <h4 className="font-semibold flex items-center gap-2 mb-2">
+                            <Mail className="h-4 w-4" />
+                            Email Addresses
+                          </h4>
+                          <div className="grid gap-1">
+                            {(person.emails || []).map((email, i) => (
+                              <span key={i} className="text-sm bg-gray-50 p-2 rounded">
+                                {email}
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
-                    {person.relatives.length > 0 && (
-                      <div>
-                        <h4 className="font-semibold flex items-center gap-2 mb-2">
-                          <Users className="h-4 w-4" />
-                          Relatives
-                        </h4>
-                        <div className="flex flex-wrap gap-1">
-                          {person.relatives.map((relative, i) => (
-                            <Badge key={i} variant="outline">
-                              {relative}
-                            </Badge>
-                          ))}
+                      {(person.relatives || []).length > 0 && (
+                        <div>
+                          <h4 className="font-semibold flex items-center gap-2 mb-2">
+                            <Users className="h-4 w-4" />
+                            Relatives
+                          </h4>
+                          <div className="flex flex-wrap gap-1">
+                            {(person.relatives || []).map((relative, i) => (
+                              <Badge key={i} variant="outline">
+                                {relative}
+                              </Badge>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <Card>
+                  <CardContent className="pt-6 text-center text-gray-500">
+                    No people found in search results
                   </CardContent>
                 </Card>
-              ))}
+              )}
             </TabsContent>
 
             <TabsContent value="addresses" className="space-y-4">
-              {results.addresses.map((address, index) => (
-                <Card key={index}>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Home className="h-5 w-5" />
-                      {address.address}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid gap-4 md:grid-cols-2">
-                      {address.propertyType && (
-                        <div>
-                          <Label>Property Type</Label>
-                          <p className="text-sm bg-gray-50 p-2 rounded">{address.propertyType}</p>
-                        </div>
-                      )}
-                      {address.yearBuilt && (
-                        <div>
-                          <Label>Year Built</Label>
-                          <p className="text-sm bg-gray-50 p-2 rounded">{address.yearBuilt}</p>
-                        </div>
-                      )}
-                      {address.estimatedValue && (
-                        <div>
-                          <Label>Estimated Value</Label>
-                          <p className="text-sm bg-gray-50 p-2 rounded font-semibold text-green-600">
-                            {address.estimatedValue}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    {address.residents.length > 0 && (
-                      <div>
-                        <Label>Current/Previous Residents</Label>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {address.residents.map((resident, i) => (
-                            <Badge key={i} variant="secondary">
-                              {resident}
-                            </Badge>
-                          ))}
-                        </div>
+              {(safeResults.addresses || []).length > 0 ? (
+                (safeResults.addresses || []).map((address, index) => (
+                  <Card key={index}>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Home className="h-5 w-5" />
+                        {address.address}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid gap-4 md:grid-cols-2">
+                        {address.propertyType && (
+                          <div>
+                            <Label>Property Type</Label>
+                            <p className="text-sm bg-gray-50 p-2 rounded">{address.propertyType}</p>
+                          </div>
+                        )}
+                        {address.yearBuilt && (
+                          <div>
+                            <Label>Year Built</Label>
+                            <p className="text-sm bg-gray-50 p-2 rounded">{address.yearBuilt}</p>
+                          </div>
+                        )}
+                        {address.estimatedValue && (
+                          <div>
+                            <Label>Estimated Value</Label>
+                            <p className="text-sm bg-gray-50 p-2 rounded font-semibold text-green-600">
+                              {address.estimatedValue}
+                            </p>
+                          </div>
+                        )}
                       </div>
-                    )}
 
-                    <Button onClick={() => handleGenerateCMA(address.address)} disabled={cmaLoading} className="w-full">
-                      {cmaLoading ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      ) : (
-                        <Download className="mr-2 h-4 w-4" />
+                      {(address.residents || []).length > 0 && (
+                        <div>
+                          <Label>Current/Previous Residents</Label>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {(address.residents || []).map((resident, i) => (
+                              <Badge key={i} variant="secondary">
+                                {resident}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
                       )}
-                      Generate CMA Report
-                    </Button>
+
+                      <Button
+                        onClick={() => handleGenerateCMA(address.address)}
+                        disabled={cmaLoading}
+                        className="w-full"
+                      >
+                        {cmaLoading ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <Download className="mr-2 h-4 w-4" />
+                        )}
+                        Generate CMA Report
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <Card>
+                  <CardContent className="pt-6 text-center text-gray-500">
+                    No addresses found in search results
                   </CardContent>
                 </Card>
-              ))}
+              )}
             </TabsContent>
 
             <TabsContent value="phones" className="space-y-4">
-              {results.phones.map((phone, index) => (
-                <Card key={index}>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Phone className="h-5 w-5" />
-                      {phone.number}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div>
-                        <Label>Owner</Label>
-                        <p className="text-sm bg-gray-50 p-2 rounded">{phone.owner}</p>
+              {(safeResults.phones || []).length > 0 ? (
+                (safeResults.phones || []).map((phone, index) => (
+                  <Card key={index}>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Phone className="h-5 w-5" />
+                        {phone.number}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div>
+                          <Label>Owner</Label>
+                          <p className="text-sm bg-gray-50 p-2 rounded">{phone.owner}</p>
+                        </div>
+                        {phone.carrier && (
+                          <div>
+                            <Label>Carrier</Label>
+                            <p className="text-sm bg-gray-50 p-2 rounded">{phone.carrier}</p>
+                          </div>
+                        )}
+                        {phone.location && (
+                          <div>
+                            <Label>Location</Label>
+                            <p className="text-sm bg-gray-50 p-2 rounded">{phone.location}</p>
+                          </div>
+                        )}
+                        {phone.type && (
+                          <div>
+                            <Label>Type</Label>
+                            <Badge variant={phone.type === "Mobile" ? "default" : "secondary"}>{phone.type}</Badge>
+                          </div>
+                        )}
                       </div>
-                      {phone.carrier && (
-                        <div>
-                          <Label>Carrier</Label>
-                          <p className="text-sm bg-gray-50 p-2 rounded">{phone.carrier}</p>
-                        </div>
-                      )}
-                      {phone.location && (
-                        <div>
-                          <Label>Location</Label>
-                          <p className="text-sm bg-gray-50 p-2 rounded">{phone.location}</p>
-                        </div>
-                      )}
-                      {phone.type && (
-                        <div>
-                          <Label>Type</Label>
-                          <Badge variant={phone.type === "Mobile" ? "default" : "secondary"}>{phone.type}</Badge>
-                        </div>
-                      )}
-                    </div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <Card>
+                  <CardContent className="pt-6 text-center text-gray-500">
+                    No phone numbers found in search results
                   </CardContent>
                 </Card>
-              ))}
+              )}
             </TabsContent>
 
             <TabsContent value="connections" className="space-y-4">
@@ -398,14 +436,14 @@ export function WhosWhoV2Form() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {results.people.map((person, index) => (
+                    {(safeResults.people || []).map((person, index) => (
                       <div key={index} className="border-l-4 border-green-500 pl-4">
                         <h4 className="font-semibold">{person.name}</h4>
-                        {person.associates.length > 0 && (
+                        {(person.associates || []).length > 0 && (
                           <div className="mt-2">
                             <Label className="text-xs">Associates:</Label>
                             <div className="flex flex-wrap gap-1 mt-1">
-                              {person.associates.map((associate, i) => (
+                              {(person.associates || []).map((associate, i) => (
                                 <Badge key={i} variant="outline" className="text-xs">
                                   {associate}
                                 </Badge>

@@ -88,22 +88,22 @@ export async function searchPeopleData(query: string, searchType: "address" | "n
       console.log("❌ Direct fetch failed:", error)
     }
 
-    // Method 2: Bright Data Proxy (Paid - Backup)
-    if (!scrapedData && process.env.BRIGHT_DATA_USERNAME) {
-      console.log("💰 Trying Bright Data proxy...")
+    // Method 2: Bright Data Puppeteer (Paid - Backup)
+    if (!scrapedData && process.env.BRIGHT_DATA_PUPPETEER_ENDPOINT) {
+      console.log("💰 Trying Bright Data Puppeteer...")
       try {
         scrapedData = await scrapeWithBrightData(searchType, query)
         if (
           scrapedData &&
           (scrapedData.people?.length > 0 || scrapedData.addresses?.length > 0 || scrapedData.phones?.length > 0)
         ) {
-          method = "bright-data"
-          console.log("✅ Bright Data successful!")
+          method = "bright-data-puppeteer"
+          console.log("✅ Bright Data Puppeteer successful!")
         } else {
           scrapedData = null
         }
       } catch (error) {
-        console.log("❌ Bright Data failed:", error)
+        console.log("❌ Bright Data Puppeteer failed:", error)
       }
     }
 
@@ -165,60 +165,131 @@ export async function searchPeopleData(query: string, searchType: "address" | "n
 async function scrapeWithBrightData(searchType: string, query: string) {
   try {
     const searchUrl = buildTruePeopleSearchURL(searchType, query)
-    console.log("Bright Data scraping URL:", searchUrl)
+    console.log("Bright Data Puppeteer scraping URL:", searchUrl)
 
-    // Bright Data Puppeteer endpoint configuration
-    const brightDataEndpoint = process.env.BRIGHT_DATA_ENDPOINT // e.g., "brd-customer-hl_xxxxx-zone-datacenter_proxy1:8080"
+    // Bright Data Puppeteer endpoint (e.g., "brd-customer-hl_xxxxx-zone-scraping_browser1:8080")
+    const puppeteerEndpoint = process.env.BRIGHT_DATA_PUPPETEER_ENDPOINT
     const username = process.env.BRIGHT_DATA_USERNAME
     const password = process.env.BRIGHT_DATA_PASSWORD
 
-    if (!brightDataEndpoint || !username || !password) {
-      throw new Error("Bright Data credentials not configured")
+    if (!puppeteerEndpoint || !username || !password) {
+      throw new Error("Bright Data Puppeteer credentials not configured")
     }
 
-    // Use Bright Data's scraping browser API
-    const scrapeResponse = await fetch("https://api.brightdata.com/request", {
+    // Use Bright Data's Puppeteer endpoint
+    const wsEndpoint = `wss://${username}:${password}@${puppeteerEndpoint}`
+
+    // Since we can't use Puppeteer directly in Next.js server actions,
+    // we'll use their HTTP API for Puppeteer automation
+    const brightDataApiUrl = `https://${username}:${password}@${puppeteerEndpoint.replace(":8080", "")}/api/v1/browser`
+
+    const response = await fetch(brightDataApiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${username}:${password}`,
+      },
+      body: JSON.stringify({
+        cmd: "request",
+        url: searchUrl,
+        options: {
+          waitUntil: "networkidle2",
+          timeout: 30000,
+          viewport: {
+            width: 1920,
+            height: 1080,
+          },
+          userAgent:
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          blockResources: ["image", "stylesheet", "font", "media"],
+          extraHeaders: {
+            "Accept-Language": "en-US,en;q=0.9",
+            Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+          },
+        },
+      }),
+    })
+
+    if (!response.ok) {
+      console.log("Bright Data API failed, trying alternative method...")
+      return await scrapeWithBrightDataAlternative(searchType, query)
+    }
+
+    const result = await response.json()
+    const html = result.content || result.html || result.body
+
+    if (!html) {
+      throw new Error("No HTML content received from Bright Data")
+    }
+
+    console.log("Bright Data Puppeteer HTML received, length:", html.length)
+
+    // Check if we got blocked
+    if (html.includes("blocked") || html.includes("captcha") || html.includes("Access Denied") || html.length < 1000) {
+      throw new Error("Request was blocked even with Bright Data Puppeteer")
+    }
+
+    return parseRealHTMLResults(html, searchType, query)
+  } catch (error) {
+    console.error("Bright Data Puppeteer error:", error)
+    throw error
+  }
+}
+
+// Alternative method using Bright Data's scraping browser service
+async function scrapeWithBrightDataAlternative(searchType: string, query: string) {
+  try {
+    const searchUrl = buildTruePeopleSearchURL(searchType, query)
+    console.log("Bright Data alternative scraping URL:", searchUrl)
+
+    const username = process.env.BRIGHT_DATA_USERNAME
+    const password = process.env.BRIGHT_DATA_PASSWORD
+    const endpoint = process.env.BRIGHT_DATA_PUPPETEER_ENDPOINT
+
+    if (!username || !password || !endpoint) {
+      throw new Error("Bright Data credentials not configured")
+    }
+
+    // Use Bright Data's scraping browser service via their API
+    const apiUrl = `https://api.brightdata.com/request`
+
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${Buffer.from(`${username}:${password}`).toString("base64")}`,
       },
       body: JSON.stringify({
         url: searchUrl,
         format: "html",
         country: "US",
         render: true,
-        wait: 3000, // Wait 3 seconds for page to load
-        block_resources: ["image", "stylesheet", "font"], // Block unnecessary resources
+        wait: 3000,
+        block_resources: ["image", "stylesheet", "font"],
         headers: {
           "User-Agent":
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+          "Accept-Language": "en-US,en;q=0.9",
         },
+        session_id: `session_${Date.now()}`, // Rotate sessions
       }),
     })
 
-    if (!scrapeResponse.ok) {
-      // Fallback to direct proxy method if API fails
-      console.log("Bright Data API failed, trying direct proxy method...")
-      return await scrapeWithBrightDataProxy(searchType, query)
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new Error(`Bright Data API error: ${response.status} - ${errorText}`)
     }
 
-    const html = await scrapeResponse.text()
-    console.log("Bright Data API HTML received, length:", html.length)
-
-    // Check if we got blocked
-    if (html.includes("blocked") || html.includes("captcha") || html.includes("Access Denied") || html.length < 1000) {
-      throw new Error("Request was blocked even with Bright Data")
-    }
+    const html = await response.text()
+    console.log("Bright Data alternative HTML received, length:", html.length)
 
     return parseRealHTMLResults(html, searchType, query)
   } catch (error) {
-    console.error("Bright Data error:", error)
+    console.error("Bright Data alternative error:", error)
     throw error
   }
 }
 
-// Alternative method using Bright Data as HTTP proxy
 async function scrapeWithBrightDataProxy(searchType: string, query: string) {
   try {
     const searchUrl = buildTruePeopleSearchURL(searchType, query)

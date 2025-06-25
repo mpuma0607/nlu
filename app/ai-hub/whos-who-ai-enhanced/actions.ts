@@ -56,14 +56,7 @@ export async function enhancedPropertySearch(query: string, searchType: "address
       let contactData = null
 
       try {
-        // Option 1: Use TruePeopleSearch API if available
-        if (process.env.TRUEPEOPLESEARCH_API_KEY) {
-          contactData = await fetchTruePeopleSearchAPI(owner.name)
-        }
-        // Option 2: Try smart scraping as backup
-        else {
-          contactData = await fetchContactDataSmart(owner.name, owner.address)
-        }
+        contactData = await fetchContactDataSmart(owner.name, owner.address)
       } catch (error) {
         console.log(`Could not auto-fetch contact data for ${owner.name}:`, error)
       }
@@ -142,73 +135,64 @@ async function getZillowSkipTraceData(query: string, searchType: string) {
   }
 }
 
-// Smart contact data fetching
+// Update the smart fetching to focus on scraping
 async function fetchContactDataSmart(name: string, address?: string) {
   try {
     console.log(`Smart fetching contact data for: ${name}`)
 
-    // Try multiple approaches in order of preference
+    // Try scraping methods in order of preference
     const methods = [
-      () => fetchTruePeopleSearchAPI(name),
-      () => fetchWithBrightDataAPI(name),
-      () => fetchWithAlternativeAPI(name, address),
+      () => fetchWithBrightDataAPI(name), // Use Bright Data to scrape TruePeopleSearch
+      () => fetchWithDirectScraping(name), // Try direct scraping
+      () => fetchWithAlternativeScraping(name), // Try other scraping approaches
     ]
 
     for (const method of methods) {
       try {
         const result = await method()
         if (result && (result.phones?.length > 0 || result.emails?.length > 0)) {
-          console.log(`Successfully fetched contact data for ${name}`)
+          console.log(`Successfully scraped contact data for ${name}`)
           return result
         }
       } catch (methodError) {
-        console.log(`Method failed for ${name}:`, methodError)
+        console.log(`Scraping method failed for ${name}:`, methodError)
         continue
       }
     }
 
     return null
   } catch (error) {
-    console.error(`Smart fetch failed for ${name}:`, error)
+    console.error(`Smart scraping failed for ${name}:`, error)
     return null
   }
 }
 
-// TruePeopleSearch API integration (if you get API access)
-async function fetchTruePeopleSearchAPI(name: string) {
-  if (!process.env.TRUEPEOPLESEARCH_API_KEY) {
-    return null
-  }
-
+// Add direct scraping method
+async function fetchWithDirectScraping(name: string) {
   try {
-    // This would be the actual TruePeopleSearch API call
-    const response = await fetch("https://api.truepeoplesearch.com/search", {
-      method: "POST",
+    const searchUrl = createTruePeopleSearchURL(name)
+
+    const response = await fetch(searchUrl, {
       headers: {
-        Authorization: `Bearer ${process.env.TRUEPEOPLESEARCH_API_KEY}`,
-        "Content-Type": "application/json",
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Accept-Encoding": "gzip, deflate, br",
+        Connection: "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
       },
-      body: JSON.stringify({
-        name: name,
-        type: "person",
-      }),
+      signal: AbortSignal.timeout(15000),
     })
 
     if (!response.ok) {
-      throw new Error(`TruePeopleSearch API error: ${response.status}`)
+      throw new Error(`HTTP ${response.status}`)
     }
 
-    const data = await response.json()
-
-    return {
-      phones: data.phones || [],
-      emails: data.emails || [],
-      addresses: data.addresses || [],
-      relatives: data.relatives || [],
-      age: data.age,
-    }
+    const html = await response.text()
+    return parseContactDataFromHTML(html, name)
   } catch (error) {
-    console.error("TruePeopleSearch API error:", error)
+    console.error("Direct scraping error:", error)
     return null
   }
 }
@@ -249,7 +233,7 @@ async function fetchWithBrightDataAPI(name: string) {
 }
 
 // Alternative API services
-async function fetchWithAlternativeAPI(name: string, address?: string) {
+async function fetchWithAlternativeScraping(name: string, address?: string) {
   // Could integrate with other people search APIs like:
   // - WhitePages API
   // - Spokeo API

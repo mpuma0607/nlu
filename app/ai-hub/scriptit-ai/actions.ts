@@ -26,21 +26,19 @@ export async function generateScript(formData: ScriptFormData) {
 
     const prompt = `You are an expert real estate script writer. Create ONE professional ${formData.scriptType} script for ${formData.agentName} from ${formData.brokerageName} targeting ${topicToUse}.
 
-CRITICAL: Write ONE complete script that naturally incorporates VAK (Visual, Auditory, Kinesthetic) language patterns throughout. DO NOT create separate scripts or sections for different personality types.
-
 ${scriptTypeDetails.requirements}
 
-VAK LANGUAGE INTEGRATION:
-- Visual words: "see," "picture," "look," "view," "imagine," "envision," "clear," "bright," "focus"
-- Auditory words: "hear," "listen," "sounds," "tell," "discuss," "rings true," "clicks," "resonates"  
-- Kinesthetic words: "feel," "touch," "grasp," "handle," "solid," "smooth," "comfortable," "experience"
+IMPORTANT LANGUAGE REQUIREMENTS:
+- Naturally incorporate Visual language: "see," "picture," "look," "view," "imagine," "envision," "clear," "bright," "focus," "show," "appear," "visualize"
+- Naturally incorporate Auditory language: "hear," "listen," "sounds," "tell," "discuss," "rings true," "clicks," "resonates," "speak," "talk," "mention"  
+- Naturally incorporate Kinesthetic language: "feel," "touch," "grasp," "handle," "solid," "smooth," "comfortable," "experience," "sense," "connect," "move"
 
 TOPIC CONTEXT: ${topicContext}
 
 SCRIPT STRUCTURE:
 1. Opening Hook (attention-grabbing, builds rapport)
-2. Value Proposition (clear benefit using VAK language)
-3. Proof/Credibility (establish trust with sensory language)
+2. Value Proposition (clear benefit using sensory language)
+3. Proof/Credibility (establish trust)
 4. Call to Action (specific next step)
 5. Objection Handling (brief, if applicable)
 
@@ -50,7 +48,7 @@ ${formData.additionalDetails ? `ADDITIONAL REQUIREMENTS: ${formData.additionalDe
 
 ${scriptTypeDetails.lengthGuidance}
 
-IMPORTANT: Write this as ONE complete, flowing script that naturally weaves in visual, auditory, and kinesthetic language throughout. Make it sound conversational and natural, not like it's targeting different personality types.`
+Write this as ONE complete, flowing script that naturally weaves in visual, auditory, and kinesthetic language throughout. Make it sound conversational and natural. Do NOT create separate sections or versions. Just write one professional script.`
 
     const { text: generatedScript } = await generateText({
       model: openai("gpt-4o"),
@@ -69,24 +67,25 @@ IMPORTANT: Write this as ONE complete, flowing script that naturally weaves in v
 function getScriptTypeDetails(scriptType: string) {
   const details = {
     email: {
-      requirements: "Email format with subject line, professional greeting, body content, and closing signature.",
-      lengthGuidance: "Keep the email comprehensive but scannable - aim for 200-400 words.",
+      requirements:
+        "Create a professional email with subject line, greeting, body content, and closing signature. Format it as a complete email.",
+      lengthGuidance: "Keep the email comprehensive but scannable - aim for 200-400 words total.",
     },
     phone: {
-      requirements: "Phone conversation script with natural dialogue flow, pause points, and response handling.",
+      requirements: "Create a phone conversation script with natural dialogue flow and pause points for responses.",
       lengthGuidance: "Create a 2-3 minute conversation script (approximately 300-500 words).",
     },
     text: {
-      requirements: "Text message format that's concise, friendly, and action-oriented.",
+      requirements: "Create a concise, friendly text message that's action-oriented.",
       lengthGuidance:
         "KEEP THIS VERY SHORT - Maximum 160 characters to fit in one SMS message. Be direct and compelling.",
     },
     video: {
-      requirements: "Video script with clear speaking points, timing cues, and visual direction notes.",
+      requirements: "Create a video script with clear speaking points and natural flow.",
       lengthGuidance: "Create a 60-90 second video script (approximately 150-250 words).",
     },
     doorknocking: {
-      requirements: "Face-to-face conversation script for door-to-door prospecting with natural dialogue.",
+      requirements: "Create a face-to-face conversation script for door-to-door prospecting with natural dialogue.",
       lengthGuidance: "Create a 1-2 minute door conversation script (approximately 200-350 words).",
     },
   }

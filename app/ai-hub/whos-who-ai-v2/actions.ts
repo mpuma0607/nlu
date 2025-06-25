@@ -2,8 +2,7 @@
 
 import { generateText } from "ai"
 import { openai } from "@ai-sdk/openai"
-// Remove this line:
-// import puppeteer from "puppeteer"
+import puppeteer from "puppeteer"
 
 interface SearchFormData {
   searchType: "address" | "name" | "phone"
@@ -137,53 +136,89 @@ async function scrapeTruePeopleSearch(searchType: string, query: string) {
   try {
     console.log("Fetching TruePeopleSearch data...")
 
-    // For now, we'll simulate the search and return mock data
-    // In production, you could use a headless browser service like Browserless or ScrapingBee
+    const browser = await puppeteer.launch({
+      headless: "new",
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    })
+    const page = await browser.newPage()
 
-    const mockResults = {
-      people: [
-        {
-          name: `Search Result for: ${query}`,
-          age: undefined,
-          addresses: [`Results found for ${searchType} search`],
-          phones: ["Contact information available"],
-          relatives: ["Related individuals found"],
-          associates: ["Associated contacts discovered"],
-        },
-      ],
-      addresses:
-        searchType === "address"
-          ? [
-              {
-                address: query,
-                residents: ["Current residents found"],
-                previousResidents: ["Previous residents identified"],
-                propertyType: "Residential",
-                yearBuilt: undefined,
-              },
-            ]
-          : [],
-      phones:
-        searchType === "phone"
-          ? [
-              {
-                phone: query,
-                owner: "Owner information found",
-                carrier: "Carrier identified",
-                location: "Location determined",
-                type: "Mobile/Landline",
-              },
-            ]
-          : [],
-      pageText: `Search completed for ${searchType}: ${query}. This is a demonstration of the TruePeopleSearch integration. In production, this would contain actual scraped data from TruePeopleSearch.com.`,
-      url: "https://www.truepeoplesearch.com",
-      title: "TruePeopleSearch Results",
+    let searchUrl = `https://www.truepeoplesearch.com/results?`
+    if (searchType === "name") {
+      const [firstName, ...lastNameParts] = query.split(" ")
+      const lastName = lastNameParts.join(" ")
+      searchUrl += `name=${firstName}&lastname=${lastName}`
+    } else if (searchType === "address") {
+      searchUrl += `citystatezip=${query}`
+    } else if (searchType === "phone") {
+      searchUrl += `phoneno=${query}`
+    } else {
+      throw new Error("Invalid search type")
     }
 
-    // Add a note about the demo mode
-    console.log("Demo mode: Returning mock data. To enable real scraping, integrate with a headless browser service.")
+    console.log("Navigating to:", searchUrl)
+    await page.goto(searchUrl, { waitUntil: "domcontentloaded" })
 
-    return mockResults
+    // Wait for the search results to load. Adjust the timeout as needed.
+    await page.waitForSelector(".card.people-card", { timeout: 10000 })
+
+    const scrapedData = await page.evaluate(() => {
+      const people: any[] = []
+      const addresses: any[] = []
+      const phones: any[] = []
+
+      // Extract people results
+      const personCards = Array.from(document.querySelectorAll(".card.people-card"))
+      personCards.forEach((card) => {
+        const nameElement = card.querySelector(".h4")
+        const name = nameElement ? nameElement.textContent?.trim() : ""
+
+        const ageElement = card.querySelector(".h6:nth-child(2)")
+        const ageText = ageElement ? ageElement.textContent?.trim() : ""
+        const age = ageText.includes("Age") ? Number.parseInt(ageText.split(" ")[1]) : undefined
+
+        const addressElements = Array.from(card.querySelectorAll(".list-group-item a[data-label='Address']"))
+        const addressesList = addressElements.map((a) => a.textContent?.trim()).filter(Boolean) as string[]
+
+        const phoneElements = Array.from(card.querySelectorAll(".list-group-item a[data-label='Phone']"))
+        const phonesList = phoneElements.map((a) => a.textContent?.trim()).filter(Boolean) as string[]
+
+        const relativeElements = Array.from(card.querySelectorAll(".list-group-item a[data-label='Relative']"))
+        const relativesList = relativeElements.map((a) => a.textContent?.trim()).filter(Boolean) as string[]
+
+        const associateElements = Array.from(card.querySelectorAll(".list-group-item a[data-label='Associate']"))
+        const associatesList = associateElements.map((a) => a.textContent?.trim()).filter(Boolean) as string[]
+
+        people.push({
+          name,
+          age,
+          addresses: addressesList,
+          phones: phonesList,
+          relatives: relativesList,
+          associates: associatesList,
+        })
+      })
+
+      // No direct address or phone listings on the main results page,
+      // so we focus on extracting the person data.  More detailed scraping
+      // would require navigating to individual result pages.
+
+      const pageText = document.body.textContent || ""
+      const url = window.location.href
+      const title = document.title
+
+      return {
+        people,
+        addresses,
+        phones,
+        pageText,
+        url,
+        title,
+      }
+    })
+
+    await browser.close()
+    console.log("TruePeopleSearch data fetched successfully.")
+    return scrapedData
   } catch (error) {
     console.error("Search error:", error)
     return {
@@ -271,8 +306,6 @@ function processScrapedData(scrapedData: any, searchType: string, query: string)
 async function generateAISummary(results: any, searchType: string, query: string) {
   try {
     const prompt = `You are a professional investigative researcher creating a comprehensive summary of people search results.
-
-**DEMO MODE**: This is a demonstration of the TruePeopleSearch integration. In production, this would contain real scraped data.
 
 Search Type: ${searchType}
 Search Query: ${query}

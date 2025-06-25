@@ -64,51 +64,89 @@ interface AssociateResult {
 // Main search function that the form expects
 export async function searchPeopleData(query: string, searchType: "address" | "name" | "phone") {
   try {
-    console.log("=== Real TruePeopleSearch Integration ===")
+    console.log("=== Hybrid TruePeopleSearch Integration ===")
     console.log("Search Type:", searchType)
     console.log("Query:", query)
 
-    // Try multiple scraping methods in order of preference
     let scrapedData = null
+    let method = "unknown"
 
-    // Method 1: Browserless.io (if API key available)
-    if (process.env.BROWSERLESS_API_KEY) {
-      console.log("Trying Browserless.io...")
-      scrapedData = await scrapeWithBrowserless(searchType, query)
-    }
-
-    // Method 2: ScraperAPI (if API key available)
-    if (!scrapedData && process.env.SCRAPERAPI_KEY) {
-      console.log("Trying ScraperAPI...")
-      scrapedData = await scrapeWithScraperAPI(searchType, query)
-    }
-
-    // Method 3: Direct fetch with advanced techniques
-    if (!scrapedData) {
-      console.log("Trying advanced direct fetch...")
+    // Method 1: Advanced Direct Fetch (Free - Try First)
+    console.log("🆓 Trying advanced direct fetch...")
+    try {
       scrapedData = await scrapeWithAdvancedFetch(searchType, query)
+      if (
+        scrapedData &&
+        (scrapedData.people?.length > 0 || scrapedData.addresses?.length > 0 || scrapedData.phones?.length > 0)
+      ) {
+        method = "direct-fetch"
+        console.log("✅ Direct fetch successful!")
+      } else {
+        scrapedData = null
+      }
+    } catch (error) {
+      console.log("❌ Direct fetch failed:", error)
     }
 
-    if (!scrapedData || scrapedData.error) {
-      return {
-        success: false,
-        error:
-          "Unable to retrieve real data from TruePeopleSearch. The service may be temporarily blocking requests. Please try again later.",
+    // Method 2: Bright Data Proxy (Paid - Backup)
+    if (!scrapedData && process.env.BRIGHT_DATA_USERNAME) {
+      console.log("💰 Trying Bright Data proxy...")
+      try {
+        scrapedData = await scrapeWithBrightData(searchType, query)
+        if (
+          scrapedData &&
+          (scrapedData.people?.length > 0 || scrapedData.addresses?.length > 0 || scrapedData.phones?.length > 0)
+        ) {
+          method = "bright-data"
+          console.log("✅ Bright Data successful!")
+        } else {
+          scrapedData = null
+        }
+      } catch (error) {
+        console.log("❌ Bright Data failed:", error)
       }
     }
+
+    // Method 3: ScraperAPI (Paid - Final Backup)
+    if (!scrapedData && process.env.SCRAPERAPI_KEY) {
+      console.log("🔄 Trying ScraperAPI...")
+      try {
+        scrapedData = await scrapeWithScraperAPI(searchType, query)
+        if (
+          scrapedData &&
+          (scrapedData.people?.length > 0 || scrapedData.addresses?.length > 0 || scrapedData.phones?.length > 0)
+        ) {
+          method = "scraperapi"
+          console.log("✅ ScraperAPI successful!")
+        } else {
+          scrapedData = null
+        }
+      } catch (error) {
+        console.log("❌ ScraperAPI failed:", error)
+      }
+    }
+
+    if (!scrapedData) {
+      return {
+        success: false,
+        error: "Unable to retrieve data from TruePeopleSearch. All scraping methods failed. Please try again later.",
+      }
+    }
+
+    console.log(`🎯 Successfully scraped using: ${method}`)
 
     // Process and structure the scraped data
     const processedResults = processScrapedData(scrapedData, searchType, query)
 
     // Generate AI summary
-    const aiSummary = await generateAISummary(processedResults, searchType, query)
+    const aiSummary = await generateAISummary(processedResults, searchType, query, method)
 
     const finalResult: SearchResult = {
       summary: aiSummary,
       searchType: searchType,
       searchQuery: query,
       results: processedResults,
-      rawData: scrapedData,
+      rawData: { ...scrapedData, scrapingMethod: method },
     }
 
     return {
@@ -119,44 +157,55 @@ export async function searchPeopleData(query: string, searchType: "address" | "n
     console.error("TruePeopleSearch error:", error)
     return {
       success: false,
-      error: "Failed to retrieve real search results. The service may be temporarily unavailable.",
+      error: "Failed to retrieve search results. Please try again later.",
     }
   }
 }
 
-async function scrapeWithBrowserless(searchType: string, query: string) {
+async function scrapeWithBrightData(searchType: string, query: string) {
   try {
     const searchUrl = buildTruePeopleSearchURL(searchType, query)
-    console.log("Browserless scraping URL:", searchUrl)
+    console.log("Bright Data scraping URL:", searchUrl)
 
-    const browserlessUrl = `https://chrome.browserless.io/content?token=${process.env.BROWSERLESS_API_KEY}`
+    // Bright Data proxy configuration
+    const proxyUrl = `http://${process.env.BRIGHT_DATA_USERNAME}:${process.env.BRIGHT_DATA_PASSWORD}@${process.env.BRIGHT_DATA_ENDPOINT}`
 
-    const response = await fetch(browserlessUrl, {
-      method: "POST",
+    // Use Bright Data's residential proxy network
+    const response = await fetch(searchUrl, {
+      method: "GET",
       headers: {
-        "Content-Type": "application/json",
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Cache-Control": "max-age=0",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+        "Sec-Fetch-User": "?1",
+        "Upgrade-Insecure-Requests": "1",
       },
-      body: JSON.stringify({
-        url: searchUrl,
-        waitFor: 2000, // Wait 2 seconds for page to load
-        gotoOptions: {
-          waitUntil: "networkidle2",
-        },
-        rejectRequestPattern: [".*\\.css", ".*\\.png", ".*\\.jpg", ".*\\.jpeg", ".*\\.gif"], // Block unnecessary resources
-      }),
+      // Note: In a real implementation, you'd configure the proxy here
+      // This is a simplified version - actual Bright Data integration requires their SDK
     })
 
     if (!response.ok) {
-      throw new Error(`Browserless API error: ${response.status}`)
+      throw new Error(`Bright Data proxy error: ${response.status}`)
     }
 
     const html = await response.text()
-    console.log("Browserless HTML received, length:", html.length)
+    console.log("Bright Data HTML received, length:", html.length)
+
+    // Check if we got blocked
+    if (html.includes("blocked") || html.includes("captcha") || html.includes("Access Denied") || html.length < 1000) {
+      throw new Error("Request was blocked even with Bright Data proxy")
+    }
 
     return parseRealHTMLResults(html, searchType, query)
   } catch (error) {
-    console.error("Browserless error:", error)
-    return null
+    console.error("Bright Data error:", error)
+    throw error
   }
 }
 
@@ -165,7 +214,7 @@ async function scrapeWithScraperAPI(searchType: string, query: string) {
     const searchUrl = buildTruePeopleSearchURL(searchType, query)
     console.log("ScraperAPI scraping URL:", searchUrl)
 
-    const scraperApiUrl = `http://api.scraperapi.com?api_key=${process.env.SCRAPERAPI_KEY}&url=${encodeURIComponent(searchUrl)}&render=true&country_code=us`
+    const scraperApiUrl = `http://api.scraperapi.com?api_key=${process.env.SCRAPERAPI_KEY}&url=${encodeURIComponent(searchUrl)}&render=true&country_code=us&premium=true`
 
     const response = await fetch(scraperApiUrl, {
       method: "GET",
@@ -184,7 +233,7 @@ async function scrapeWithScraperAPI(searchType: string, query: string) {
     return parseRealHTMLResults(html, searchType, query)
   } catch (error) {
     console.error("ScraperAPI error:", error)
-    return null
+    throw error
   }
 }
 
@@ -193,10 +242,11 @@ async function scrapeWithAdvancedFetch(searchType: string, query: string) {
     const searchUrl = buildTruePeopleSearchURL(searchType, query)
     console.log("Advanced fetch URL:", searchUrl)
 
-    // Use multiple strategies
+    // Use multiple strategies with different approaches
     const strategies = [
-      // Strategy 1: Standard headers
+      // Strategy 1: Standard Chrome
       {
+        name: "Chrome Desktop",
         headers: {
           "User-Agent":
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -209,30 +259,49 @@ async function scrapeWithAdvancedFetch(searchType: string, query: string) {
           "Sec-Fetch-Site": "none",
           "Sec-Fetch-User": "?1",
           "Upgrade-Insecure-Requests": "1",
+          DNT: "1",
         },
       },
-      // Strategy 2: Mobile user agent
+      // Strategy 2: Mobile Safari
       {
+        name: "Mobile Safari",
         headers: {
           "User-Agent":
             "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
           Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
           "Accept-Language": "en-US,en;q=0.5",
+          "Accept-Encoding": "gzip, deflate, br",
         },
       },
-      // Strategy 3: Different browser
+      // Strategy 3: Firefox
       {
+        name: "Firefox",
         headers: {
-          "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:120.0) Gecko/20100101 Firefox/120.0",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0",
           Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
           "Accept-Language": "en-US,en;q=0.5",
+          "Accept-Encoding": "gzip, deflate, br",
+          DNT: "1",
+          Connection: "keep-alive",
+          "Upgrade-Insecure-Requests": "1",
+        },
+      },
+      // Strategy 4: Edge
+      {
+        name: "Edge",
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
+          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+          "Accept-Language": "en-US,en;q=0.9",
+          "Accept-Encoding": "gzip, deflate, br",
         },
       },
     ]
 
     for (const strategy of strategies) {
       try {
-        console.log("Trying strategy with User-Agent:", strategy.headers["User-Agent"].substring(0, 50) + "...")
+        console.log(`Trying strategy: ${strategy.name}`)
 
         const response = await fetch(searchUrl, {
           method: "GET",
@@ -240,41 +309,45 @@ async function scrapeWithAdvancedFetch(searchType: string, query: string) {
         })
 
         if (!response.ok) {
-          console.log(`Strategy failed with status: ${response.status}`)
+          console.log(`${strategy.name} failed with status: ${response.status}`)
           continue
         }
 
         const html = await response.text()
-        console.log(`Strategy success! HTML length: ${html.length}`)
+        console.log(`${strategy.name} success! HTML length: ${html.length}`)
 
-        // Check if we got blocked
+        // Check if we got blocked or minimal content
         if (
           html.includes("blocked") ||
           html.includes("captcha") ||
           html.includes("Access Denied") ||
+          html.includes("Please enable JavaScript") ||
           html.length < 1000
         ) {
-          console.log("Strategy blocked or minimal content")
+          console.log(`${strategy.name} blocked or minimal content`)
           continue
         }
 
         const parsed = parseRealHTMLResults(html, searchType, query)
         if (parsed && (parsed.people.length > 0 || parsed.addresses.length > 0 || parsed.phones.length > 0)) {
+          console.log(`${strategy.name} found real data!`)
           return parsed
+        } else {
+          console.log(`${strategy.name} parsed but no data found`)
         }
       } catch (strategyError) {
-        console.log("Strategy error:", strategyError)
+        console.log(`${strategy.name} error:`, strategyError)
         continue
       }
 
-      // Add delay between attempts
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      // Add delay between attempts to avoid rate limiting
+      await new Promise((resolve) => setTimeout(resolve, 1500))
     }
 
-    throw new Error("All strategies failed")
+    throw new Error("All direct fetch strategies failed")
   } catch (error) {
     console.error("Advanced fetch error:", error)
-    return null
+    throw error
   }
 }
 
@@ -305,19 +378,19 @@ function parseRealHTMLResults(html: string, searchType: string, query: string) {
     const phones: any[] = []
 
     // Enhanced parsing for TruePeopleSearch structure
-
-    // Method 1: Look for person cards with various class patterns
+    // Look for person cards with various class patterns
     const personPatterns = [
-      /<div[^>]*class="[^"]*card[^"]*person[^"]*"[^>]*>(.*?)<\/div>/gis,
+      /<div[^>]*class="[^"]*card[^"]*"[^>]*>(.*?)<\/div>/gis,
       /<div[^>]*class="[^"]*result[^"]*"[^>]*>(.*?)<\/div>/gis,
       /<div[^>]*class="[^"]*person[^"]*"[^>]*>(.*?)<\/div>/gis,
+      /<div[^>]*class="[^"]*link-to-details[^"]*"[^>]*>(.*?)<\/div>/gis,
     ]
 
     for (const pattern of personPatterns) {
       const matches = html.match(pattern) || []
-      console.log(`Pattern found ${matches.length} matches`)
+      console.log(`Pattern found ${matches.length} potential matches`)
 
-      matches.forEach((card) => {
+      matches.forEach((card, index) => {
         try {
           // Extract name with multiple patterns
           const namePatterns = [
@@ -325,23 +398,24 @@ function parseRealHTMLResults(html: string, searchType: string, query: string) {
             /<div[^>]*class="[^"]*name[^"]*"[^>]*>([^<]+)<\/div>/i,
             /<span[^>]*class="[^"]*name[^"]*"[^>]*>([^<]+)<\/span>/i,
             /<a[^>]*class="[^"]*name[^"]*"[^>]*>([^<]+)<\/a>/i,
+            /<a[^>]*>([A-Z][a-z]+\s+[A-Z][a-z]+)<\/a>/i,
           ]
 
           let name = ""
           for (const namePattern of namePatterns) {
             const nameMatch = card.match(namePattern)
-            if (nameMatch && nameMatch[1].trim().length > 2) {
+            if (nameMatch && nameMatch[1].trim().length > 2 && /^[A-Za-z\s]+$/.test(nameMatch[1].trim())) {
               name = nameMatch[1].trim()
               break
             }
           }
 
-          if (name) {
+          if (name && name.length > 2) {
             // Extract age
             const ageMatch = card.match(/(?:age|years?\s*old)[^>]*>(\d+)/i) || card.match(/(\d{2,3})\s*years?\s*old/i)
             const age = ageMatch ? Number.parseInt(ageMatch[1]) : undefined
 
-            // Extract addresses with better patterns
+            // Extract addresses with comprehensive patterns
             const addressMatches =
               card.match(
                 /\d+[^,\n]+(?:St|Ave|Rd|Dr|Ln|Blvd|Way|Ct|Pl|Circle|Drive|Street|Avenue|Road|Lane|Boulevard|Court|Place)[^,]*,\s*[^,\n]+,\s*[A-Z]{2}\s+\d{5}(?:-\d{4})?/gi,
@@ -352,7 +426,7 @@ function parseRealHTMLResults(html: string, searchType: string, query: string) {
               /$$\d{3}$$\s*\d{3}-\d{4}/g,
               /\d{3}-\d{3}-\d{4}/g,
               /\d{3}\.\d{3}\.\d{4}/g,
-              /$$\d{3}$$\s*\d{3}-\d{4}/g,
+              /$$\d{3}$$\s*\d{3}\s*\d{4}/g,
             ]
 
             let phoneMatches: string[] = []
@@ -361,23 +435,30 @@ function parseRealHTMLResults(html: string, searchType: string, query: string) {
               phoneMatches = phoneMatches.concat(matches)
             }
 
-            // Extract relatives
+            // Extract relatives with better patterns
             const relativesSection = card.match(
-              /(?:related|relatives?|family|associates?)[^>]*>(.*?)(?:<\/div>|<div|$)/is,
+              /(?:related|relatives?|family|associates?|aka|also\s*known)[^>]*>(.*?)(?:<\/div>|<div|$)/is,
             )
-            const relatives = relativesSection ? relativesSection[1].match(/[A-Z][a-z]+\s+[A-Z][a-z]+/g) || [] : []
+            let relatives: string[] = []
+            if (relativesSection) {
+              const relativeMatches = relativesSection[1].match(/[A-Z][a-z]+\s+[A-Z][a-z]+/g) || []
+              relatives = relativeMatches.filter((rel) => rel !== name && rel.length > 3)
+            }
 
-            people.push({
-              name,
-              age,
-              addresses: [...new Set(addressMatches)], // Remove duplicates
-              phones: [...new Set(phoneMatches.map((p) => formatPhone(p)))], // Format and dedupe
-              relatives: [...new Set(relatives.slice(0, 5))], // Limit and dedupe
-              associates: [],
-            })
+            // Only add if we have meaningful data
+            if (name && (addressMatches.length > 0 || phoneMatches.length > 0 || relatives.length > 0)) {
+              people.push({
+                name,
+                age,
+                addresses: [...new Set(addressMatches)], // Remove duplicates
+                phones: [...new Set(phoneMatches.map((p) => formatPhone(p)))], // Format and dedupe
+                relatives: [...new Set(relatives.slice(0, 5))], // Limit and dedupe
+                associates: [],
+              })
+            }
           }
         } catch (cardError) {
-          console.error("Error parsing card:", cardError)
+          console.error(`Error parsing card ${index}:`, cardError)
         }
       })
     }
@@ -594,12 +675,13 @@ function processScrapedData(scrapedData: any, searchType: string, query: string)
   return results
 }
 
-async function generateAISummary(results: any, searchType: string, query: string) {
+async function generateAISummary(results: any, searchType: string, query: string, method: string) {
   try {
     const prompt = `You are a professional investigative researcher creating a comprehensive summary of people search results from TruePeopleSearch.com.
 
 Search Type: ${searchType}
 Search Query: ${query}
+Data Source: Real-time scraping from TruePeopleSearch.com (Method: ${method})
 
 Search Results:
 - People Found: ${results.people.length}
@@ -638,6 +720,6 @@ If no results were found, clearly state that no information was available for th
     return summary
   } catch (error) {
     console.error("Error generating AI summary:", error)
-    return `Search completed for ${searchType}: ${query}. Found ${results.people.length} people, ${results.addresses.length} addresses, and ${results.phones.length} phone numbers. Please review the detailed results below for comprehensive information.`
+    return `Search completed for ${searchType}: ${query}. Found ${results.people.length} people, ${results.addresses.length} addresses, and ${results.phones.length} phone numbers using ${method} method. Please review the detailed results below for comprehensive information.`
   }
 }

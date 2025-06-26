@@ -10,8 +10,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { generateScript } from "./actions"
-import { Loader2, Copy, Download, Mail, FileText, MessageSquare } from "lucide-react"
+import { Loader2, Copy, Download, Mail, FileText, MessageSquare, Save } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
+import { saveUserCreation } from "@/lib/auto-save-creation"
 
 type ScriptFormState = {
   agentName: string
@@ -55,6 +57,7 @@ export default function ScriptForm() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [isSendingEmail, setIsSendingEmail] = useState(false)
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
   const [formData, setFormData] = useState<ScriptFormState>({
     agentName: "",
     brokerageName: "",
@@ -65,6 +68,8 @@ export default function ScriptForm() {
     agentEmail: "",
   })
   const [result, setResult] = useState<ScriptResult | null>(null)
+  const { user, isLoading: isUserLoading } = useMemberSpaceUser()
+  const isLoggedIn = !!user && !isUserLoading
 
   const resultsRef = useRef<HTMLDivElement>(null)
 
@@ -207,6 +212,47 @@ export default function ScriptForm() {
         })
       } finally {
         setIsSendingEmail(false)
+      }
+    }
+  }
+
+  const saveToProfile = async () => {
+    if (result?.script && user) {
+      setIsSaving(true)
+      try {
+        await saveUserCreation({
+          userId: user.id,
+          contentType: "script",
+          title: `${scriptTypeOptions.find((opt) => opt.value === formData.scriptType)?.label} - ${
+            formData.topic === "other"
+              ? formData.customTopic
+              : topicOptions.find((opt) => opt.value === formData.topic)?.label
+          }`,
+          content: result.script,
+          metadata: {
+            agentName: formData.agentName,
+            brokerageName: formData.brokerageName,
+            scriptType: formData.scriptType,
+            topic: formData.topic,
+            customTopic: formData.customTopic,
+            additionalDetails: formData.additionalDetails,
+            agentEmail: formData.agentEmail,
+          },
+        })
+
+        toast({
+          title: "Script Saved",
+          description: "Your script has been saved to your profile dashboard.",
+        })
+      } catch (error) {
+        console.error("Error saving script:", error)
+        toast({
+          title: "Save Failed",
+          description: "Failed to save script. Please try again.",
+          variant: "destructive",
+        })
+      } finally {
+        setIsSaving(false)
       }
     }
   }
@@ -474,15 +520,19 @@ export default function ScriptForm() {
         </TabsContent>
       </Tabs>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Button variant="outline" onClick={copyToClipboard} className="flex items-center justify-center gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <Button
+          variant="outline"
+          onClick={copyToClipboard}
+          className="flex items-center justify-center gap-2 bg-transparent"
+        >
           <Copy className="h-4 w-4" /> <span className="whitespace-nowrap">Copy</span>
         </Button>
         <Button
           variant="outline"
           onClick={downloadPDF}
           disabled={isGeneratingPDF}
-          className="flex items-center justify-center gap-2"
+          className="flex items-center justify-center gap-2 bg-transparent"
         >
           {isGeneratingPDF ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
           <span className="whitespace-nowrap">Download</span>
@@ -491,10 +541,19 @@ export default function ScriptForm() {
           variant="outline"
           onClick={sendEmail}
           disabled={isSendingEmail}
-          className="flex items-center justify-center gap-2"
+          className="flex items-center justify-center gap-2 bg-transparent"
         >
           {isSendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
           <span className="whitespace-nowrap">Email</span>
+        </Button>
+        <Button
+          variant="outline"
+          onClick={saveToProfile}
+          disabled={isSaving || !isLoggedIn}
+          className="flex items-center justify-center gap-2 bg-transparent"
+        >
+          {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          <span className="whitespace-nowrap">{!isLoggedIn ? "Login to Save" : "Save"}</span>
         </Button>
       </div>
 

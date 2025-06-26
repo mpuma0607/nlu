@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { Target, Download, Mail, Calculator, TrendingUp, Phone, Brain, Eye, Zap } from "lucide-react"
+import { Target, Download, Mail, Calculator, TrendingUp, Phone, Brain, Eye, Zap, Save } from "lucide-react"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
 
@@ -358,7 +358,7 @@ export default function GoalScreenForm() {
                     disabled={isSaving || !calculations}
                     size="lg"
                   >
-                    <Target className="h-4 w-4 mr-2" />
+                    <Save className="h-4 w-4 mr-2" />
                     {isSaving ? "Saving..." : "Save to Profile"}
                   </Button>
                 )}

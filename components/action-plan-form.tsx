@@ -1,335 +1,231 @@
 "use client"
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
-// Let's add tracking to the BizPlan form:
+import type React from "react"
 
 import { useState } from "react"
-import { useToast } from "@/components/ui/use-toast"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
 import { Textarea } from "@/components/ui/textarea"
-import { generateBusinessPlan } from "@/lib/actions"
-import { useUser } from "@clerk/nextjs"
-import { useRouter } from "next/navigation"
+import { Download, Mail, Copy, Loader2 } from "lucide-react"
+import { useToast } from "@/components/ui/use-toast"
+import { useActionAI } from "@/hooks/use-action-ai"
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
+import { useEmail } from "@/hooks/use-email"
+import { usePDF } from "@/hooks/use-pdf"
+import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
+import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
+import { Save } from "lucide-react"
 
-const formSchema = z.object({
-  companyName: z.string().min(2, {
-    message: "Company name must be at least 2 characters.",
-  }),
-  industry: z.string().min(2, {
-    message: "Industry must be at least 2 characters.",
-  }),
-  targetAudience: z.string().min(10, {
-    message: "Target audience must be at least 10 characters.",
-  }),
-  problem: z.string().min(10, {
-    message: "Problem must be at least 10 characters.",
-  }),
-  solution: z.string().min(10, {
-    message: "Solution must be at least 10 characters.",
-  }),
-})
+interface ActionPlanFormProps {
+  defaultValues?: {
+    prospectingFocus: string
+    agentName: string
+    agentSpecialty: string
+    targetClient: string
+    uniqueSellingPoint: string
+  }
+}
 
-const BizPlanForm = () => {
-  const [isLoading, setIsLoading] = useState(false)
-  const [isPdfLoading, setIsPdfLoading] = useState(false)
-  const [isEmailLoading, setIsEmailLoading] = useState(false)
-  const [plan, setPlan] = useState<string>("")
-  const { toast } = useToast()
-  const { user } = useUser()
-  const router = useRouter()
+interface FormData {
+  prospectingFocus: string
+  agentName: string
+  agentSpecialty: string
+  targetClient: string
+  uniqueSellingPoint: string
+}
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      companyName: "",
-      industry: "",
-      targetAudience: "",
-      problem: "",
-      solution: "",
-    },
+export function ActionPlanForm({ defaultValues }: ActionPlanFormProps) {
+  const [formData, setFormData] = useState<FormData>({
+    prospectingFocus: defaultValues?.prospectingFocus || "",
+    agentName: defaultValues?.agentName || "",
+    agentSpecialty: defaultValues?.agentSpecialty || "",
+    targetClient: defaultValues?.targetClient || "",
+    uniqueSellingPoint: defaultValues?.uniqueSellingPoint || "",
   })
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
+  const [isSendingEmail, setIsSendingEmail] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const { user, isLoggedIn } = useMemberSpaceUser()
+  const { toast } = useToast()
+  const { generateActionPlan, result } = useActionAI()
+  const { copyToClipboard, hasCopied } = useCopyToClipboard()
+  const { downloadPDF } = usePDF()
+  const { sendEmail } = useEmail()
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true)
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData({ ...formData, [name]: value })
+  }
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsGenerating(true)
     try {
-      const response = await generateBusinessPlan({
-        ...values,
-        userId: user?.id || "",
-      })
-
-      setPlan(response?.plan || "")
+      await generateActionPlan(formData)
+    } catch (error) {
+      console.error("Error generating action plan:", error)
       toast({
-        title: "Business plan generated!",
-        description: "Your business plan has been generated successfully.",
-      })
-    } catch (error: any) {
-      toast({
+        title: "Error",
+        description: "Failed to generate action plan. Please try again.",
         variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: error?.message || "Failed to generate business plan. Please try again.",
       })
     } finally {
-      setIsLoading(false)
+      setIsGenerating(false)
     }
   }
 
-  const downloadPDF = async () => {
-    setIsPdfLoading(true)
+  const saveToProfile = async () => {
+    if (!result || !isLoggedIn) return
 
+    setIsSaving(true)
     try {
-      const response = await fetch("/api/pdf", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const title = generateCreationTitle("action-plan", {
+        prospectingFocus: formData.prospectingFocus,
+        agentName: formData.agentName,
+      })
+
+      await saveUserCreation({
+        userId: user?.id || "anonymous",
+        contentType: "action-plan",
+        title,
+        content: result.actionPlan,
+        metadata: {
+          formData,
+          generatedAt: new Date().toISOString(),
+          toolUsed: "Action AI",
         },
-        body: JSON.stringify({ text: plan }),
       })
 
-      if (response.ok) {
-        const blob = await response.blob()
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement("a")
-        a.href = url
-        a.download = "business-plan.pdf"
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-        window.URL.revokeObjectURL(url)
-
-        toast({
-          title: "PDF downloaded!",
-          description: "Your business plan has been downloaded successfully.",
-        })
-      } else {
-        throw new Error("Failed to generate PDF")
-      }
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: error?.message || "Failed to download PDF. Please try again.",
-      })
+      alert("Action plan saved to your profile!")
+    } catch (error) {
+      console.error("Error saving action plan:", error)
+      alert("Failed to save action plan. Please try again.")
     } finally {
-      setIsPdfLoading(false)
-    }
-  }
-
-  const sendEmail = async () => {
-    setIsEmailLoading(true)
-
-    try {
-      if (!user?.emailAddresses[0]?.emailAddress) {
-        throw new Error("No email address found. Please update your profile.")
-      }
-
-      const response = await fetch("/api/email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          to: user?.emailAddresses[0]?.emailAddress,
-          subject: "Your Business Plan",
-          text: plan,
-        }),
-      })
-
-      if (response.ok) {
-        toast({
-          title: "Email sent!",
-          description: "Your business plan has been sent to your email address.",
-        })
-      } else {
-        throw new Error("Failed to send email")
-      }
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: error?.message || "Failed to send email. Please try again.",
-      })
-    } finally {
-      setIsEmailLoading(false)
-    }
-  }
-
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(plan)
-      toast({
-        title: "Copied to clipboard!",
-        description: "Your business plan has been copied to clipboard.",
-      })
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: error?.message || "Failed to copy to clipboard. Please try again.",
-      })
+      setIsSaving(false)
     }
   }
 
   return (
-    <div className="w-full">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <FormField
-            control={form.control}
-            name="companyName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Company name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Acme Corp" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="industry"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Industry</FormLabel>
-                <FormControl>
-                  <Input placeholder="E-commerce" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="targetAudience"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Target audience</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Tech-savvy millennials and Gen Z interested in sustainable products"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="problem"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Problem</FormLabel>
-                <FormControl>
-                  <Textarea placeholder="Lack of access to affordable and sustainable products" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="solution"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Solution</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="An online marketplace offering curated sustainable products at competitive prices"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? (
+    <div className="container max-w-4xl mx-auto py-10">
+      <Card>
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl">Action Plan Generator</CardTitle>
+          <CardDescription>Fill out the form below to generate a personalized action plan.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="prospectingFocus">Prospecting Focus</Label>
+              <Input
+                id="prospectingFocus"
+                name="prospectingFocus"
+                value={formData.prospectingFocus}
+                onChange={handleChange}
+                placeholder="e.g., Expired Listings"
+              />
+            </div>
+            <div>
+              <Label htmlFor="agentName">Your Name</Label>
+              <Input
+                id="agentName"
+                name="agentName"
+                value={formData.agentName}
+                onChange={handleChange}
+                placeholder="e.g., John Doe"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="agentSpecialty">Your Specialty</Label>
+              <Input
+                id="agentSpecialty"
+                name="agentSpecialty"
+                value={formData.agentSpecialty}
+                onChange={handleChange}
+                placeholder="e.g., Luxury Homes"
+              />
+            </div>
+            <div>
+              <Label htmlFor="targetClient">Target Client</Label>
+              <Input
+                id="targetClient"
+                name="targetClient"
+                value={formData.targetClient}
+                onChange={handleChange}
+                placeholder="e.g., First-Time Home Buyers"
+              />
+            </div>
+          </div>
+          <div>
+            <Label htmlFor="uniqueSellingPoint">Unique Selling Point</Label>
+            <Textarea
+              id="uniqueSellingPoint"
+              name="uniqueSellingPoint"
+              value={formData.uniqueSellingPoint}
+              onChange={handleChange}
+              placeholder="e.g., Expert negotiator with 15 years of experience."
+            />
+          </div>
+          <Button disabled={isGenerating} onClick={handleSubmit}>
+            {isGenerating ? (
               <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Generating...
-                <svg className="animate-spin h-5 w-5 ml-2" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                  ></path>
-                </svg>
               </>
             ) : (
-              "Generate"
+              "Generate Action Plan"
             )}
           </Button>
-        </form>
-      </Form>
+        </CardContent>
+      </Card>
 
-      {plan && (
-        <div className="mt-10">
-          <h2 className="text-2xl font-bold mb-4">Business Plan</h2>
-          <div className="whitespace-pre-line border rounded-md p-4">{plan}</div>
-
-          <div className="flex justify-end mt-4 space-x-4">
-            <Button onClick={copyToClipboard}>Copy to Clipboard</Button>
-            <Button onClick={downloadPDF} disabled={isPdfLoading}>
-              {isPdfLoading ? (
-                <>
-                  Downloading...
-                  <svg className="animate-spin h-5 w-5 ml-2" viewBox="0 0 24 24">
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                    ></path>
-                  </svg>
-                </>
-              ) : (
-                "Download as PDF"
-              )}
-            </Button>
-            <Button onClick={sendEmail} disabled={isEmailLoading}>
-              {isEmailLoading ? (
-                <>
-                  Sending...
-                  <svg className="animate-spin h-5 w-5 ml-2" viewBox="0 0 24 24">
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                    ></path>
-                  </svg>
-                </>
-              ) : (
-                "Send to Email"
-              )}
-            </Button>
-          </div>
-        </div>
+      {result && result.actionPlan && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Generated Action Plan</CardTitle>
+            <CardDescription>Here is your personalized action plan.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Textarea readOnly value={result.actionPlan} className="resize-none" />
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+              <Button variant="outline" onClick={copyToClipboard} className="flex items-center justify-center gap-2">
+                <Copy className="h-4 w-4" /> Copy
+              </Button>
+              <Button
+                variant="outline"
+                onClick={downloadPDF}
+                disabled={isGeneratingPDF}
+                className="flex items-center justify-center gap-2"
+              >
+                {isGeneratingPDF ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                Download
+              </Button>
+              <Button
+                variant="outline"
+                onClick={sendEmail}
+                disabled={isSendingEmail}
+                className="flex items-center justify-center gap-2"
+              >
+                {isSendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+                Email
+              </Button>
+              <Button
+                variant="outline"
+                onClick={saveToProfile}
+                disabled={isSaving || !isLoggedIn}
+                className="flex items-center justify-center gap-2"
+              >
+                {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                {!isLoggedIn ? "Login to Save" : "Save"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   )
 }
-
-export default BizPlanForm

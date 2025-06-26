@@ -7,9 +7,6 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
 import { generateGoalScreenWallpaper } from "@/lib/generate-wallpaper"
-import { Save } from "lucide-react"
-import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
-import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 
 interface Calculations {
   monthlyIncome: number
@@ -27,8 +24,6 @@ const GoalScreenForm = () => {
   const [conversationsNeeded, setConversationsNeeded] = useState<number | "">("")
   const [calculations, setCalculations] = useState<Calculations | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
-  const { user } = useMemberSpaceUser()
 
   const calculateGoals = () => {
     const monthlyIncomeNum = Number(monthlyIncome)
@@ -68,40 +63,6 @@ const GoalScreenForm = () => {
         alert("Failed to send email. Please try again.")
       } finally {
         setIsLoading(false)
-      }
-    }
-  }
-
-  const saveToDashboard = async () => {
-    if (calculations && user?.email) {
-      setIsSaving(true)
-      try {
-        const success = await saveUserCreation({
-          userId: user.id || user.email,
-          userEmail: user.email,
-          toolType: "goalscreen-ai",
-          title: generateCreationTitle("goalscreen-ai", { monthlyIncome: calculations.monthlyIncome.toString() }),
-          content: `Monthly Income Goal: $${calculations.monthlyIncome.toLocaleString()}\nDaily Contacts Needed: ${calculations.dailyContacts}\nDeals Needed: ${calculations.dealsNeeded}\nAppointments Needed: ${calculations.appointmentsNeeded}\nConversations Needed: ${calculations.conversationsNeeded}`,
-          formData: { monthlyIncome: calculations.monthlyIncome.toString() },
-          metadata: {
-            monthlyIncome: calculations.monthlyIncome,
-            dailyContacts: calculations.dailyContacts,
-            dealsNeeded: calculations.dealsNeeded,
-            appointmentsNeeded: calculations.appointmentsNeeded,
-            conversationsNeeded: calculations.conversationsNeeded,
-          },
-        })
-
-        if (success) {
-          alert("Saved to Dashboard! Check your profile to view saved content.")
-        } else {
-          throw new Error("Failed to save")
-        }
-      } catch (error) {
-        console.error("Error saving to dashboard:", error)
-        alert("Failed to save to dashboard. Please try again.")
-      } finally {
-        setIsSaving(false)
       }
     }
   }
@@ -179,16 +140,6 @@ const GoalScreenForm = () => {
             <Button variant="outline" onClick={handleEmailWallpaper} disabled={isLoading} size="lg">
               {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Email Wallpaper
-            </Button>
-            <Button
-              variant="outline"
-              onClick={saveToDashboard}
-              disabled={isSaving || !user?.email}
-              size="lg"
-              className="ml-4"
-            >
-              {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
-              Save to Dashboard
             </Button>
           </div>
         )}

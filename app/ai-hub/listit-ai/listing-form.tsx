@@ -9,10 +9,8 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/components/ui/use-toast"
-import { Mail, Loader2, Save } from "lucide-react"
+import { Mail, Loader2 } from "lucide-react"
 import { sendEmail } from "@/lib/email"
-import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
-import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 
 const formSchema = z.object({
   propertyAddress: z.string().min(2, {
@@ -42,8 +40,6 @@ interface ListingFormProps {
 export function ListingForm({ setResult, setLoading, setError }: ListingFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [emailLoading, setEmailLoading] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
-  const { user } = useMemberSpaceUser()
   const [result, setResultState] = useState<any>(null)
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -86,8 +82,6 @@ export function ListingForm({ setResult, setLoading, setError }: ListingFormProp
     }
   }
 
-  const formData = form.watch()
-
   const sendEmailFunction = async () => {
     setEmailLoading(true)
     try {
@@ -111,47 +105,6 @@ export function ListingForm({ setResult, setLoading, setError }: ListingFormProp
       })
     } finally {
       setEmailLoading(false)
-    }
-  }
-
-  const saveToDashboard = async () => {
-    if (result?.description && user?.email) {
-      setIsSaving(true)
-      try {
-        const success = await saveUserCreation({
-          userId: user.id || user.email,
-          userEmail: user.email,
-          toolType: "listit-ai",
-          title: generateCreationTitle("listit-ai", formData),
-          content: result.description,
-          formData: formData,
-          metadata: {
-            propertyAddress: formData.propertyAddress,
-            listingPrice: formData.listingPrice,
-            bedrooms: formData.bedrooms,
-            bathrooms: formData.bathrooms,
-            squareFootage: formData.squareFootage,
-          },
-        })
-
-        if (success) {
-          toast({
-            title: "Saved to Dashboard",
-            description: "Your listing description has been saved to your profile dashboard.",
-          })
-        } else {
-          throw new Error("Failed to save")
-        }
-      } catch (error) {
-        console.error("Error saving to dashboard:", error)
-        toast({
-          title: "Save Failed",
-          description: "Failed to save to dashboard. Please try again.",
-          variant: "destructive",
-        })
-      } finally {
-        setIsSaving(false)
-      }
     }
   }
 
@@ -257,26 +210,15 @@ export function ListingForm({ setResult, setLoading, setError }: ListingFormProp
       )}
       {result?.description && (
         <div className="mt-4">
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-            <Button
-              variant="outline"
-              onClick={sendEmailFunction}
-              disabled={emailLoading}
-              className="flex items-center justify-center gap-2"
-            >
-              {emailLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-              <span className="whitespace-nowrap">Email</span>
-            </Button>
-            <Button
-              variant="outline"
-              onClick={saveToDashboard}
-              disabled={isSaving || !user?.email}
-              className="flex items-center justify-center gap-2"
-            >
-              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-              <span className="whitespace-nowrap">Save</span>
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            onClick={sendEmailFunction}
+            disabled={emailLoading}
+            className="flex items-center justify-center gap-2"
+          >
+            {emailLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+            <span className="whitespace-nowrap">Email</span>
+          </Button>
         </div>
       )}
     </Form>

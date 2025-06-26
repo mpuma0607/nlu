@@ -192,14 +192,18 @@ export function ActionPlanForm({ defaultValues }: ActionPlanFormProps) {
           <CardContent className="space-y-4">
             <Textarea readOnly value={result.actionPlan} className="resize-none" />
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-              <Button variant="outline" onClick={copyToClipboard} className="flex items-center justify-center gap-2">
+              <Button
+                variant="outline"
+                onClick={copyToClipboard}
+                className="flex items-center justify-center gap-2 bg-transparent"
+              >
                 <Copy className="h-4 w-4" /> Copy
               </Button>
               <Button
                 variant="outline"
                 onClick={downloadPDF}
                 disabled={isGeneratingPDF}
-                className="flex items-center justify-center gap-2"
+                className="flex items-center justify-center gap-2 bg-transparent"
               >
                 {isGeneratingPDF ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
                 Download
@@ -208,7 +212,7 @@ export function ActionPlanForm({ defaultValues }: ActionPlanFormProps) {
                 variant="outline"
                 onClick={sendEmail}
                 disabled={isSendingEmail}
-                className="flex items-center justify-center gap-2"
+                className="flex items-center justify-center gap-2 bg-transparent"
               >
                 {isSendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
                 Email
@@ -217,7 +221,7 @@ export function ActionPlanForm({ defaultValues }: ActionPlanFormProps) {
                 variant="outline"
                 onClick={saveToProfile}
                 disabled={isSaving || !isLoggedIn}
-                className="flex items-center justify-center gap-2"
+                className="flex items-center justify-center gap-2 bg-transparent"
               >
                 {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 {!isLoggedIn ? "Login to Save" : "Save"}

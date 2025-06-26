@@ -126,7 +126,7 @@ export default function IdeaHubForm() {
   }
 
   const saveToDashboard = async () => {
-    if (result?.text && result?.imageUrl && user?.email) {
+    if (result?.text && user?.email) {
       setIsSaving(true)
       try {
         const success = await saveUserCreation({
@@ -145,13 +145,20 @@ export default function IdeaHubForm() {
         })
 
         if (success) {
-          alert("Saved to Dashboard! Check your profile to view saved content.")
+          toast({
+            title: "Saved to Dashboard",
+            description: "Your content has been saved to your profile dashboard.",
+          })
         } else {
           throw new Error("Failed to save")
         }
       } catch (error) {
         console.error("Error saving to dashboard:", error)
-        alert("Failed to save to dashboard. Please try again.")
+        toast({
+          title: "Save Failed",
+          description: "Failed to save to dashboard. Please try again.",
+          variant: "destructive",
+        })
       } finally {
         setIsSaving(false)
       }

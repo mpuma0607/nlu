@@ -9,9 +9,8 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/components/ui/use-toast"
-import { Mail, Loader2 } from "lucide-react"
+import { Mail, Loader2, Save } from "lucide-react"
 import { sendEmail } from "@/lib/email"
-import { Save } from "lucide-react"
 import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 
@@ -45,6 +44,7 @@ export function ListingForm({ setResult, setLoading, setError }: ListingFormProp
   const [emailLoading, setEmailLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const { user } = useMemberSpaceUser()
+  const [result, setResultState] = useState<any>(null)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -61,7 +61,7 @@ export function ListingForm({ setResult, setLoading, setError }: ListingFormProp
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true)
     setError(null)
-    setResult(null)
+    setResultState(null)
 
     try {
       const response = await fetch("/api/ai-hub/listit-ai", {
@@ -77,6 +77,7 @@ export function ListingForm({ setResult, setLoading, setError }: ListingFormProp
       }
 
       const data = await response.json()
+      setResultState(data)
       setResult(data)
     } catch (e: any) {
       setError(e.message || "An unexpected error occurred")
@@ -136,7 +137,7 @@ export function ListingForm({ setResult, setLoading, setError }: ListingFormProp
         if (success) {
           toast({
             title: "Saved to Dashboard",
-            description: "Check your profile to view saved content.",
+            description: "Your listing description has been saved to your profile dashboard.",
           })
         } else {
           throw new Error("Failed to save")

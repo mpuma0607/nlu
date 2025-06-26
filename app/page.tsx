@@ -2,6 +2,7 @@
 
 import { useEffect } from "react"
 import { useTenantConfig } from "@/contexts/tenant-context"
+import { useTracking } from "@/hooks/use-tracking"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -17,6 +18,7 @@ export default function HomePage() {
   const [selectedDemo, setSelectedDemo] = useState<string | null>(null)
   const tenantConfig = useTenantConfig()
   const router = useRouter()
+  const { trackEvent } = useTracking()
 
   // Redirect to custom home page if tenant has one
   useEffect(() => {
@@ -31,24 +33,31 @@ export default function HomePage() {
   }
 
   const handleLogin = () => {
+    trackEvent("button_click", { button: "sign_in", location: "header" })
     console.log("Sign In clicked - redirecting to portal")
     window.location.href = "/portal"
   }
 
   const handleSignup = () => {
+    trackEvent("button_click", { button: "get_started", location: "header" })
     console.log("Signup clicked - redirecting to plans page")
-    // Direct redirect to plans page for signup
     window.location.href = "https://www.thenextlevelu.com?msopen=/member/plans/all"
   }
 
   const handlePricing = () => {
+    trackEvent("button_click", { button: "pricing", location: "pricing_section" })
     console.log("Pricing clicked - redirecting to plans page")
-    // Direct redirect to the specific plans URL
     window.location.href = "https://www.thenextlevelu.com?msopen=/member/plans/all"
   }
 
   const handleWatchDemo = (toolName: string) => {
+    trackEvent("video_demo_opened", { tool: toolName })
     setSelectedDemo(toolName)
+    setShowVideoModal(true)
+  }
+
+  const handleMainDemo = () => {
+    trackEvent("video_demo_opened", { tool: "platform_overview" })
     setShowVideoModal(true)
   }
 
@@ -154,7 +163,7 @@ export default function HomePage() {
             <Button
               size="lg"
               variant="outline"
-              onClick={() => setShowVideoModal(true)}
+              onClick={handleMainDemo}
               className="border-[#b6a888] text-[#b6a888] hover:bg-[#b6a888] hover:text-black text-lg px-8 py-4"
             >
               <Play className="mr-2 h-5 w-5" />
@@ -183,7 +192,6 @@ export default function HomePage() {
             </div>
           </DialogHeader>
           <div className="aspect-video w-full">
-            {/* Replace this URL with a working video URL */}
             <iframe
               width="100%"
               height="100%"

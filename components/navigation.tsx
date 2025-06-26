@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Menu, X, ChevronDown, ChevronRight, User } from "lucide-react"
+import { Menu, X, ChevronDown, User } from "lucide-react"
 import { useTenantConfig, useTranslation } from "@/contexts/tenant-context"
 import { isFeatureHidden } from "@/lib/tenant-config"
 
@@ -278,45 +278,4 @@ export default function Navigation() {
                         className="flex items-center justify-between py-2"
                         onClick={() => item.submenu && item.submenu.length > 0 && toggleSubmenu(item.title)}
                       >
-                        <Link href={item.href} className="text-gray-700 hover:text-green-600 font-medium">
-                          {item.title}
-                        </Link>
-                        {item.submenu && item.submenu.length > 0 && <ChevronRight className="h-4 w-4 text-gray-500" />}
-                      </div>
-
-                      {/* Mobile Submenu */}
-                      {activeSubmenu === item.title && (
-                        <div className="pl-4">
-                          {item.submenu.map((subItem) =>
-                            subItem.isHeader ? (
-                              <div
-                                key={subItem.title}
-                                className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100"
-                              >
-                                {subItem.title.replace(/──/g, "").trim()}
-                              </div>
-                            ) : (
-                              <Link
-                                key={subItem.href}
-                                href={subItem.href}
-                                className="block px-4 py-3 text-sm hover:bg-gray-50 hover:text-green-600 border-b border-gray-50 last:border-b-0"
-                              >
-                                <div className="font-medium text-gray-900">{subItem.title}</div>
-                                {subItem.description && (
-                                  <div className="text-xs text-gray-500 mt-1">{subItem.description}</div>
-                                )}
-                              </Link>
-                            ),
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ),
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-    </nav>
-  )
-}
+                        \

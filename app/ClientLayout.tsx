@@ -7,6 +7,12 @@ import Navigation from "@/components/navigation"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import TenantSwitcher from "@/components/tenant-switcher"
+import { useTracking } from "@/hooks/use-tracking"
+
+function TrackingWrapper({ children }: { children: React.ReactNode }) {
+  useTracking() // This will automatically track page views
+  return <>{children}</>
+}
 
 export default function ClientLayout({
   children,
@@ -19,10 +25,12 @@ export default function ClientLayout({
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <TenantProvider>
-        {!isHomePage && <Navigation />}
-        {children}
-        <TenantSwitcher />
-        <Toaster />
+        <TrackingWrapper>
+          {!isHomePage && <Navigation />}
+          {children}
+          <TenantSwitcher />
+          <Toaster />
+        </TrackingWrapper>
       </TenantProvider>
     </ThemeProvider>
   )

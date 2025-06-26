@@ -1,137 +1,126 @@
 "use client"
 
-import { Card, CardContent } from "@/components/ui/card"
-import { ShoppingBag, Clock, X } from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useState } from "react"
-import { submitNotificationRequest } from "../services-hub/brokerage-consulting/actions"
+import { Wrench, Clock, Bell, Mail } from "lucide-react"
+import { useTenantConfig } from "@/contexts/tenant-context"
 
 export default function GearHubPage() {
-  const [showModal, setShowModal] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [message, setMessage] = useState("")
-
-  const handleSubmit = async (formData: FormData) => {
-    setIsSubmitting(true)
-    formData.append("service", "Gear Hub")
-
-    const result = await submitNotificationRequest(formData)
-    setMessage(result.message)
-    setIsSubmitting(false)
-
-    if (result.success) {
-      setTimeout(() => {
-        setShowModal(false)
-        setMessage("")
-      }, 2000)
-    }
-  }
+  const tenantConfig = useTenantConfig()
 
   return (
-    <div className="min-h-screen bg-white py-12">
-      <div className="container mx-auto px-4">
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-16">
-          <div className="w-20 h-20 bg-gradient-to-br from-gray-700 to-gray-900 rounded-3xl flex items-center justify-center mx-auto mb-6">
-            <ShoppingBag className="h-10 w-10 text-white" />
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center mb-4">
+            <div className="p-3 bg-orange-100 rounded-full">
+              <Wrench className="h-8 w-8 text-orange-600" />
+            </div>
           </div>
-          <h1 className="text-4xl font-bold text-black mb-4">Gear Hub</h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Exclusive merchandise and tools designed for Next Level U agents. Show your pride and elevate your
-            professional image.
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Gear Hub</h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Your one-stop shop for real estate tools, equipment, and resources to power your business.
           </p>
         </div>
 
-        {/* Coming Soon Section */}
-        <Card className="max-w-2xl mx-auto border-0 shadow-lg">
-          <CardContent className="p-12 text-center">
-            <div className="w-24 h-24 bg-gradient-to-br from-gray-700 to-gray-900 rounded-3xl flex items-center justify-center mx-auto mb-8">
-              <Clock className="h-12 w-12 text-white" />
+        {/* Coming Soon Card */}
+        <Card className="max-w-2xl mx-auto text-center">
+          <CardHeader>
+            <div className="flex items-center justify-center mb-4">
+              <div className="p-4 bg-blue-100 rounded-full">
+                <Clock className="h-12 w-12 text-blue-600" />
+              </div>
             </div>
-            <h2 className="text-3xl font-bold text-black mb-4">Coming Soon!</h2>
-            <p className="text-lg text-gray-600 mb-8 max-w-xl mx-auto">
-              We're working hard to bring you an amazing collection of Next Level U merchandise and professional tools.
-            </p>
-
-            <div className="bg-gray-50 p-8 rounded-xl mb-8">
-              <h3 className="font-semibold text-black mb-6">What to Expect:</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                <div className="flex items-center">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
-                  <span className="text-gray-700">Branded apparel and accessories</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
-                  <span className="text-gray-700">Professional business tools</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
-                  <span className="text-gray-700">Marketing materials and signage</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
-                  <span className="text-gray-700">Tech accessories and gadgets</span>
-                </div>
+            <CardTitle className="text-3xl font-bold text-gray-900">Coming Soon!</CardTitle>
+            <CardDescription className="text-lg text-gray-600 mt-4">
+              We're working hard to bring you an amazing collection of real estate tools and gear.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+              <div className="space-y-3">
+                <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                  <Badge
+                    variant="secondary"
+                    className="w-6 h-6 rounded-full p-0 flex items-center justify-center text-xs"
+                  >
+                    1
+                  </Badge>
+                  Professional Tools
+                </h3>
+                <p className="text-sm text-gray-600 ml-8">
+                  High-quality cameras, measuring tools, and presentation equipment
+                </p>
+              </div>
+              <div className="space-y-3">
+                <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                  <Badge
+                    variant="secondary"
+                    className="w-6 h-6 rounded-full p-0 flex items-center justify-center text-xs"
+                  >
+                    2
+                  </Badge>
+                  Marketing Materials
+                </h3>
+                <p className="text-sm text-gray-600 ml-8">
+                  Business cards, yard signs, brochures, and branded merchandise
+                </p>
+              </div>
+              <div className="space-y-3">
+                <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                  <Badge
+                    variant="secondary"
+                    className="w-6 h-6 rounded-full p-0 flex items-center justify-center text-xs"
+                  >
+                    3
+                  </Badge>
+                  Tech Solutions
+                </h3>
+                <p className="text-sm text-gray-600 ml-8">
+                  CRM systems, mobile apps, and productivity software recommendations
+                </p>
+              </div>
+              <div className="space-y-3">
+                <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                  <Badge
+                    variant="secondary"
+                    className="w-6 h-6 rounded-full p-0 flex items-center justify-center text-xs"
+                  >
+                    4
+                  </Badge>
+                  Exclusive Deals
+                </h3>
+                <p className="text-sm text-gray-600 ml-8">
+                  Member-only discounts and special pricing on essential tools
+                </p>
               </div>
             </div>
 
-            <Button
-              onClick={() => setShowModal(true)}
-              className="bg-black hover:bg-green-600 text-white px-8 py-6 rounded-xl text-lg font-medium transition-colors"
-            >
-              Notify Me When Available
-            </Button>
+            <div className="pt-6 border-t">
+              <div className="flex items-center justify-center gap-2 text-sm text-gray-500 mb-4">
+                <Bell className="h-4 w-4" />
+                <span>Get notified when Gear Hub launches</span>
+              </div>
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                <Mail className="h-4 w-4 mr-2" />
+                Notify Me When Available
+              </Button>
+            </div>
           </CardContent>
         </Card>
-      </div>
 
-      {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <Card className="w-full max-w-md">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-bold text-black">Get Notified</h3>
-                <Button variant="ghost" size="sm" onClick={() => setShowModal(false)} className="p-1">
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-
-              <p className="text-gray-600 mb-6">
-                Enter your details and we'll notify you when Gear Hub merchandise becomes available.
-              </p>
-
-              <form action={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="name">Name *</Label>
-                  <Input id="name" name="name" type="text" required className="mt-1" placeholder="Your full name" />
-                </div>
-
-                <div>
-                  <Label htmlFor="email">Email *</Label>
-                  <Input id="email" name="email" type="email" required className="mt-1" placeholder="your@email.com" />
-                </div>
-
-                {message && (
-                  <div className={`text-sm ${message.includes("Thank you") ? "text-green-600" : "text-red-600"}`}>
-                    {message}
-                  </div>
-                )}
-
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-gray-800 hover:bg-gray-900 text-white"
-                >
-                  {isSubmitting ? "Submitting..." : "Notify Me"}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+        {/* Additional Info */}
+        <div className="mt-12 text-center">
+          <p className="text-gray-500">
+            Have suggestions for tools or gear you'd like to see?
+            <a href="/support" className="text-blue-600 hover:text-blue-700 ml-1">
+              Let us know!
+            </a>
+          </p>
         </div>
-      )}
+      </div>
     </div>
   )
 }

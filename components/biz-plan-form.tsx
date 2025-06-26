@@ -10,8 +10,10 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Textarea } from "@/components/ui/textarea"
 import { generateBusinessPlan } from "@/lib/actions"
-import { useUser } from "@clerk/nextjs"
+import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 import { useRouter } from "next/navigation"
+import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
+import { Save } from "lucide-react"
 
 const formSchema = z.object({
   companyName: z.string().min(2, {
@@ -35,9 +37,10 @@ const BizPlanForm = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [isPdfLoading, setIsPdfLoading] = useState(false)
   const [isEmailLoading, setIsEmailLoading] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
   const [plan, setPlan] = useState<string>("")
   const { toast } = useToast()
-  const { user } = useUser()
+  const { user, isLoggedIn } = useMemberSpaceUser()
   const router = useRouter()
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -121,7 +124,7 @@ const BizPlanForm = () => {
     setIsEmailLoading(true)
 
     try {
-      if (!user?.emailAddresses[0]?.emailAddress) {
+      if (!user?.email) {
         throw new Error("No email address found. Please update your profile.")
       }
 
@@ -131,7 +134,7 @@ const BizPlanForm = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          to: user?.emailAddresses[0]?.emailAddress,
+          to: user?.email,
           subject: "Your Business Plan",
           text: plan,
         }),
@@ -169,6 +172,45 @@ const BizPlanForm = () => {
         title: "Uh oh! Something went wrong.",
         description: error?.message || "Failed to copy to clipboard. Please try again.",
       })
+    }
+  }
+
+  const saveToProfile = async () => {
+    if (!plan || !isLoggedIn) return
+
+    setIsSaving(true)
+    try {
+      const formData = form.getValues()
+      const title = generateCreationTitle("business-plan", {
+        companyName: formData.companyName,
+        industry: formData.industry,
+      })
+
+      await saveUserCreation({
+        userId: user?.id || "anonymous",
+        contentType: "business-plan",
+        title,
+        content: plan,
+        metadata: {
+          formData,
+          generatedAt: new Date().toISOString(),
+          toolUsed: "BizPlan AI",
+        },
+      })
+
+      toast({
+        title: "Business plan saved to your profile!",
+        description: "You can view it in your profile dashboard.",
+      })
+    } catch (error) {
+      console.error("Error saving business plan:", error)
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to save business plan. Please try again.",
+      })
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -320,6 +362,33 @@ const BizPlanForm = () => {
                 </>
               ) : (
                 "Send to Email"
+              )}
+            </Button>
+            <Button onClick={saveToProfile} disabled={isSaving || !isLoggedIn}>
+              {isSaving ? (
+                <>
+                  Saving...
+                  <svg className="animate-spin h-5 w-5 ml-2" viewBox="0 0 24 24">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    ></path>
+                  </svg>
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  {!isLoggedIn ? "Login to Save" : "Save"}
+                </>
               )}
             </Button>
           </div>

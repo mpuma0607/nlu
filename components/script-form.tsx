@@ -14,7 +14,6 @@ import "jspdf-autotable"
 import { useUser } from "@clerk/clerk-react"
 import { api } from "@/convex/_generated/api"
 import { useMutation } from "convex/react"
-import { useTracking } from "@/lib/hooks/use-tracking"
 
 interface ScriptFormProps {
   initialTitle?: string
@@ -34,7 +33,6 @@ const ScriptForm: React.FC<ScriptFormProps> = ({ initialTitle = "", initialScrip
   const [isCopied, setIsCopied] = useState(false)
   const createScript = useMutation(api.scripts.createScript)
   const updateScript = useMutation(api.scripts.updateScript)
-  const { trackToolUsage, trackContentInteraction } = useTracking()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -48,7 +46,6 @@ const ScriptForm: React.FC<ScriptFormProps> = ({ initialTitle = "", initialScrip
     }
 
     setIsLoading(true)
-    await trackToolUsage("scriptit-ai", "generate-script")
 
     try {
       if (initialTitle && initialScript) {
@@ -82,7 +79,6 @@ const ScriptForm: React.FC<ScriptFormProps> = ({ initialTitle = "", initialScrip
 
   const downloadPDF = () => {
     setIsPdfLoading(true)
-    await trackContentInteraction('scriptit-ai', 'pdf-download')
 
     const doc = new jsPDF()
     doc.autoTable({
@@ -96,7 +92,6 @@ const ScriptForm: React.FC<ScriptFormProps> = ({ initialTitle = "", initialScrip
 
   const sendEmail = async () => {
     setIsEmailLoading(true)
-    await trackContentInteraction("scriptit-ai", "email-send")
 
     try {
       if (!user?.emailAddresses[0].emailAddress) {
@@ -136,8 +131,6 @@ const ScriptForm: React.FC<ScriptFormProps> = ({ initialTitle = "", initialScrip
   }
 
   const copyToClipboard = async () => {
-    await trackContentInteraction("scriptit-ai", "copy-content")
-
     if (scriptRef.current) {
       scriptRef.current.select()
       document.execCommand("copy")

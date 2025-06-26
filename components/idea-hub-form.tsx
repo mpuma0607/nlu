@@ -13,7 +13,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
 import { Copy, Download } from "lucide-react"
-import { useTracking } from "@/lib/hooks/use-tracking"
 
 const formSchema = z.object({
   topic: z.string().min(2, {
@@ -28,7 +27,6 @@ const IdeaHubForm = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [generatedIdeas, setGeneratedIdeas] = useState<string[]>([])
   const { toast } = useToast()
-  const { trackToolUsage, trackContentInteraction } = useTracking()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -40,7 +38,6 @@ const IdeaHubForm = () => {
 
   async function handleSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
-    await trackToolUsage("ideahub-ai", "generate-content")
     try {
       const response = await fetch("/api/idea-hub", {
         method: "POST",
@@ -68,7 +65,6 @@ const IdeaHubForm = () => {
   }
 
   const downloadImage = async (idea: string) => {
-    await trackContentInteraction("ideahub-ai", "image-download")
     try {
       const response = await fetch("/api/image-generation", {
         method: "POST",
@@ -100,7 +96,6 @@ const IdeaHubForm = () => {
   }
 
   const copyToClipboard = async (text: string) => {
-    await trackContentInteraction("ideahub-ai", "copy-content")
     try {
       await navigator.clipboard.writeText(text)
       toast({

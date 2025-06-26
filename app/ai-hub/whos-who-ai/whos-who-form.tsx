@@ -10,7 +10,6 @@ import { z } from "zod"
 import { useState } from "react"
 import { CopyButton } from "@/components/copy-button"
 import { useToast } from "@/components/ui/use-toast"
-import { useTracking } from "@/lib/hooks/use-tracking"
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -22,7 +21,6 @@ export function WhosWhoForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [skipTraceResult, setSkipTraceResult] = useState<string | null>(null)
   const { toast } = useToast()
-  const { trackToolUsage, trackContentInteraction } = useTracking()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -33,7 +31,6 @@ export function WhosWhoForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
-    await trackToolUsage("whos-who-ai", "skip-trace")
 
     // Simulate an API call
     setTimeout(() => {
@@ -47,7 +44,6 @@ export function WhosWhoForm() {
   }
 
   const copyToClipboard = async () => {
-    await trackContentInteraction("whos-who-ai", "copy-content")
     if (skipTraceResult) {
       navigator.clipboard.writeText(skipTraceResult)
       toast({

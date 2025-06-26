@@ -1,30 +1,17 @@
-import React, { useState } from 'react';
-import { useToast } from '@/components/ui/use-toast';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+"use client"
+
+import { useState } from "react"
+import { useToast } from "@/components/ui/use-toast"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Textarea } from "@/components/ui/textarea"
-import { generateBusinessPlan } from '@/lib/actions';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { useUser } from '@clerk/nextjs';
-import { useRouter } from 'next/navigation';
-import { useTracking } from '@/lib/hooks/use-tracking'
+import { generateBusinessPlan } from "@/lib/actions"
+import { useUser } from "@clerk/nextjs"
+import { useRouter } from "next/navigation"
 
 const formSchema = z.object({
   companyName: z.string().min(2, {
@@ -42,17 +29,16 @@ const formSchema = z.object({
   solution: z.string().min(10, {
     message: "Solution must be at least 10 characters.",
   }),
-});
+})
 
 const BizPlanForm = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [isPdfLoading, setIsPdfLoading] = useState(false);
-  const [isEmailLoading, setIsEmailLoading] = useState(false);
-  const [plan, setPlan] = useState<string>('');
-  const { toast } = useToast();
-  const { user } = useUser();
-  const router = useRouter();
-  const { trackToolUsage, trackContentInteraction } = useTracking()
+  const [isLoading, setIsLoading] = useState(false)
+  const [isPdfLoading, setIsPdfLoading] = useState(false)
+  const [isEmailLoading, setIsEmailLoading] = useState(false)
+  const [plan, setPlan] = useState<string>("")
+  const { toast } = useToast()
+  const { user } = useUser()
+  const router = useRouter()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -66,16 +52,15 @@ const BizPlanForm = () => {
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true);
-    await trackToolUsage('bizplan-ai', 'generate-plan')
+    setIsLoading(true)
 
     try {
       const response = await generateBusinessPlan({
         ...values,
-        userId: user?.id || '',
-      });
+        userId: user?.id || "",
+      })
 
-      setPlan(response?.plan || '');
+      setPlan(response?.plan || "")
       toast({
         title: "Business plan generated!",
         description: "Your business plan has been generated successfully.",
@@ -87,40 +72,39 @@ const BizPlanForm = () => {
         description: error?.message || "Failed to generate business plan. Please try again.",
       })
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
   }
 
   const downloadPDF = async () => {
-    setIsPdfLoading(true);
-    await trackContentInteraction('bizplan-ai', 'pdf-download')
+    setIsPdfLoading(true)
 
     try {
-      const response = await fetch('/api/pdf', {
-        method: 'POST',
+      const response = await fetch("/api/pdf", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ text: plan }),
-      });
+      })
 
       if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'business-plan.pdf';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.href = url
+        a.download = "business-plan.pdf"
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        window.URL.revokeObjectURL(url)
 
         toast({
           title: "PDF downloaded!",
           description: "Your business plan has been downloaded successfully.",
         })
       } else {
-        throw new Error('Failed to generate PDF');
+        throw new Error("Failed to generate PDF")
       }
     } catch (error: any) {
       toast({
@@ -129,30 +113,29 @@ const BizPlanForm = () => {
         description: error?.message || "Failed to download PDF. Please try again.",
       })
     } finally {
-      setIsPdfLoading(false);
+      setIsPdfLoading(false)
     }
-  };
+  }
 
   const sendEmail = async () => {
-    setIsEmailLoading(true);
-    await trackContentInteraction('bizplan-ai', 'email-send')
+    setIsEmailLoading(true)
 
     try {
       if (!user?.emailAddresses[0]?.emailAddress) {
-        throw new Error('No email address found. Please update your profile.');
+        throw new Error("No email address found. Please update your profile.")
       }
 
-      const response = await fetch('/api/email', {
-        method: 'POST',
+      const response = await fetch("/api/email", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           to: user?.emailAddresses[0]?.emailAddress,
-          subject: 'Your Business Plan',
+          subject: "Your Business Plan",
           text: plan,
         }),
-      });
+      })
 
       if (response.ok) {
         toast({
@@ -160,7 +143,7 @@ const BizPlanForm = () => {
           description: "Your business plan has been sent to your email address.",
         })
       } else {
-        throw new Error('Failed to send email');
+        throw new Error("Failed to send email")
       }
     } catch (error: any) {
       toast({
@@ -169,15 +152,13 @@ const BizPlanForm = () => {
         description: error?.message || "Failed to send email. Please try again.",
       })
     } finally {
-      setIsEmailLoading(false);
+      setIsEmailLoading(false)
     }
-  };
+  }
 
   const copyToClipboard = async () => {
-    await trackContentInteraction('bizplan-ai', 'copy-content')
-
     try {
-      await navigator.clipboard.writeText(plan);
+      await navigator.clipboard.writeText(plan)
       toast({
         title: "Copied to clipboard!",
         description: "Your business plan has been copied to clipboard.",
@@ -189,10 +170,10 @@ const BizPlanForm = () => {
         description: error?.message || "Failed to copy to clipboard. Please try again.",
       })
     }
-  };
+  }
 
   return (
-    <div className='w-full'>
+    <div className="w-full">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
@@ -244,10 +225,7 @@ const BizPlanForm = () => {
               <FormItem>
                 <FormLabel>Problem</FormLabel>
                 <FormControl>
-                  <Textarea
-                    placeholder="Lack of access to affordable and sustainable products"
-                    {...field}
-                  />
+                  <Textarea placeholder="Lack of access to affordable and sustainable products" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -275,10 +253,16 @@ const BizPlanForm = () => {
                 Generating...
                 <svg className="animate-spin h-5 w-5 ml-2" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  ></path>
                 </svg>
               </>
-            ) : "Generate"}
+            ) : (
+              "Generate"
+            )}
           </Button>
         </form>
       </Form>
@@ -295,28 +279,54 @@ const BizPlanForm = () => {
                 <>
                   Downloading...
                   <svg className="animate-spin h-5 w-5 ml-2" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    ></path>
                   </svg>
                 </>
-              ) : "Download as PDF"}
+              ) : (
+                "Download as PDF"
+              )}
             </Button>
             <Button onClick={sendEmail} disabled={isEmailLoading}>
               {isEmailLoading ? (
                 <>
                   Sending...
                   <svg className="animate-spin h-5 w-5 ml-2" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    ></path>
                   </svg>
                 </>
-              ) : "Send to Email"}
+              ) : (
+                "Send to Email"
+              )}
             </Button>
           </div>
         </div>
       )}
     </div>
-  );
+  )
 }
 
-export default BizPlanForm;
+export default BizPlanForm

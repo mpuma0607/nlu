@@ -8,7 +8,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { useTracking } from "@/lib/hooks/use-tracking"
 
 interface RealBioFormProps {
   onGenerate: (bio: string) => void
@@ -20,12 +19,10 @@ const RealBioForm: React.FC<RealBioFormProps> = ({ onGenerate }) => {
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
   const [generatedBio, setGeneratedBio] = useState<string | null>(null)
-  const { trackToolUsage, trackContentInteraction } = useTracking()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    await trackToolUsage("realbio-ai", "generate-bio")
 
     // Simulate an API call
     setTimeout(() => {
@@ -37,7 +34,6 @@ const RealBioForm: React.FC<RealBioFormProps> = ({ onGenerate }) => {
   }
 
   const copyToClipboard = async () => {
-    await trackContentInteraction("realbio-ai", "copy-content")
     if (generatedBio) {
       navigator.clipboard.writeText(generatedBio)
       toast({

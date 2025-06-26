@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
-import { useTracking } from "@/lib/hooks/use-tracking"
 
 const formSchema = z.object({
   address: z.string().min(2, {
@@ -31,7 +30,6 @@ const formSchema = z.object({
 export function QuickCMAForm() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-  const { trackToolUsage, trackContentInteraction } = useTracking()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -46,7 +44,6 @@ export function QuickCMAForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
-    await trackToolUsage("quickcma-ai", "generate-cma")
 
     try {
       const response = await fetch("/api/quickcma", {

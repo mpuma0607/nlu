@@ -1,12 +1,8 @@
 "use client"
 
-\
-Now
-let
-'s add tracking to the BizPlan form:
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// Let's add tracking to the BizPlan form:
 
-```tsx file="components/biz-plan-form.tsx"
-[v0-no-op-code-block-prefix]
 import { useState } from "react"
 import { useToast } from "@/components/ui/use-toast"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
@@ -19,7 +15,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { generateBusinessPlan } from "@/lib/actions"
 import { useUser } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
-import { useTracking } from "@/lib/hooks/use-tracking"
 
 const formSchema = z.object({
   companyName: z.string().min(2, {
@@ -47,7 +42,6 @@ const BizPlanForm = () => {
   const { toast } = useToast()
   const { user } = useUser()
   const router = useRouter()
-  const { trackToolUsage, trackContentInteraction } = useTracking()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -62,7 +56,6 @@ const BizPlanForm = () => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
-    await trackToolUsage("bizplan-ai", "generate-plan")
 
     try {
       const response = await generateBusinessPlan({
@@ -88,7 +81,6 @@ const BizPlanForm = () => {
 
   const downloadPDF = async () => {
     setIsPdfLoading(true)
-    await trackContentInteraction("bizplan-ai", "pdf-download")
 
     try {
       const response = await fetch("/api/pdf", {
@@ -130,7 +122,6 @@ const BizPlanForm = () => {
 
   const sendEmail = async () => {
     setIsEmailLoading(true)
-    await trackContentInteraction("bizplan-ai", "email-send")
 
     try {
       if (!user?.emailAddresses[0]?.emailAddress) {
@@ -169,8 +160,6 @@ const BizPlanForm = () => {
   }
 
   const copyToClipboard = async () => {
-    await trackContentInteraction("bizplan-ai", "copy-content")
-
     try {
       await navigator.clipboard.writeText(plan)
       toast({

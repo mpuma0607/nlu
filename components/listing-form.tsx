@@ -16,7 +16,6 @@ import { jsPDF } from "jspdf"
 import autoTable from "jspdf-autotable"
 import { useSession } from "next-auth/react"
 import { sendEmail as sendEmailAction } from "@/lib/actions"
-import { useTracking } from "@/lib/hooks/use-tracking"
 
 type ListingFormValues = {
   title: string
@@ -32,7 +31,6 @@ const ListingForm = () => {
   const [generatedDescription, setGeneratedDescription] = useState("")
   const { toast } = useToast()
   const { data: session } = useSession()
-  const { trackToolUsage, trackContentInteraction } = useTracking()
 
   const form = useForm<ListingFormValues>({
     resolver: zodResolver(listingFormSchema),
@@ -46,7 +44,6 @@ const ListingForm = () => {
 
   const handleSubmit = async (values: ListingFormValues) => {
     setIsLoading(true)
-    await trackToolUsage("listit-ai", "generate-description")
 
     try {
       const description = await generateDescription(values)
@@ -68,7 +65,6 @@ const ListingForm = () => {
 
   const downloadPDF = async () => {
     setIsPdfLoading(true)
-    await trackContentInteraction("listit-ai", "pdf-download")
 
     try {
       const doc = new jsPDF()
@@ -106,7 +102,6 @@ const ListingForm = () => {
 
   const sendEmail = async () => {
     setIsEmailLoading(true)
-    await trackContentInteraction("listit-ai", "email-send")
 
     if (!session?.user?.email) {
       toast({
@@ -146,8 +141,6 @@ const ListingForm = () => {
   }
 
   const copyToClipboard = useCallback(async () => {
-    await trackContentInteraction("listit-ai", "copy-content")
-
     try {
       await navigator.clipboard.writeText(generatedDescription)
       toast({

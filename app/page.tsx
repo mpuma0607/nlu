@@ -50,6 +50,11 @@ export default function HomePage() {
     setShowVideoModal(true)
   }
 
+  const handleSiteDemo = () => {
+    setSelectedDemo("Platform Overview")
+    setShowVideoModal(true)
+  }
+
   const getVideoUrl = (toolName: string) => {
     const videoMap: { [key: string]: string } = {
       "Who's Who AI": "https://www.youtube.com/embed/aWj4jl0rwpY?autoplay=0&rel=0&modestbranding=1",
@@ -64,6 +69,7 @@ export default function HomePage() {
       "RealCoach AI": "https://www.youtube.com/embed/fPZKFTuQg98?autoplay=0&rel=0&modestbranding=1",
       "IdeaHub AI": "https://www.youtube.com/embed/fKoYPHRyfK8?autoplay=0&rel=0&modestbranding=1",
       "PropBot AI": "https://www.youtube.com/embed/m7RZC9TAe3g?autoplay=0&rel=0&modestbranding=1",
+      "Platform Overview": "https://www.youtube.com/embed/qF050toaVYU?autoplay=0&rel=0&modestbranding=1",
     }
     return videoMap[toolName] || "https://www.youtube.com/embed/qF050toaVYU?autoplay=0&rel=0&modestbranding=1"
   }
@@ -74,9 +80,13 @@ export default function HomePage() {
       <header className="border-b border-gray-800 bg-black/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center">
-            <div className="w-16 h-16 bg-[#b6a888] rounded-lg flex items-center justify-center">
-              <span className="text-black font-bold text-xl">NLU</span>
-            </div>
+            <Image
+              src="/images/nlu-logo-light.png"
+              alt="The Next Level U"
+              width={120}
+              height={48}
+              className="object-contain"
+            />
           </div>
           <nav className="hidden md:flex items-center space-x-8">
             <a href="#features" className="text-gray-300 hover:text-[#b6a888] transition-colors">
@@ -85,7 +95,12 @@ export default function HomePage() {
             <a href="#pricing" className="text-gray-300 hover:text-[#b6a888] transition-colors">
               Pricing
             </a>
-            <Button className="bg-[#b6a888] hover:bg-[#a39577] text-black font-semibold">Get Started</Button>
+            <button onClick={handleLogin} className="text-gray-300 hover:text-[#b6a888] transition-colors font-medium">
+              Sign In
+            </button>
+            <Button onClick={handleSignup} className="bg-[#b6a888] hover:bg-[#a39577] text-black font-semibold">
+              Get Started
+            </Button>
           </nav>
           <div className="md:hidden flex items-center space-x-2">
             <button
@@ -114,9 +129,23 @@ export default function HomePage() {
             Unlock your potential with our AI-powered tools, comprehensive training, marketing resources, and a thriving
             community of real estate professionals.
           </p>
-          <Button size="lg" className="bg-[#b6a888] hover:bg-[#a39577] text-black font-semibold text-lg px-8 py-4">
-            Start Your Journey <ArrowRight className="ml-2 h-5 w-5" />
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button
+              size="lg"
+              onClick={handleSignup}
+              className="bg-[#b6a888] hover:bg-[#a39577] text-black font-semibold text-lg px-8 py-4"
+            >
+              Start Your Journey <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={handleSiteDemo}
+              className="border-[#b6a888] text-[#b6a888] hover:bg-[#b6a888] hover:text-black text-lg px-8 py-4"
+            >
+              Watch Site Demo
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -399,6 +428,7 @@ export default function HomePage() {
             <Button
               size="lg"
               variant="outline"
+              onClick={handleSiteDemo}
               className="border-[#b6a888] text-[#b6a888] hover:bg-[#b6a888] hover:text-black text-lg px-8 py-4"
             >
               Schedule a Demo
@@ -414,10 +444,10 @@ export default function HomePage() {
             <div>
               <div className="flex items-center mb-4">
                 <Image
-                  src="/images/nlu-logo.png"
+                  src="/images/nlu-logo-light.png"
                   alt="The Next Level U"
-                  width={40}
-                  height={40}
+                  width={120}
+                  height={48}
                   className="object-contain"
                 />
               </div>

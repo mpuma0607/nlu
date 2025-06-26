@@ -165,39 +165,47 @@ export default function ProfilePage() {
     try {
       // Handle different content types
       if (creation.tool_type === "ideahub-ai") {
-        // For IdeaHub, download both image and text
+        // For IdeaHub, download both image and text content (NO PDF)
         if (creation.metadata?.imageUrl) {
           // Download image
-          const link = document.createElement("a")
-          link.href = creation.metadata.imageUrl
-          link.download = `${creation.title.replace(/\s+/g, "_")}_image.jpg`
-          document.body.appendChild(link)
-          link.click()
-          document.body.removeChild(link)
+          const imageResponse = await fetch(creation.metadata.imageUrl)
+          const imageBlob = await imageResponse.blob()
+          const imageUrl = window.URL.createObjectURL(imageBlob)
+          const imageLink = document.createElement("a")
+          imageLink.href = imageUrl
+          imageLink.download = `${creation.title.replace(/\s+/g, "_")}_image.jpg`
+          document.body.appendChild(imageLink)
+          imageLink.click()
+          document.body.removeChild(imageLink)
+          window.URL.revokeObjectURL(imageUrl)
         }
 
-        // Download text content
-        const blob = new Blob([creation.content], { type: "text/plain" })
-        const url = window.URL.createObjectURL(blob)
-        const link = document.createElement("a")
-        link.href = url
-        link.download = `${creation.title.replace(/\s+/g, "_")}_content.txt`
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-        window.URL.revokeObjectURL(url)
+        // Download text content as .txt file
+        const textBlob = new Blob([creation.content], { type: "text/plain" })
+        const textUrl = window.URL.createObjectURL(textBlob)
+        const textLink = document.createElement("a")
+        textLink.href = textUrl
+        textLink.download = `${creation.title.replace(/\s+/g, "_")}_content.txt`
+        document.body.appendChild(textLink)
+        textLink.click()
+        document.body.removeChild(textLink)
+        window.URL.revokeObjectURL(textUrl)
       } else if (creation.tool_type === "goalscreen-ai") {
         // For GoalScreen, download just the image
         if (creation.metadata?.imageUrl) {
-          const link = document.createElement("a")
-          link.href = creation.metadata.imageUrl
-          link.download = `${creation.title.replace(/\s+/g, "_")}_wallpaper.jpg`
-          document.body.appendChild(link)
-          link.click()
-          document.body.removeChild(link)
+          const imageResponse = await fetch(creation.metadata.imageUrl)
+          const imageBlob = await imageResponse.blob()
+          const imageUrl = window.URL.createObjectURL(imageBlob)
+          const imageLink = document.createElement("a")
+          imageLink.href = imageUrl
+          imageLink.download = `${creation.title.replace(/\s+/g, "_")}_wallpaper.jpg`
+          document.body.appendChild(imageLink)
+          imageLink.click()
+          document.body.removeChild(imageLink)
+          window.URL.revokeObjectURL(imageUrl)
         }
       } else {
-        // For other tools, generate PDF
+        // For all other tools, generate PDF
         const response = await fetch("/api/generate-creation-pdf", {
           method: "POST",
           headers: {
@@ -242,70 +250,77 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Desktop Layout */}
-      <div className="hidden md:block">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6">
-          {/* Left Column - MemberSpace Widget */}
-          <div className="bg-white rounded-lg shadow-sm border">
-            <div className="bg-gradient-to-r from-[#b6a888] to-[#a39577] text-white p-4 rounded-t-lg">
-              <h2 className="text-xl font-bold">Member Profile</h2>
-            </div>
-            <div className="p-4">
-              <div
-                className="w-full h-[600px] overflow-hidden"
-                dangerouslySetInnerHTML={{ __html: '[ms-widget-embed path="/member/sign_in"]' }}
-              />
-            </div>
+      {/* Stacked Layout for Both Desktop and Mobile */}
+      <div className="max-w-6xl mx-auto p-6 space-y-8">
+        {/* MemberSpace Widget Section */}
+        <div className="bg-white rounded-lg shadow-sm border">
+          <div className="bg-gradient-to-r from-[#b6a888] to-[#a39577] text-white p-4 rounded-t-lg">
+            <h2 className="text-xl font-bold">Member Profile</h2>
+          </div>
+          <div className="p-6">
+            <div
+              className="w-full h-[600px] md:h-[700px] overflow-hidden rounded-lg border"
+              dangerouslySetInnerHTML={{ __html: '[ms-widget-embed path="/member/sign_in"]' }}
+            />
+          </div>
+        </div>
+
+        {/* Creations Dashboard Section */}
+        <div className="bg-white rounded-lg shadow-sm border">
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 rounded-t-lg">
+            <h2 className="text-xl font-bold flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Your Creations Dashboard
+            </h2>
+            {user && <p className="text-blue-100 text-sm mt-1">Welcome back, {user.firstName || user.name}!</p>}
           </div>
 
-          {/* Right Column - Creations Dashboard */}
-          <div className="bg-white rounded-lg shadow-sm border">
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 rounded-t-lg">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Your Creations Dashboard
-              </h2>
-              {user && <p className="text-blue-100 text-sm mt-1">Welcome back, {user.firstName || user.name}!</p>}
-            </div>
+          <div className="p-6">
+            {isLoading || loadingCreations ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            ) : creations.length === 0 ? (
+              <div className="text-center py-12">
+                <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600 text-lg">No saved creations yet.</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  Use the "Save to Dashboard" button in any AI tool to save your creations here.
+                </p>
+              </div>
+            ) : (
+              <Tabs defaultValue={Object.keys(creationsByTool)[0]} className="w-full">
+                <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-1 mb-6">
+                  {Object.keys(creationsByTool).map((toolType) => {
+                    const Icon = toolIcons[toolType as keyof typeof toolIcons] || FileText
+                    return (
+                      <TabsTrigger key={toolType} value={toolType} className="flex items-center gap-2 p-3">
+                        <Icon className="h-4 w-4" />
+                        <span className="hidden sm:inline">
+                          {toolNames[toolType as keyof typeof toolNames] || toolType}
+                        </span>
+                        <span className="sm:hidden text-xs">
+                          {(toolNames[toolType as keyof typeof toolNames] || toolType).split(" ")[0]}
+                        </span>
+                      </TabsTrigger>
+                    )
+                  })}
+                </TabsList>
 
-            <div className="p-4">
-              {isLoading || loadingCreations ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                </div>
-              ) : creations.length === 0 ? (
-                <div className="text-center py-8">
-                  <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">No saved creations yet.</p>
-                  <p className="text-sm text-gray-500 mt-2">
-                    Use the "Save to Dashboard" button in any AI tool to save your creations here.
-                  </p>
-                </div>
-              ) : (
-                <Tabs defaultValue={Object.keys(creationsByTool)[0]} className="w-full">
-                  <TabsList className="grid w-full grid-cols-3 lg:grid-cols-4 gap-1">
-                    {Object.keys(creationsByTool).map((toolType) => {
-                      const Icon = toolIcons[toolType as keyof typeof toolIcons] || FileText
-                      return (
-                        <TabsTrigger key={toolType} value={toolType} className="flex items-center gap-1 text-xs">
-                          <Icon className="h-3 w-3" />
-                          <span className="hidden sm:inline">
-                            {toolNames[toolType as keyof typeof toolNames] || toolType}
-                          </span>
-                        </TabsTrigger>
-                      )
-                    })}
-                  </TabsList>
-
-                  {Object.entries(creationsByTool).map(([toolType, toolCreations]) => (
-                    <TabsContent key={toolType} value={toolType} className="mt-4">
-                      <div className="space-y-4 max-h-[500px] overflow-y-auto">
-                        {toolCreations.map((creation) => (
-                          <Card key={creation.id} className="border-l-4 border-l-blue-500">
+                {Object.entries(creationsByTool).map(([toolType, toolCreations]) => (
+                  <TabsContent key={toolType} value={toolType} className="mt-0">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {toolCreations
+                        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                        .map((creation) => (
+                          <Card
+                            key={creation.id}
+                            className="border-l-4 border-l-blue-500 hover:shadow-md transition-shadow"
+                          >
                             <CardHeader className="pb-3">
                               <div className="flex items-start justify-between">
-                                <div>
-                                  <CardTitle className="text-lg">{creation.title}</CardTitle>
+                                <div className="flex-1 min-w-0">
+                                  <CardTitle className="text-lg line-clamp-2">{creation.title}</CardTitle>
                                   <div className="flex items-center gap-2 mt-2">
                                     <Badge variant="outline" className="text-xs">
                                       {toolNames[toolType as keyof typeof toolNames] || toolType}
@@ -320,121 +335,38 @@ export default function ProfilePage() {
                                   variant="outline"
                                   size="sm"
                                   onClick={() => downloadCreation(creation)}
-                                  className="flex items-center gap-1"
+                                  className="flex items-center gap-1 ml-2 flex-shrink-0"
                                 >
                                   <Download className="h-3 w-3" />
-                                  Download
+                                  <span className="hidden sm:inline">Download</span>
                                 </Button>
                               </div>
                             </CardHeader>
                             <CardContent>
-                              <div className="text-sm text-gray-600 line-clamp-3">
-                                {creation.content.substring(0, 200)}...
-                              </div>
-                              <div className="mt-2 text-xs text-gray-400">
-                                Expires: {new Date(creation.expires_at).toLocaleDateString()}
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    </TabsContent>
-                  ))}
-                </Tabs>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Layout */}
-      <div className="md:hidden">
-        <div className="space-y-6 p-4">
-          {/* MemberSpace Widget */}
-          <div className="bg-white rounded-lg shadow-sm border">
-            <div className="bg-gradient-to-r from-[#b6a888] to-[#a39577] text-white p-3 rounded-t-lg">
-              <h2 className="text-lg font-bold">Member Profile</h2>
-            </div>
-            <div className="p-3">
-              <div
-                className="w-full h-[400px] overflow-hidden"
-                dangerouslySetInnerHTML={{ __html: '[ms-widget-embed path="/member/sign_in"]' }}
-              />
-            </div>
-          </div>
-
-          {/* Creations Dashboard */}
-          <div className="bg-white rounded-lg shadow-sm border">
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-3 rounded-t-lg">
-              <h2 className="text-lg font-bold flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                Your Creations
-              </h2>
-              {user && <p className="text-blue-100 text-xs mt-1">Welcome, {user.firstName || user.name}!</p>}
-            </div>
-
-            <div className="p-3">
-              {isLoading || loadingCreations ? (
-                <div className="flex items-center justify-center py-6">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                </div>
-              ) : creations.length === 0 ? (
-                <div className="text-center py-6">
-                  <FileText className="h-10 w-10 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-600 text-sm">No saved creations yet.</p>
-                  <p className="text-xs text-gray-500 mt-1">Use "Save to Dashboard" in any AI tool.</p>
-                </div>
-              ) : (
-                <Tabs defaultValue={Object.keys(creationsByTool)[0]} className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 gap-1">
-                    {Object.keys(creationsByTool)
-                      .slice(0, 4)
-                      .map((toolType) => {
-                        const Icon = toolIcons[toolType as keyof typeof toolIcons] || FileText
-                        return (
-                          <TabsTrigger key={toolType} value={toolType} className="flex items-center gap-1 text-xs">
-                            <Icon className="h-3 w-3" />
-                            <span className="truncate">
-                              {toolNames[toolType as keyof typeof toolNames] || toolType}
-                            </span>
-                          </TabsTrigger>
-                        )
-                      })}
-                  </TabsList>
-
-                  {Object.entries(creationsByTool).map(([toolType, toolCreations]) => (
-                    <TabsContent key={toolType} value={toolType} className="mt-3">
-                      <div className="space-y-3 max-h-[400px] overflow-y-auto">
-                        {toolCreations.map((creation) => (
-                          <Card key={creation.id} className="border-l-4 border-l-blue-500">
-                            <CardContent className="p-3">
-                              <div className="flex items-start justify-between mb-2">
-                                <h4 className="font-medium text-sm line-clamp-1">{creation.title}</h4>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => downloadCreation(creation)}
-                                  className="ml-2 flex-shrink-0"
-                                >
-                                  <Download className="h-3 w-3" />
-                                </Button>
-                              </div>
-                              <div className="text-xs text-gray-600 line-clamp-2 mb-2">
-                                {creation.content.substring(0, 100)}...
+                              <div className="text-sm text-gray-600 line-clamp-4 mb-3">
+                                {creation.content.substring(0, 300)}
+                                {creation.content.length > 300 && "..."}
                               </div>
                               <div className="flex items-center justify-between text-xs text-gray-400">
-                                <span>{new Date(creation.created_at).toLocaleDateString()}</span>
+                                <span>
+                                  {creation.tool_type === "ideahub-ai" && creation.metadata?.imageUrl && "📷 "}
+                                  {creation.tool_type === "goalscreen-ai" && creation.metadata?.imageUrl && "🖼️ "}
+                                  {creation.tool_type === "ideahub-ai"
+                                    ? "Image + Text"
+                                    : creation.tool_type === "goalscreen-ai"
+                                      ? "Image"
+                                      : "PDF"}
+                                </span>
                                 <span>Expires: {new Date(creation.expires_at).toLocaleDateString()}</span>
                               </div>
                             </CardContent>
                           </Card>
                         ))}
-                      </div>
-                    </TabsContent>
-                  ))}
-                </Tabs>
-              )}
-            </div>
+                    </div>
+                  </TabsContent>
+                ))}
+              </Tabs>
+            )}
           </div>
         </div>
       </div>

@@ -3,14 +3,17 @@
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import * as z from "zod"
+import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/components/ui/use-toast"
 import { Mail, Loader2 } from "lucide-react"
-import { sendEmail } from "@/lib/email"
+import { Save } from "lucide-react"
+import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
+import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
+import { sendEmail } from "@/lib/send-email" // Import sendEmail function
 
 const formSchema = z.object({
   propertyAddress: z.string().min(2, {
@@ -35,12 +38,14 @@ interface ListingFormProps {
   setResult: (result: any) => void
   setLoading: (loading: boolean) => void
   setError: (error: string | null) => void
-  result: any
 }
 
-export function ListingForm({ setResult, setLoading, setError, result }: ListingFormProps) {
+export function ListingForm({ setResult, setLoading, setError }: ListingFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [emailLoading, setEmailLoading] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const { user } = useMemberSpaceUser()
+  const [result, setResultState] = useState<any>(null) // Declare result state
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -57,7 +62,7 @@ export function ListingForm({ setResult, setLoading, setError, result }: Listing
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true)
     setError(null)
-    setResult(null)
+    setResultState(null) // Use setResultState instead of setResult
 
     try {
       const response = await fetch("/api/ai-hub/listit-ai", {
@@ -73,13 +78,15 @@ export function ListingForm({ setResult, setLoading, setError, result }: Listing
       }
 
       const data = await response.json()
-      setResult(data)
+      setResultState(data) // Use setResultState instead of setResult
     } catch (e: any) {
       setError(e.message || "An unexpected error occurred")
     } finally {
       setLoading(false)
     }
   }
+
+  const formData = form.watch()
 
   const sendEmailFunction = async () => {
     setEmailLoading(true)
@@ -104,6 +111,47 @@ export function ListingForm({ setResult, setLoading, setError, result }: Listing
       })
     } finally {
       setEmailLoading(false)
+    }
+  }
+
+  const saveToDashboard = async () => {
+    if (result?.description && user?.email) {
+      setIsSaving(true)
+      try {
+        const success = await saveUserCreation({
+          userId: user.id || user.email,
+          userEmail: user.email,
+          toolType: "listit-ai",
+          title: generateCreationTitle("listit-ai", formData),
+          content: result.description,
+          formData: formData,
+          metadata: {
+            propertyAddress: formData.propertyAddress,
+            listingPrice: formData.listingPrice,
+            bedrooms: formData.bedrooms,
+            bathrooms: formData.bathrooms,
+            squareFootage: formData.squareFootage,
+          },
+        })
+
+        if (success) {
+          toast({
+            title: "Saved to Dashboard",
+            description: "Check your profile to view saved content.",
+          })
+        } else {
+          throw new Error("Failed to save")
+        }
+      } catch (error) {
+        console.error("Error saving to dashboard:", error)
+        toast({
+          title: "Save Failed",
+          description: "Failed to save to dashboard. Please try again.",
+          variant: "destructive",
+        })
+      } finally {
+        setIsSaving(false)
+      }
     }
   }
 
@@ -209,15 +257,26 @@ export function ListingForm({ setResult, setLoading, setError, result }: Listing
       )}
       {result?.description && (
         <div className="mt-4">
-          <Button
-            variant="outline"
-            onClick={sendEmailFunction}
-            disabled={emailLoading}
-            className="flex items-center justify-center gap-2"
-          >
-            {emailLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-            <span className="whitespace-nowrap">Email</span>
-          </Button>
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <Button
+              variant="outline"
+              onClick={sendEmailFunction}
+              disabled={emailLoading}
+              className="flex items-center justify-center gap-2"
+            >
+              {emailLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+              <span className="whitespace-nowrap">Email</span>
+            </Button>
+            <Button
+              variant="outline"
+              onClick={saveToDashboard}
+              disabled={isSaving || !user?.email}
+              className="flex items-center justify-center gap-2"
+            >
+              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              <span className="whitespace-nowrap">Save</span>
+            </Button>
+          </div>
         </div>
       )}
     </Form>

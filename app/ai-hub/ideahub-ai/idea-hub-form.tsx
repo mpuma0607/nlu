@@ -9,7 +9,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "@/components/ui/use-toast"
-import { Copy, Download, Loader2 } from "lucide-react"
+import { Copy, Download, Loader2, Save } from "lucide-react"
+import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
+import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 
 interface IdeaFormData {
   primaryTopic: string
@@ -50,6 +52,8 @@ export default function IdeaHubForm() {
   })
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<IdeaResult | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
+  const { user } = useMemberSpaceUser()
 
   const handleInputChange = (field: keyof IdeaFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -118,6 +122,39 @@ export default function IdeaHubForm() {
         title: "Downloaded!",
         description: "Content downloaded as text file.",
       })
+    }
+  }
+
+  const saveToDashboard = async () => {
+    if (result?.text && result?.imageUrl && user?.email) {
+      setIsSaving(true)
+      try {
+        const success = await saveUserCreation({
+          userId: user.id || user.email,
+          userEmail: user.email,
+          toolType: "ideahub-ai",
+          title: generateCreationTitle("ideahub-ai", formData),
+          content: result.text,
+          formData: formData,
+          metadata: {
+            imageUrl: result.imageUrl,
+            contentType: formData.contentType,
+            language: formData.language,
+            primaryTopic: formData.primaryTopic,
+          },
+        })
+
+        if (success) {
+          alert("Saved to Dashboard! Check your profile to view saved content.")
+        } else {
+          throw new Error("Failed to save")
+        }
+      } catch (error) {
+        console.error("Error saving to dashboard:", error)
+        alert("Failed to save to dashboard. Please try again.")
+      } finally {
+        setIsSaving(false)
+      }
     }
   }
 
@@ -254,14 +291,23 @@ export default function IdeaHubForm() {
             <div className="bg-gray-50 p-4 rounded-lg mb-4">
               <p className="whitespace-pre-wrap">{result.text}</p>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={copyToClipboard}>
-                <Copy className="mr-2 h-4 w-4" />
-                Copy
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+              <Button variant="outline" onClick={copyToClipboard} className="flex items-center justify-center gap-2">
+                <Copy className="h-4 w-4" />
+                <span className="whitespace-nowrap">Copy</span>
               </Button>
-              <Button variant="outline" onClick={downloadContent}>
-                <Download className="mr-2 h-4 w-4" />
-                Download
+              <Button variant="outline" onClick={downloadContent} className="flex items-center justify-center gap-2">
+                <Download className="h-4 w-4" />
+                <span className="whitespace-nowrap">Download</span>
+              </Button>
+              <Button
+                variant="outline"
+                onClick={saveToDashboard}
+                disabled={isSaving || !user?.email}
+                className="flex items-center justify-center gap-2"
+              >
+                {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                <span className="whitespace-nowrap">Save</span>
               </Button>
             </div>
           </CardContent>

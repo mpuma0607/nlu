@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { getPlatformUsageStats } from "@/lib/database/usage-tracking"
 
 // Admin email - replace with your actual email
-const ADMIN_EMAIL = "your-admin-email@example.com"
+const ADMIN_EMAIL = "mikepuma@c21be.com"
 
 export async function GET(request: NextRequest) {
   try {

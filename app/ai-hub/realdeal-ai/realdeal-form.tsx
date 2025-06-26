@@ -12,6 +12,7 @@ import { Upload, FileText, Download, Mail, Copy, Loader2, AlertCircle, Info } fr
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useToast } from "@/hooks/use-toast"
 import Script from "next/script"
+import { useTracking } from "@/lib/hooks/use-tracking"
 
 interface AnalysisResult {
   analysis: string
@@ -47,6 +48,7 @@ export default function RealDealForm() {
   const [jsPdfLoaded, setJsPdfLoaded] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
+  const { trackToolUsage, trackContentInteraction } = useTracking()
 
   // Handle PDF.js library loading
   const handlePdfJsLoad = () => {
@@ -208,6 +210,7 @@ export default function RealDealForm() {
     }
 
     setIsLoading(true)
+    await trackToolUsage("realdeal-ai", "analyze-contract")
 
     try {
       console.log("Starting contract analysis submission...")
@@ -448,6 +451,7 @@ export default function RealDealForm() {
 
     try {
       setIsPdfLoading(true)
+      await trackContentInteraction("realdeal-ai", "pdf-download")
 
       if (!jsPdfLoaded) {
         toast({
@@ -487,6 +491,7 @@ export default function RealDealForm() {
 
     try {
       setIsEmailLoading(true)
+      await trackContentInteraction("realdeal-ai", "email-send")
       console.log("Starting email send...")
 
       // Create a simple formatted text version for email
@@ -535,6 +540,7 @@ export default function RealDealForm() {
   const copyToClipboard = () => {
     if (!result) return
 
+    trackContentInteraction("realdeal-ai", "copy-content")
     navigator.clipboard.writeText(result.analysis)
     toast({
       title: "Copied to Clipboard",

@@ -139,7 +139,7 @@ export default function HomePage() {
             The Next Level U<span className="block text-[#b6a888]">Real Estate Platform</span>
           </h1>
           <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
-            Unlock your potential with 11 AI-powered tools, comprehensive training, marketing resources, and a thriving
+            Unlock your potential with our AI-powered tools, comprehensive training, marketing resources, and a thriving
             community of real estate professionals.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

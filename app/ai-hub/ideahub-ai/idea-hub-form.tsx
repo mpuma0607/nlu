@@ -7,41 +7,51 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "@/components/ui/use-toast"
-import { Copy, Download, Loader2, Mail, Save } from "lucide-react"
+import { Copy, Download, Loader2, Save } from "lucide-react"
 import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 
 interface IdeaFormData {
-  topic: string
-  audience: string
-  platform: string
-  tone: string
+  primaryTopic: string
+  alternateTopic: string
+  language: string
+  name: string
+  email: string
   contentType: string
-  additionalContext: string
 }
 
 interface IdeaResult {
-  content: string
+  text: string
   imageUrl?: string
-  hashtags?: string[]
 }
 
-export default function IdeaHubForm() {
-  const [formData, setFormData] = useState<IdeaFormData>({
-    topic: "",
-    audience: "",
-    platform: "",
-    tone: "",
-    contentType: "",
-    additionalContext: "",
-  })
+const topicOptions = [
+  "Real Estate",
+  "Finance",
+  "Travel",
+  "Food",
+  "Fashion",
+  "Technology",
+  "Health",
+  "Education",
+  "Sports",
+  "Entertainment",
+]
 
+export default function IdeaHubForm() {
+  const [step, setStep] = useState(1)
+  const [formData, setFormData] = useState<IdeaFormData>({
+    primaryTopic: "",
+    alternateTopic: "",
+    language: "English",
+    name: "",
+    email: "",
+    contentType: "Social Media Post",
+  })
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<IdeaResult | null>(null)
-  const [isEmailLoading, setIsEmailLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const { user } = useMemberSpaceUser()
 
@@ -55,7 +65,7 @@ export default function IdeaHubForm() {
     setResult(null)
 
     try {
-      const response = await fetch("/api/ideahub-v2", {
+      const response = await fetch("/api/ideahub-ai", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -87,8 +97,8 @@ export default function IdeaHubForm() {
   }
 
   const copyToClipboard = () => {
-    if (result?.content) {
-      navigator.clipboard.writeText(result.content)
+    if (result?.text) {
+      navigator.clipboard.writeText(result.text)
       toast({
         title: "Copied!",
         description: "Content copied to clipboard.",
@@ -97,8 +107,8 @@ export default function IdeaHubForm() {
   }
 
   const downloadContent = () => {
-    if (result?.content) {
-      const blob = new Blob([result.content], { type: "text/plain" })
+    if (result?.text) {
+      const blob = new Blob([result.text], { type: "text/plain" })
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement("a")
       link.href = url
@@ -115,45 +125,8 @@ export default function IdeaHubForm() {
     }
   }
 
-  const sendEmail = async () => {
-    if (result) {
-      setIsEmailLoading(true)
-      try {
-        const response = await fetch("/api/ideahub-email", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            content: result.content,
-            imageUrl: result.imageUrl,
-            formData: formData,
-          }),
-        })
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-
-        toast({
-          title: "Email Sent!",
-          description: "Content idea sent to your email.",
-        })
-      } catch (error: any) {
-        console.error("Error sending email:", error)
-        toast({
-          title: "Error",
-          description: "Failed to send email.",
-          variant: "destructive",
-        })
-      } finally {
-        setIsEmailLoading(false)
-      }
-    }
-  }
-
   const saveToDashboard = async () => {
-    if (result && user?.email) {
+    if (result?.text && result?.imageUrl && user?.email) {
       setIsSaving(true)
       try {
         const success = await saveUserCreation({
@@ -161,33 +134,24 @@ export default function IdeaHubForm() {
           userEmail: user.email,
           toolType: "ideahub-ai",
           title: generateCreationTitle("ideahub-ai", formData),
-          content: result.content,
+          content: result.text,
           formData: formData,
           metadata: {
             imageUrl: result.imageUrl,
-            hashtags: result.hashtags,
-            topic: formData.topic,
-            platform: formData.platform,
-            audience: formData.audience,
-            tone: formData.tone,
+            contentType: formData.contentType,
+            language: formData.language,
+            primaryTopic: formData.primaryTopic,
           },
         })
 
         if (success) {
-          toast({
-            title: "Saved to Dashboard",
-            description: "Your content idea has been saved to your profile dashboard.",
-          })
+          alert("Saved to Dashboard! Check your profile to view saved content.")
         } else {
           throw new Error("Failed to save")
         }
       } catch (error) {
         console.error("Error saving to dashboard:", error)
-        toast({
-          title: "Save Failed",
-          description: "Failed to save to dashboard. Please try again.",
-          variant: "destructive",
-        })
+        alert("Failed to save to dashboard. Please try again.")
       } finally {
         setIsSaving(false)
       }
@@ -205,104 +169,105 @@ export default function IdeaHubForm() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="topic">Topic/Theme</Label>
-                <Input
-                  id="topic"
-                  value={formData.topic}
-                  onChange={(e) => handleInputChange("topic", e.target.value)}
-                  placeholder="Real estate tips, home buying, etc."
-                  required
-                />
+            {step === 1 && (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="primaryTopic">Primary Topic</Label>
+                  <Select onValueChange={(value) => handleInputChange("primaryTopic", value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a topic" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {topicOptions.map((topic) => (
+                        <SelectItem key={topic} value={topic}>
+                          {topic}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="alternateTopic">Alternate Topic</Label>
+                  <Input
+                    id="alternateTopic"
+                    placeholder="Enter an alternate topic"
+                    value={formData.alternateTopic}
+                    onChange={(e) => handleInputChange("alternateTopic", e.target.value)}
+                  />
+                </div>
+                <Button type="button" onClick={() => setStep(2)} className="w-full">
+                  Next
+                </Button>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="audience">Target Audience</Label>
-                <Select onValueChange={(value) => handleInputChange("audience", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select target audience" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="first-time-buyers">First-time Buyers</SelectItem>
-                    <SelectItem value="sellers">Home Sellers</SelectItem>
-                    <SelectItem value="investors">Real Estate Investors</SelectItem>
-                    <SelectItem value="general">General Audience</SelectItem>
-                    <SelectItem value="luxury">Luxury Market</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="platform">Platform</Label>
-                <Select onValueChange={(value) => handleInputChange("platform", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select platform" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="instagram">Instagram</SelectItem>
-                    <SelectItem value="facebook">Facebook</SelectItem>
-                    <SelectItem value="linkedin">LinkedIn</SelectItem>
-                    <SelectItem value="twitter">Twitter/X</SelectItem>
-                    <SelectItem value="tiktok">TikTok</SelectItem>
-                    <SelectItem value="youtube">YouTube</SelectItem>
-                    <SelectItem value="blog">Blog</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="tone">Tone</Label>
-                <Select onValueChange={(value) => handleInputChange("tone", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select tone" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="professional">Professional</SelectItem>
-                    <SelectItem value="casual">Casual</SelectItem>
-                    <SelectItem value="friendly">Friendly</SelectItem>
-                    <SelectItem value="authoritative">Authoritative</SelectItem>
-                    <SelectItem value="humorous">Humorous</SelectItem>
-                    <SelectItem value="inspirational">Inspirational</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="contentType">Content Type</Label>
-                <Select onValueChange={(value) => handleInputChange("contentType", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select content type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="post">Social Media Post</SelectItem>
-                    <SelectItem value="story">Story/Reel</SelectItem>
-                    <SelectItem value="carousel">Carousel Post</SelectItem>
-                    <SelectItem value="video">Video Script</SelectItem>
-                    <SelectItem value="blog">Blog Article</SelectItem>
-                    <SelectItem value="email">Email Newsletter</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+            )}
 
-            <div className="space-y-2">
-              <Label htmlFor="additionalContext">Additional Context</Label>
-              <Textarea
-                id="additionalContext"
-                value={formData.additionalContext}
-                onChange={(e) => handleInputChange("additionalContext", e.target.value)}
-                placeholder="Any specific details, current trends, or requirements..."
-                className="min-h-[100px]"
-              />
-            </div>
+            {step === 2 && (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="language">Language</Label>
+                  <Select onValueChange={(value) => handleInputChange("language", value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="English">English</SelectItem>
+                      <SelectItem value="Spanish">Spanish</SelectItem>
+                      <SelectItem value="French">French</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="contentType">Content Type</Label>
+                  <Select onValueChange={(value) => handleInputChange("contentType", value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select content type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Social Media Post">Social Media Post</SelectItem>
+                      <SelectItem value="Blog Article">Blog Article</SelectItem>
+                      <SelectItem value="Email Newsletter">Email Newsletter</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button type="button" onClick={() => setStep(3)} className="w-full">
+                  Next
+                </Button>
+              </div>
+            )}
 
-            <Button type="submit" disabled={isLoading} className="w-full">
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                "Generate Content Idea"
-              )}
-            </Button>
+            {step === 3 && (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Your Name</Label>
+                  <Input
+                    id="name"
+                    placeholder="Enter your name"
+                    value={formData.name}
+                    onChange={(e) => handleInputChange("name", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Your Email</Label>
+                  <Input
+                    type="email"
+                    id="email"
+                    placeholder="Enter your email"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
+                  />
+                </div>
+                <Button type="submit" disabled={isLoading} className="w-full">
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    "Generate Content Idea"
+                  )}
+                </Button>
+              </div>
+            )}
           </form>
         </CardContent>
       </Card>
@@ -324,20 +289,8 @@ export default function IdeaHubForm() {
               </div>
             )}
             <div className="bg-gray-50 p-4 rounded-lg mb-4">
-              <p className="whitespace-pre-wrap">{result.content}</p>
+              <p className="whitespace-pre-wrap">{result.text}</p>
             </div>
-            {result.hashtags && result.hashtags.length > 0 && (
-              <div className="mb-4">
-                <h4 className="font-semibold mb-2">Suggested Hashtags:</h4>
-                <div className="flex flex-wrap gap-2">
-                  {result.hashtags.map((hashtag, index) => (
-                    <span key={index} className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">
-                      {hashtag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
               <Button variant="outline" onClick={copyToClipboard} className="flex items-center justify-center gap-2">
                 <Copy className="h-4 w-4" />
@@ -346,15 +299,6 @@ export default function IdeaHubForm() {
               <Button variant="outline" onClick={downloadContent} className="flex items-center justify-center gap-2">
                 <Download className="h-4 w-4" />
                 <span className="whitespace-nowrap">Download</span>
-              </Button>
-              <Button
-                variant="outline"
-                onClick={sendEmail}
-                disabled={isEmailLoading}
-                className="flex items-center justify-center gap-2"
-              >
-                {isEmailLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-                <span className="whitespace-nowrap">Email</span>
               </Button>
               <Button
                 variant="outline"

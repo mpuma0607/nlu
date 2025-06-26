@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "@/components/ui/use-toast"
 import { Copy, Download, Loader2, Mail, Save } from "lucide-react"
@@ -15,38 +14,38 @@ import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creatio
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 
 interface ListingFormData {
-  address: string
-  price: string
+  propertyAddress: string
+  listingPrice: string
   bedrooms: string
   bathrooms: string
   squareFootage: string
-  propertyType: string
-  yearBuilt: string
-  lotSize: string
-  features: string
-  neighborhood: string
-  schools: string
-  additionalInfo: string
+  feature1: string
+  feature2: string
+  feature3: string
+  feature4: string
+  feature5: string
+  agentName: string
+  agentEmail: string
 }
 
 export default function ListingForm() {
+  const [step, setStep] = useState(1)
   const [formData, setFormData] = useState<ListingFormData>({
-    address: "",
-    price: "",
+    propertyAddress: "",
+    listingPrice: "",
     bedrooms: "",
     bathrooms: "",
     squareFootage: "",
-    propertyType: "",
-    yearBuilt: "",
-    lotSize: "",
-    features: "",
-    neighborhood: "",
-    schools: "",
-    additionalInfo: "",
+    feature1: "",
+    feature2: "",
+    feature3: "",
+    feature4: "",
+    feature5: "",
+    agentName: "",
+    agentEmail: "",
   })
-
   const [isLoading, setIsLoading] = useState(false)
-  const [result, setResult] = useState<string>("")
+  const [result, setResult] = useState<{ description: string; title: string } | null>(null)
   const [isEmailLoading, setIsEmailLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const { user } = useMemberSpaceUser()
@@ -55,10 +54,18 @@ export default function ListingForm() {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
+  const nextStep = () => {
+    setStep((prev) => prev + 1)
+  }
+
+  const prevStep = () => {
+    setStep((prev) => prev - 1)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    setResult("")
+    setResult(null)
 
     try {
       const response = await fetch("/api/generate-listing", {
@@ -74,7 +81,7 @@ export default function ListingForm() {
       }
 
       const data = await response.json()
-      setResult(data.description)
+      setResult(data)
 
       toast({
         title: "Success!",
@@ -93,8 +100,8 @@ export default function ListingForm() {
   }
 
   const copyToClipboard = () => {
-    if (result) {
-      navigator.clipboard.writeText(result)
+    if (result?.description) {
+      navigator.clipboard.writeText(result.description)
       toast({
         title: "Copied!",
         description: "Listing description copied to clipboard.",
@@ -103,7 +110,7 @@ export default function ListingForm() {
   }
 
   const downloadPDF = async () => {
-    if (result) {
+    if (result?.description) {
       try {
         const response = await fetch("/api/generate-listing-pdf", {
           method: "POST",
@@ -111,7 +118,7 @@ export default function ListingForm() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            description: result,
+            description: result.description,
             propertyDetails: formData,
           }),
         })
@@ -146,7 +153,7 @@ export default function ListingForm() {
   }
 
   const sendEmail = async () => {
-    if (result) {
+    if (result?.description) {
       setIsEmailLoading(true)
       try {
         const response = await fetch("/api/send-listing-email", {
@@ -155,7 +162,7 @@ export default function ListingForm() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            description: result,
+            description: result.description,
             propertyDetails: formData,
           }),
         })
@@ -182,7 +189,7 @@ export default function ListingForm() {
   }
 
   const saveToDashboard = async () => {
-    if (result && user?.email) {
+    if (result?.description && user?.email) {
       setIsSaving(true)
       try {
         const success = await saveUserCreation({
@@ -190,14 +197,14 @@ export default function ListingForm() {
           userEmail: user.email,
           toolType: "listit-ai",
           title: generateCreationTitle("listit-ai", formData),
-          content: result,
+          content: result.description,
           formData: formData,
           metadata: {
-            address: formData.address,
-            price: formData.price,
-            propertyType: formData.propertyType,
+            propertyAddress: formData.propertyAddress,
+            listingPrice: formData.listingPrice,
             bedrooms: formData.bedrooms,
             bathrooms: formData.bathrooms,
+            squareFootage: formData.squareFootage,
           },
         })
 
@@ -231,156 +238,175 @@ export default function ListingForm() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="address">Property Address</Label>
-                <Input
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => handleInputChange("address", e.target.value)}
-                  placeholder="123 Main St, City, State"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="price">Price</Label>
-                <Input
-                  id="price"
-                  value={formData.price}
-                  onChange={(e) => handleInputChange("price", e.target.value)}
-                  placeholder="$500,000"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="bedrooms">Bedrooms</Label>
-                <Select onValueChange={(value) => handleInputChange("bedrooms", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select bedrooms" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">1</SelectItem>
-                    <SelectItem value="2">2</SelectItem>
-                    <SelectItem value="3">3</SelectItem>
-                    <SelectItem value="4">4</SelectItem>
-                    <SelectItem value="5">5+</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="bathrooms">Bathrooms</Label>
-                <Select onValueChange={(value) => handleInputChange("bathrooms", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select bathrooms" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">1</SelectItem>
-                    <SelectItem value="1.5">1.5</SelectItem>
-                    <SelectItem value="2">2</SelectItem>
-                    <SelectItem value="2.5">2.5</SelectItem>
-                    <SelectItem value="3">3</SelectItem>
-                    <SelectItem value="3.5">3.5</SelectItem>
-                    <SelectItem value="4">4+</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="squareFootage">Square Footage</Label>
-                <Input
-                  id="squareFootage"
-                  value={formData.squareFootage}
-                  onChange={(e) => handleInputChange("squareFootage", e.target.value)}
-                  placeholder="2,000"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="propertyType">Property Type</Label>
-                <Select onValueChange={(value) => handleInputChange("propertyType", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select property type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Single Family">Single Family</SelectItem>
-                    <SelectItem value="Condo">Condo</SelectItem>
-                    <SelectItem value="Townhouse">Townhouse</SelectItem>
-                    <SelectItem value="Multi-Family">Multi-Family</SelectItem>
-                    <SelectItem value="Land">Land</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="yearBuilt">Year Built</Label>
-                <Input
-                  id="yearBuilt"
-                  value={formData.yearBuilt}
-                  onChange={(e) => handleInputChange("yearBuilt", e.target.value)}
-                  placeholder="2020"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lotSize">Lot Size</Label>
-                <Input
-                  id="lotSize"
-                  value={formData.lotSize}
-                  onChange={(e) => handleInputChange("lotSize", e.target.value)}
-                  placeholder="0.25 acres"
-                />
-              </div>
-            </div>
+            {step === 1 && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="propertyAddress">Property Address</Label>
+                    <Input
+                      id="propertyAddress"
+                      value={formData.propertyAddress}
+                      onChange={(e) => handleInputChange("propertyAddress", e.target.value)}
+                      placeholder="123 Main St, City, State"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="listingPrice">Listing Price</Label>
+                    <Input
+                      id="listingPrice"
+                      value={formData.listingPrice}
+                      onChange={(e) => handleInputChange("listingPrice", e.target.value)}
+                      placeholder="$500,000"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bedrooms">Bedrooms</Label>
+                    <Select onValueChange={(value) => handleInputChange("bedrooms", value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select bedrooms" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">1</SelectItem>
+                        <SelectItem value="2">2</SelectItem>
+                        <SelectItem value="3">3</SelectItem>
+                        <SelectItem value="4">4</SelectItem>
+                        <SelectItem value="5">5+</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bathrooms">Bathrooms</Label>
+                    <Select onValueChange={(value) => handleInputChange("bathrooms", value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select bathrooms" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">1</SelectItem>
+                        <SelectItem value="1.5">1.5</SelectItem>
+                        <SelectItem value="2">2</SelectItem>
+                        <SelectItem value="2.5">2.5</SelectItem>
+                        <SelectItem value="3">3</SelectItem>
+                        <SelectItem value="3.5">3.5</SelectItem>
+                        <SelectItem value="4">4+</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="squareFootage">Square Footage</Label>
+                    <Input
+                      id="squareFootage"
+                      value={formData.squareFootage}
+                      onChange={(e) => handleInputChange("squareFootage", e.target.value)}
+                      placeholder="2,000"
+                    />
+                  </div>
+                </div>
+                <Button type="button" onClick={nextStep}>
+                  Next: Features
+                </Button>
+              </>
+            )}
 
-            <div className="space-y-2">
-              <Label htmlFor="features">Key Features</Label>
-              <Textarea
-                id="features"
-                value={formData.features}
-                onChange={(e) => handleInputChange("features", e.target.value)}
-                placeholder="Updated kitchen, hardwood floors, large backyard..."
-                className="min-h-[100px]"
-              />
-            </div>
+            {step === 2 && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="feature1">Feature 1</Label>
+                    <Input
+                      id="feature1"
+                      value={formData.feature1}
+                      onChange={(e) => handleInputChange("feature1", e.target.value)}
+                      placeholder="e.g., Updated Kitchen"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="feature2">Feature 2</Label>
+                    <Input
+                      id="feature2"
+                      value={formData.feature2}
+                      onChange={(e) => handleInputChange("feature2", e.target.value)}
+                      placeholder="e.g., Hardwood Floors"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="feature3">Feature 3</Label>
+                    <Input
+                      id="feature3"
+                      value={formData.feature3}
+                      onChange={(e) => handleInputChange("feature3", e.target.value)}
+                      placeholder="e.g., Large Backyard"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="feature4">Feature 4</Label>
+                    <Input
+                      id="feature4"
+                      value={formData.feature4}
+                      onChange={(e) => handleInputChange("feature4", e.target.value)}
+                      placeholder="e.g., Swimming Pool"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="feature5">Feature 5</Label>
+                    <Input
+                      id="feature5"
+                      value={formData.feature5}
+                      onChange={(e) => handleInputChange("feature5", e.target.value)}
+                      placeholder="e.g., Close to Parks"
+                    />
+                  </div>
+                </div>
+                <Button type="button" onClick={prevStep} className="mr-2">
+                  Previous: Details
+                </Button>
+                <Button type="button" onClick={nextStep}>
+                  Next: Agent Info
+                </Button>
+              </>
+            )}
 
-            <div className="space-y-2">
-              <Label htmlFor="neighborhood">Neighborhood Info</Label>
-              <Textarea
-                id="neighborhood"
-                value={formData.neighborhood}
-                onChange={(e) => handleInputChange("neighborhood", e.target.value)}
-                placeholder="Quiet residential area, close to parks and shopping..."
-                className="min-h-[80px]"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="schools">Schools</Label>
-              <Input
-                id="schools"
-                value={formData.schools}
-                onChange={(e) => handleInputChange("schools", e.target.value)}
-                placeholder="Lincoln Elementary, Washington Middle, Roosevelt High"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="additionalInfo">Additional Information</Label>
-              <Textarea
-                id="additionalInfo"
-                value={formData.additionalInfo}
-                onChange={(e) => handleInputChange("additionalInfo", e.target.value)}
-                placeholder="Any other details you'd like to highlight..."
-                className="min-h-[80px]"
-              />
-            </div>
-
-            <Button type="submit" disabled={isLoading} className="w-full">
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                "Generate Listing Description"
-              )}
-            </Button>
+            {step === 3 && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="agentName">Your Name</Label>
+                    <Input
+                      id="agentName"
+                      value={formData.agentName}
+                      onChange={(e) => handleInputChange("agentName", e.target.value)}
+                      placeholder="Your Name"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="agentEmail">Your Email</Label>
+                    <Input
+                      id="agentEmail"
+                      type="email"
+                      value={formData.agentEmail}
+                      onChange={(e) => handleInputChange("agentEmail", e.target.value)}
+                      placeholder="you@example.com"
+                      required
+                    />
+                  </div>
+                </div>
+                <Button type="button" onClick={prevStep} className="mr-2">
+                  Previous: Features
+                </Button>
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    "Generate Listing Description"
+                  )}
+                </Button>
+              </>
+            )}
           </form>
         </CardContent>
       </Card>
@@ -388,12 +414,12 @@ export default function ListingForm() {
       {result && (
         <Card className="mt-6">
           <CardHeader>
-            <CardTitle>Generated Listing Description</CardTitle>
+            <CardTitle>{result.title || "Generated Listing Description"}</CardTitle>
             <CardDescription>Your AI-generated property listing description is ready!</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="bg-gray-50 p-4 rounded-lg mb-4">
-              <p className="whitespace-pre-wrap">{result}</p>
+              <p className="whitespace-pre-wrap">{result.description}</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
               <Button variant="outline" onClick={copyToClipboard} className="flex items-center justify-center gap-2">

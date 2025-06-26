@@ -243,10 +243,11 @@ export function BizPlanForm({ apiEndpoint, title, description, example }: Busine
   }
 
   const saveToProfile = async () => {
-    if (!result || !isLoggedIn) return
+    if (!result?.businessPlan || !isLoggedIn) return
 
     setIsSaving(true)
     try {
+      const formData = form.getValues()
       const title = generateCreationTitle("business-plan", {
         agentName: formData.agentName,
         incomeGoal: formData.incomeGoal,
@@ -256,7 +257,7 @@ export function BizPlanForm({ apiEndpoint, title, description, example }: Busine
         userId: user?.id || "anonymous",
         contentType: "business-plan",
         title,
-        content: result.businessPlan,
+        content: result?.businessPlan,
         metadata: {
           formData,
           generatedAt: new Date().toISOString(),
@@ -264,10 +265,16 @@ export function BizPlanForm({ apiEndpoint, title, description, example }: Busine
         },
       })
 
-      alert("Business plan saved to your profile!")
+      toast({
+        title: "Business plan saved to your profile!",
+      })
     } catch (error) {
       console.error("Error saving business plan:", error)
-      alert("Failed to save business plan. Please try again.")
+      toast({
+        title: "Error",
+        description: "Failed to save business plan. Please try again.",
+        variant: "destructive",
+      })
     } finally {
       setIsSaving(false)
     }

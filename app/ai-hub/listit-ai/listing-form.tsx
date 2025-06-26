@@ -35,12 +35,12 @@ interface ListingFormProps {
   setResult: (result: any) => void
   setLoading: (loading: boolean) => void
   setError: (error: string | null) => void
+  result: any
 }
 
-export function ListingForm({ setResult, setLoading, setError }: ListingFormProps) {
+export function ListingForm({ setResult, setLoading, setError, result }: ListingFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [emailLoading, setEmailLoading] = useState(false)
-  const [result, setResultState] = useState<any>(null)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -57,7 +57,7 @@ export function ListingForm({ setResult, setLoading, setError }: ListingFormProp
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true)
     setError(null)
-    setResultState(null)
+    setResult(null)
 
     try {
       const response = await fetch("/api/ai-hub/listit-ai", {
@@ -73,7 +73,6 @@ export function ListingForm({ setResult, setLoading, setError }: ListingFormProp
       }
 
       const data = await response.json()
-      setResultState(data)
       setResult(data)
     } catch (e: any) {
       setError(e.message || "An unexpected error occurred")

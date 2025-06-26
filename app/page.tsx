@@ -183,7 +183,6 @@ export default function HomePage() {
             </div>
           </DialogHeader>
           <div className="aspect-video w-full">
-            {/* Replace this URL with a working video URL */}
             <iframe
               width="100%"
               height="100%"
@@ -214,7 +213,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* AI Hub - MODIFIED SECTION */}
+            {/* AI Hub */}
             <Card className="bg-gray-900/50 border-gray-700 hover:border-[#b6a888]/50 transition-all duration-300">
               <CardHeader>
                 <Brain className="h-12 w-12 text-[#b6a888] mb-4" />
@@ -306,7 +305,6 @@ export default function HomePage() {
               </CardContent>
             </Card>
 
-            {/* Keep all other hub cards exactly the same */}
             {/* Prospecting Hub */}
             <Card className="bg-gray-900/50 border-gray-700 hover:border-[#b6a888]/50 transition-all duration-300">
               <CardHeader>
@@ -463,7 +461,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Keep all other sections exactly the same - About Us, Pricing, Testimonials, CTA, Footer */}
       {/* About Us Section */}
       <section id="about" className="py-20 px-4">
         <div className="container mx-auto">
@@ -520,7 +517,7 @@ export default function HomePage() {
               <Card className="bg-gray-900/50 border-[#b6a888]/30 text-center p-6">
                 <div className="text-3xl font-bold text-[#b6a888] mb-2">100s</div>
                 <div className="text-white font-semibold mb-1">of Agents</div>
-                <div className="text-gray-400 text-sm">In Our Brokerage</div>
+                <div className="text-gray-400 text-gray-400 text-sm">In Our Brokerage</div>
               </Card>
             </div>
           </div>

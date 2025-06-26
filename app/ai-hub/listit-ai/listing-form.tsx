@@ -9,8 +9,10 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { generateListingDescription, generateListingHTML } from "./actions"
-import { Loader2, Copy, Download, Mail, Home, FileText } from "lucide-react"
+import { Loader2, Copy, Download, Mail, Home, FileText, Save } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
+import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
 
 type FormState = {
   propertyAddress: string
@@ -53,6 +55,8 @@ export default function ListingForm() {
     agentEmail: "",
   })
   const [result, setResult] = useState<ListingResult | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
+  const { user, isLoggedIn } = useMemberSpaceUser()
 
   // Auto-scroll to results when they're generated
   useEffect(() => {
@@ -222,6 +226,49 @@ export default function ListingForm() {
       } finally {
         setIsSendingEmail(false)
       }
+    }
+  }
+
+  const saveToProfile = async () => {
+    if (!result?.description || !isLoggedIn) return
+
+    setIsSaving(true)
+    try {
+      const title = generateCreationTitle("listing", {
+        propertyAddress: formData.propertyAddress,
+        listingPrice: formData.listingPrice,
+      })
+
+      await saveUserCreation({
+        userId: user?.id || "anonymous",
+        contentType: "listing",
+        title,
+        content: result.description,
+        metadata: {
+          propertyAddress: formData.propertyAddress,
+          listingPrice: formData.listingPrice,
+          bedrooms: formData.bedrooms,
+          bathrooms: formData.bathrooms,
+          squareFootage: formData.squareFootage,
+          features: [formData.feature1, formData.feature2, formData.feature3, formData.feature4, formData.feature5],
+          agentName: formData.agentName,
+          agentEmail: formData.agentEmail,
+        },
+      })
+
+      toast({
+        title: "Saved Successfully",
+        description: "Your listing description has been saved to your profile.",
+      })
+    } catch (error) {
+      console.error("Error saving to profile:", error)
+      toast({
+        title: "Save Failed",
+        description: "Failed to save to your profile. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -541,7 +588,7 @@ export default function ListingForm() {
         </TabsContent>
       </Tabs>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <Button variant="outline" onClick={copyToClipboard} className="flex items-center justify-center gap-2">
           <Copy className="h-4 w-4" /> <span className="whitespace-nowrap">Copy</span>
         </Button>
@@ -562,6 +609,15 @@ export default function ListingForm() {
         >
           {isSendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
           <span className="whitespace-nowrap">Email</span>
+        </Button>
+        <Button
+          variant="outline"
+          onClick={saveToProfile}
+          disabled={isSaving || !result?.description}
+          className="flex items-center justify-center gap-2"
+        >
+          {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          <span className="whitespace-nowrap">{!isLoggedIn ? "Login to Save" : "Save"}</span>
         </Button>
       </div>
 

@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { memberSpaceClient } from "@/lib/memberspace-client"
 
 interface MemberSpaceUser {
   id: string
@@ -9,8 +8,18 @@ interface MemberSpaceUser {
   name?: string
   firstName?: string
   lastName?: string
-  status: "active" | "inactive" | "trial"
+  status?: string
   planName?: string
+}
+
+declare global {
+  interface Window {
+    MemberSpace?: {
+      getCurrentMember(): Promise<MemberSpaceUser | null>
+      onLogin(callback: (user: MemberSpaceUser) => void): void
+      onLogout(callback: () => void): void
+    }
+  }
 }
 
 export function useMemberSpaceUser() {
@@ -24,8 +33,28 @@ export function useMemberSpaceUser() {
         setLoading(true)
         setError(null)
 
-        const currentUser = await memberSpaceClient.getCurrentUser()
-        setUser(currentUser)
+        // Wait for MemberSpace to be available
+        const waitForMemberSpace = () => {
+          return new Promise<void>((resolve) => {
+            if (window.MemberSpace) {
+              resolve()
+            } else {
+              const checkInterval = setInterval(() => {
+                if (window.MemberSpace) {
+                  clearInterval(checkInterval)
+                  resolve()
+                }
+              }, 100)
+            }
+          })
+        }
+
+        await waitForMemberSpace()
+
+        if (window.MemberSpace?.getCurrentMember) {
+          const currentUser = await window.MemberSpace.getCurrentMember()
+          setUser(currentUser)
+        }
       } catch (err) {
         console.error("Error fetching user:", err)
         setError(err instanceof Error ? err.message : "Unknown error")
@@ -37,36 +66,28 @@ export function useMemberSpaceUser() {
 
     fetchUser()
 
-    // Listen for login/logout events
-    memberSpaceClient.onLogin((user) => {
-      setUser(user)
-      setLoading(false)
-    })
+    // Set up event listeners if MemberSpace is available
+    const setupListeners = () => {
+      if (window.MemberSpace) {
+        window.MemberSpace.onLogin?.((user) => {
+          setUser(user)
+          setLoading(false)
+        })
 
-    memberSpaceClient.onLogout(() => {
-      setUser(null)
-      setLoading(false)
-    })
-  }, [])
-
-  const refreshUser = async () => {
-    setLoading(true)
-    try {
-      const currentUser = await memberSpaceClient.getCurrentUser()
-      setUser(currentUser)
-    } catch (err) {
-      console.error("Error refreshing user:", err)
-      setError(err instanceof Error ? err.message : "Unknown error")
-    } finally {
-      setLoading(false)
+        window.MemberSpace.onLogout?.(() => {
+          setUser(null)
+          setLoading(false)
+        })
+      }
     }
-  }
+
+    setupListeners()
+  }, [])
 
   return {
     user,
     loading,
     error,
-    refreshUser,
     isLoggedIn: !!user,
   }
 }

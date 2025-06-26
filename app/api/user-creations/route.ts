@@ -6,42 +6,27 @@ const sql = neon(process.env.DATABASE_URL!)
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { userId, toolType, title, content, metadata } = body
+    const { userId, userEmail, toolType, title, content, formData, metadata } = body
 
-    if (!userId || !toolType || !content) {
+    if (!userId || !userEmail || !toolType || !content) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
     // Don't save RealDeal contract analyses
-    if (toolType === "realdeal") {
-      return NextResponse.json({
-        success: true,
-        message: "Contract analysis not saved for security reasons",
-      })
+    if (toolType === "realdeal-ai") {
+      return NextResponse.json({ message: "Contract analyses are not stored for security" }, { status: 200 })
     }
 
     const result = await sql`
-      INSERT INTO user_creations (
-        user_id, 
-        tool_type, 
-        title, 
-        content, 
-        metadata,
-        created_at
-      ) VALUES (
-        ${userId}, 
-        ${toolType}, 
-        ${title}, 
-        ${content}, 
-        ${JSON.stringify(metadata)},
-        NOW()
-      )
+      INSERT INTO user_creations (user_id, user_email, tool_type, title, content, form_data, metadata)
+      VALUES (${userId}, ${userEmail}, ${toolType}, ${title}, ${content}, ${JSON.stringify(formData)}, ${JSON.stringify(metadata)})
       RETURNING id, created_at
     `
 
     return NextResponse.json({
       success: true,
-      creation: result[0],
+      id: result[0].id,
+      createdAt: result[0].created_at,
     })
   } catch (error) {
     console.error("Error saving user creation:", error)
@@ -54,24 +39,28 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get("userId")
     const toolType = searchParams.get("toolType")
+    const limit = Number.parseInt(searchParams.get("limit") || "50")
 
     if (!userId) {
-      return NextResponse.json({ error: "User ID required" }, { status: 400 })
+      return NextResponse.json({ error: "User ID is required" }, { status: 400 })
     }
 
     let query = `
-      SELECT id, tool_type, title, content, metadata, created_at, updated_at
+      SELECT id, tool_type, title, content, form_data, metadata, created_at, expires_at
       FROM user_creations 
-      WHERE user_id = $1
+      WHERE user_id = $1 AND expires_at > NOW()
     `
     const params = [userId]
 
     if (toolType) {
       query += ` AND tool_type = $2`
       params.push(toolType)
+      query += ` ORDER BY created_at DESC LIMIT $3`
+      params.push(limit.toString())
+    } else {
+      query += ` ORDER BY created_at DESC LIMIT $2`
+      params.push(limit.toString())
     }
-
-    query += ` ORDER BY created_at DESC LIMIT 50`
 
     const result = await sql(query, params)
 

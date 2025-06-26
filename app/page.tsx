@@ -89,6 +89,9 @@ export default function HomePage() {
             />
           </div>
           <nav className="hidden md:flex items-center space-x-8">
+            <a href="#about" className="text-gray-300 hover:text-[#b6a888] transition-colors">
+              About
+            </a>
             <a href="#features" className="text-gray-300 hover:text-[#b6a888] transition-colors">
               Features
             </a>
@@ -264,6 +267,78 @@ export default function HomePage() {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* About Us */}
+      <section id="about" className="py-20 px-4">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-4xl font-bold text-white mb-6">About The Next Level U</h2>
+              <p className="text-lg text-gray-300 mb-6">
+                Founded by real estate professionals, for real estate professionals. We understand the challenges you
+                face because we've been there. Our platform combines cutting-edge AI technology with proven real estate
+                strategies to help you succeed in today's competitive market.
+              </p>
+              <p className="text-lg text-gray-300 mb-6">
+                Whether you're a new agent looking to get started or a seasoned professional wanting to scale your
+                business, The Next Level U provides the tools, training, and community support you need to reach your
+                goals.
+              </p>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-[#b6a888] mb-2">10,000+</div>
+                  <div className="text-gray-400">Active Members</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-[#b6a888] mb-2">12</div>
+                  <div className="text-gray-400">AI Tools</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-[#b6a888] mb-2">50+</div>
+                  <div className="text-gray-400">Training Modules</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-[#b6a888] mb-2">24/7</div>
+                  <div className="text-gray-400">Platform Access</div>
+                </div>
+              </div>
+            </div>
+            <div className="relative">
+              <div className="bg-gradient-to-br from-[#b6a888]/20 to-transparent rounded-2xl p-8">
+                <div className="space-y-6">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-[#b6a888] rounded-full flex items-center justify-center">
+                      <Target className="h-6 w-6 text-black" />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-semibold">Mission-Driven</h3>
+                      <p className="text-gray-400 text-sm">Empowering agents to achieve their full potential</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-[#b6a888] rounded-full flex items-center justify-center">
+                      <Brain className="h-6 w-6 text-black" />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-semibold">Innovation First</h3>
+                      <p className="text-gray-400 text-sm">Leveraging AI to transform real estate</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-[#b6a888] rounded-full flex items-center justify-center">
+                      <Users className="h-6 w-6 text-black" />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-semibold">Community Focused</h3>
+                      <p className="text-gray-400 text-sm">Building connections that drive success</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

@@ -8,6 +8,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
+import { saveUserCreation } from "@/lib/auto-save-creation"
+import { generateCreationTitle } from "@/lib/user-creations"
+import { Save, Loader2 } from "lucide-react"
 
 interface RealBioFormProps {
   onGenerate: (bio: string) => void
@@ -17,20 +21,49 @@ const RealBioForm: React.FC<RealBioFormProps> = ({ onGenerate }) => {
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
   const { toast } = useToast()
   const [generatedBio, setGeneratedBio] = useState<string | null>(null)
+  const { user, isLoading: userLoading } = useMemberSpaceUser()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
-    // Simulate an API call
-    setTimeout(() => {
-      const simulatedBio = `Here is a bio for ${name}: ${description}. This is a simulated bio.`
-      setGeneratedBio(simulatedBio)
-      onGenerate(simulatedBio)
+    try {
+      const response = await fetch("/api/realbio", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          description,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to generate bio")
+      }
+
+      const data = await response.json()
+      setGeneratedBio(data.bio)
+      onGenerate(data.bio)
+
+      toast({
+        title: "Bio Generated!",
+        description: "Your professional bio has been created successfully.",
+      })
+    } catch (error) {
+      console.error("Error generating bio:", error)
+      toast({
+        title: "Error",
+        description: "Failed to generate bio. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
       setIsLoading(false)
-    }, 1500)
+    }
   }
 
   const copyToClipboard = async () => {
@@ -40,6 +73,41 @@ const RealBioForm: React.FC<RealBioFormProps> = ({ onGenerate }) => {
         title: "Copied to clipboard!",
         description: "The generated bio has been copied to your clipboard.",
       })
+    }
+  }
+
+  const saveToProfile = async () => {
+    if (!generatedBio || !user) return
+
+    setIsSaving(true)
+    try {
+      const title = generateCreationTitle("realbio", { name })
+
+      await saveUserCreation({
+        userId: user.id,
+        contentType: "realbio",
+        title,
+        content: generatedBio,
+        metadata: {
+          name,
+          description,
+          generatedAt: new Date().toISOString(),
+        },
+      })
+
+      toast({
+        title: "Saved to Profile!",
+        description: "Your bio has been saved to your content dashboard.",
+      })
+    } catch (error) {
+      console.error("Error saving bio:", error)
+      toast({
+        title: "Save Failed",
+        description: "Failed to save bio to your profile. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -75,7 +143,22 @@ const RealBioForm: React.FC<RealBioFormProps> = ({ onGenerate }) => {
             <Label htmlFor="generated-bio">Generated Bio</Label>
             <Textarea id="generated-bio" value={generatedBio} readOnly />
           </div>
-          <Button onClick={copyToClipboard}>Copy to Clipboard</Button>
+          <div className="flex gap-2">
+            <Button onClick={copyToClipboard}>Copy to Clipboard</Button>
+            <Button onClick={saveToProfile} disabled={!user || isSaving} variant="outline">
+              {isSaving ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  {user ? "Save to Profile" : "Login to Save"}
+                </>
+              )}
+            </Button>
+          </div>
         </CardContent>
       )}
     </Card>

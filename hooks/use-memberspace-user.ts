@@ -1,17 +1,16 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { memberSpaceClient } from "@/lib/memberspace-client"
 
 interface MemberSpaceUser {
   id: string
   email: string
   name?: string
+  firstName?: string
+  lastName?: string
   status: "active" | "inactive" | "trial"
-  subscription?: {
-    plan: string
-    status: string
-    expires_at?: string
-  }
+  planName?: string
 }
 
 export function useMemberSpaceUser() {
@@ -25,19 +24,8 @@ export function useMemberSpaceUser() {
         setLoading(true)
         setError(null)
 
-        const response = await fetch("/api/memberspace/current-user")
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            // User not logged in
-            setUser(null)
-            return
-          }
-          throw new Error("Failed to fetch user")
-        }
-
-        const data = await response.json()
-        setUser(data.user)
+        const currentUser = await memberSpaceClient.getCurrentUser()
+        setUser(currentUser)
       } catch (err) {
         console.error("Error fetching user:", err)
         setError(err instanceof Error ? err.message : "Unknown error")
@@ -48,18 +36,27 @@ export function useMemberSpaceUser() {
     }
 
     fetchUser()
+
+    // Listen for login/logout events
+    memberSpaceClient.onLogin((user) => {
+      setUser(user)
+      setLoading(false)
+    })
+
+    memberSpaceClient.onLogout(() => {
+      setUser(null)
+      setLoading(false)
+    })
   }, [])
 
   const refreshUser = async () => {
     setLoading(true)
     try {
-      const response = await fetch("/api/memberspace/current-user")
-      if (response.ok) {
-        const data = await response.json()
-        setUser(data.user)
-      }
+      const currentUser = await memberSpaceClient.getCurrentUser()
+      setUser(currentUser)
     } catch (err) {
       console.error("Error refreshing user:", err)
+      setError(err instanceof Error ? err.message : "Unknown error")
     } finally {
       setLoading(false)
     }

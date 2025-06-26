@@ -1,578 +1,332 @@
 "use client"
 
 import { useState } from "react"
+import { useToast } from "@/components/ui/use-toast"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-
-import { Button } from "@/components/ui/button"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Copy, Download, Loader2, Mail } from "lucide-react"
-import { useToast } from "@/components/ui/use-toast"
-import { useProStore } from "@/stores/pro"
-import { useCompletion } from "ai/react"
+import { generateBusinessPlan } from "@/lib/actions"
+import { useUser } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
-import { useDebounce } from "@/hooks/use-debounce"
-import { Skeleton } from "@/components/ui/skeleton"
-import { useSubscription } from "@/hooks/use-subscription"
-import { useConfettiStore } from "@/stores/confetti"
-import { useAICredits } from "@/hooks/use-ai-credits"
-import { useOrigin } from "@/hooks/use-origin"
-import { useSearchParams } from "next/navigation"
-import { usePathname } from "next/navigation"
-import { saveAs } from "file-saver"
-
-import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
-import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
-import { Save } from "lucide-react"
 
 const formSchema = z.object({
-  agentName: z.string().min(2, {
-    message: "Agent Name must be at least 2 characters.",
+  companyName: z.string().min(2, {
+    message: "Company name must be at least 2 characters.",
   }),
-  incomeGoal: z.string().min(1, {
-    message: "Income Goal must be at least 1 character.",
+  industry: z.string().min(2, {
+    message: "Industry must be at least 2 characters.",
   }),
-  yearsOfExperience: z.string().min(1, {
-    message: "Years of Experience must be at least 1 character.",
+  targetAudience: z.string().min(10, {
+    message: "Target audience must be at least 10 characters.",
   }),
-  location: z.string().min(2, {
-    message: "Location must be at least 2 characters.",
+  problem: z.string().min(10, {
+    message: "Problem must be at least 10 characters.",
   }),
-  niche: z.string().min(2, {
-    message: "Niche must be at least 2 characters.",
-  }),
-  uniqueSellingProposition: z.string().min(2, {
-    message: "Unique Selling Proposition must be at least 2 characters.",
-  }),
-  targetMarket: z.string().min(2, {
-    message: "Target Market must be at least 2 characters.",
-  }),
-  servicesOffered: z.string().min(2, {
-    message: "Services Offered must be at least 2 characters.",
-  }),
-  marketingChannels: z.string().min(2, {
-    message: "Marketing Channels must be at least 2 characters.",
-  }),
-  financialProjections: z.string().min(2, {
-    message: "Financial Projections must be at least 2 characters.",
-  }),
-  competitiveAnalysis: z.string().min(2, {
-    message: "Competitive Analysis must be at least 2 characters.",
-  }),
-  managementTeam: z.string().min(2, {
-    message: "Management Team must be at least 2 characters.",
-  }),
-  fundingRequest: z.string().min(2, {
-    message: "Funding Request must be at least 2 characters.",
-  }),
-  exitStrategy: z.string().min(2, {
-    message: "Exit Strategy must be at least 2 characters.",
+  solution: z.string().min(10, {
+    message: "Solution must be at least 10 characters.",
   }),
 })
 
-interface BusinessPlanFormProps {
-  apiEndpoint: string
-  title: string
-  description: string
-  example: string
-}
-
-export function BizPlanForm({ apiEndpoint, title, description, example }: BusinessPlanFormProps) {
-  const router = useRouter()
-  const origin = useOrigin()
-  const searchParams = useSearchParams()
-  const pathname = usePathname()
-  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
-  const [isSendingEmail, setIsSendingEmail] = useState(false)
-  const [email, setEmail] = useState("")
-  const [isSaving, setIsSaving] = useState(false)
-  const { user, isLoggedIn } = useMemberSpaceUser()
-
-  const confetti = useConfettiStore()
-  const { aiCredits, incrementAICredits, decrementAICredits } = useAICredits()
+const BizPlanForm = () => {
+  const [isLoading, setIsLoading] = useState(false)
+  const [isPdfLoading, setIsPdfLoading] = useState(false)
+  const [isEmailLoading, setIsEmailLoading] = useState(false)
+  const [plan, setPlan] = useState<string>("")
   const { toast } = useToast()
-  const proStore = useProStore()
-  const { isPro } = useSubscription()
+  const { user } = useUser()
+  const router = useRouter()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      agentName: "",
-      incomeGoal: "",
-      yearsOfExperience: "",
-      location: "",
-      niche: "",
-      uniqueSellingProposition: "",
-      targetMarket: "",
-      servicesOffered: "",
-      marketingChannels: "",
-      financialProjections: "",
-      competitiveAnalysis: "",
-      managementTeam: "",
-      fundingRequest: "",
-      exitStrategy: "",
+      companyName: "",
+      industry: "",
+      targetAudience: "",
+      problem: "",
+      solution: "",
     },
   })
 
-  const prompt = `You are an expert business plan writer. You are creating a business plan for a real estate agent. The agent's name is ${form.getValues("agentName")}. Their income goal is ${form.getValues("incomeGoal")}. They have ${form.getValues("yearsOfExperience")} years of experience. They are located in ${form.getValues("location")}. Their niche is ${form.getValues("niche")}. Their unique selling proposition is ${form.getValues("uniqueSellingProposition")}. Their target market is ${form.getValues("targetMarket")}. Their services offered are ${form.getValues("servicesOffered")}. Their marketing channels are ${form.getValues("marketingChannels")}. Their financial projections are ${form.getValues("financialProjections")}. Their competitive analysis is ${form.getValues("competitiveAnalysis")}. Their management team is ${form.getValues("managementTeam")}. Their funding request is ${form.getValues("fundingRequest")}. Their exit strategy is ${form.getValues("exitStrategy")}.`
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true)
 
-  const { result, isLoading, setInput, handleSubmit, handleInputChange, setCompletion } = useCompletion({
-    api: apiEndpoint,
-    body: {
-      prompt,
-    },
-    onFinish: (output) => {
-      if (!output) {
-        return
-      }
-
-      if (!isPro) {
-        confetti.onOpen()
-        incrementAICredits()
-      }
-    },
-    onError: (error: any) => {
-      // Consider logging the error to a service like Sentry
-      console.error("Completion error:", error)
-      toast({
-        title: "Something went wrong!",
-        description: "Please try again. If the error persists, contact support.",
-        variant: "destructive",
+    try {
+      const response = await generateBusinessPlan({
+        ...values,
+        userId: user?.id || "",
       })
-    },
-  })
 
-  const debouncedPrompt = useDebounce(prompt, 500)
-
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(result?.businessPlan || "")
-    toast({
-      title: "Copied to clipboard!",
-    })
+      setPlan(response?.plan || "")
+      toast({
+        title: "Business plan generated!",
+        description: "Your business plan has been generated successfully.",
+      })
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: error?.message || "Failed to generate business plan. Please try again.",
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const downloadPDF = async () => {
-    setIsGeneratingPDF(true)
+    setIsPdfLoading(true)
+
     try {
-      const res = await fetch("/api/generate-pdf", {
+      const response = await fetch("/api/pdf", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          title: "Business Plan",
-          content: result?.businessPlan,
-        }),
+        body: JSON.stringify({ text: plan }),
       })
 
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`)
+      if (response.ok) {
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.href = url
+        a.download = "business-plan.pdf"
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        window.URL.revokeObjectURL(url)
+
+        toast({
+          title: "PDF downloaded!",
+          description: "Your business plan has been downloaded successfully.",
+        })
+      } else {
+        throw new Error("Failed to generate PDF")
       }
-
-      const blob = await res.blob()
-      saveAs(blob, "business-plan.pdf")
+    } catch (error: any) {
       toast({
-        title: "Downloaded PDF!",
-      })
-    } catch (error) {
-      console.error("Error generating or downloading PDF:", error)
-      toast({
-        title: "Error",
-        description: "Failed to generate PDF. Please try again.",
         variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: error?.message || "Failed to download PDF. Please try again.",
       })
     } finally {
-      setIsGeneratingPDF(false)
+      setIsPdfLoading(false)
     }
   }
 
   const sendEmail = async () => {
-    if (!result?.businessPlan) {
-      toast({
-        title: "Error",
-        description: "No business plan generated yet.",
-        variant: "destructive",
-      })
-      return
-    }
+    setIsEmailLoading(true)
 
-    if (!email) {
-      toast({
-        title: "Error",
-        description: "Please enter an email address.",
-        variant: "destructive",
-      })
-      return
-    }
-
-    setIsSendingEmail(true)
     try {
-      const res = await fetch("/api/send-email", {
+      if (!user?.emailAddresses[0]?.emailAddress) {
+        throw new Error("No email address found. Please update your profile.")
+      }
+
+      const response = await fetch("/api/email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          to: email,
+          to: user?.emailAddresses[0]?.emailAddress,
           subject: "Your Business Plan",
-          text: result?.businessPlan,
+          text: plan,
         }),
       })
 
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`)
+      if (response.ok) {
+        toast({
+          title: "Email sent!",
+          description: "Your business plan has been sent to your email address.",
+        })
+      } else {
+        throw new Error("Failed to send email")
       }
-
+    } catch (error: any) {
       toast({
-        title: "Email sent!",
-      })
-    } catch (error) {
-      console.error("Error sending email:", error)
-      toast({
-        title: "Error",
-        description: "Failed to send email. Please try again.",
         variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: error?.message || "Failed to send email. Please try again.",
       })
     } finally {
-      setIsSendingEmail(false)
+      setIsEmailLoading(false)
     }
   }
 
-  const saveToProfile = async () => {
-    if (!result?.businessPlan || !isLoggedIn) return
-
-    setIsSaving(true)
+  const copyToClipboard = async () => {
     try {
-      const formData = form.getValues()
-      const title = generateCreationTitle("business-plan", {
-        agentName: formData.agentName,
-        incomeGoal: formData.incomeGoal,
-      })
-
-      await saveUserCreation({
-        userId: user?.id || "anonymous",
-        contentType: "business-plan",
-        title,
-        content: result?.businessPlan,
-        metadata: {
-          formData,
-          generatedAt: new Date().toISOString(),
-          toolUsed: "BizPlan AI",
-        },
-      })
-
+      await navigator.clipboard.writeText(plan)
       toast({
-        title: "Business plan saved to your profile!",
+        title: "Copied to clipboard!",
+        description: "Your business plan has been copied to clipboard.",
       })
-    } catch (error) {
-      console.error("Error saving business plan:", error)
+    } catch (error: any) {
       toast({
-        title: "Error",
-        description: "Failed to save business plan. Please try again.",
         variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: error?.message || "Failed to copy to clipboard. Please try again.",
       })
-    } finally {
-      setIsSaving(false)
     }
   }
-
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    if (!isPro && aiCredits <= 0) {
-      return proStore.onOpen()
-    }
-
-    if (!isPro) {
-      decrementAICredits()
-    }
-
-    handleSubmit({
-      prompt,
-    })
-  }
-
-  const formData = form.getValues()
 
   return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <h2 className="text-lg font-medium">{title}</h2>
-        <p className="text-sm text-muted-foreground">{description}</p>
-      </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Details</CardTitle>
-          <CardDescription>Enter the details for the business plan.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="agentName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Agent Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="John Doe" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="incomeGoal"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Income Goal</FormLabel>
-                    <FormControl>
-                      <Input placeholder="$100,000" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="yearsOfExperience"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Years of Experience</FormLabel>
-                    <FormControl>
-                      <Input placeholder="5" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="location"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Location</FormLabel>
-                    <FormControl>
-                      <Input placeholder="New York, NY" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="niche"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Niche</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Luxury Homes" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="uniqueSellingProposition"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Unique Selling Proposition</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Expert negotiator" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="targetMarket"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Target Market</FormLabel>
-                    <FormControl>
-                      <Input placeholder="First-time homebuyers" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="servicesOffered"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Services Offered</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Buyer and seller representation" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="marketingChannels"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Marketing Channels</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Social media, email marketing" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="financialProjections"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Financial Projections</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Projected revenue growth of 20% annually" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="competitiveAnalysis"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Competitive Analysis</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Analysis of local real estate market" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="managementTeam"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Management Team</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Experienced real estate professionals" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="fundingRequest"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Funding Request</FormLabel>
-                    <FormControl>
-                      <Input placeholder="$50,000 for marketing and expansion" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="exitStrategy"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Exit Strategy</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Acquisition by a larger real estate firm" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    Generating <Loader2 className="h-4 w-4 ml-2 animate-spin" />
-                  </>
-                ) : (
-                  "Generate"
-                )}
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-      {result?.businessPlan && (
-        <Card className="space-y-4">
-          <CardHeader>
-            <CardTitle>Result</CardTitle>
-            <CardDescription>Here is the generated business plan.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Textarea value={result?.businessPlan} readOnly className="resize-none" />
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-              <Button variant="outline" onClick={copyToClipboard} className="flex items-center justify-center gap-2">
-                <Copy className="h-4 w-4" /> Copy
-              </Button>
-              <Button
-                variant="outline"
-                onClick={downloadPDF}
-                disabled={isGeneratingPDF}
-                className="flex items-center justify-center gap-2"
-              >
-                {isGeneratingPDF ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-                Download
-              </Button>
-              <Button
-                variant="outline"
-                onClick={sendEmail}
-                disabled={isSendingEmail}
-                className="flex items-center justify-center gap-2"
-              >
-                {isSendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-                Email
-              </Button>
-              <Button
-                variant="outline"
-                onClick={saveToProfile}
-                disabled={isSaving || !isLoggedIn}
-                className="flex items-center justify-center gap-2"
-              >
-                {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                {!isLoggedIn ? "Login to Save" : "Save"}
-              </Button>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Input type="email" placeholder="Enter email" value={email} onChange={(e) => setEmail(e.target.value)} />
-              <Button
-                variant="outline"
-                onClick={sendEmail}
-                disabled={isSendingEmail}
-                className="flex items-center justify-center gap-2"
-              >
-                {isSendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-                Email
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-      {!result && debouncedPrompt && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Thinking...</CardTitle>
-            <CardDescription>We are generating the business plan.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Skeleton className="h-[200px] w-full" />
-            <Skeleton className="h-4 w-[200px]" />
-            <Skeleton className="h-4 w-[200px]" />
-          </CardContent>
-        </Card>
+    <div className="w-full">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <FormField
+            control={form.control}
+            name="companyName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Company name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Acme Corp" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="industry"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Industry</FormLabel>
+                <FormControl>
+                  <Input placeholder="E-commerce" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="targetAudience"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Target audience</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Tech-savvy millennials and Gen Z interested in sustainable products"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="problem"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Problem</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="Lack of access to affordable and sustainable products" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="solution"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Solution</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="An online marketplace offering curated sustainable products at competitive prices"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                Generating...
+                <svg className="animate-spin h-5 w-5 ml-2" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  ></path>
+                </svg>
+              </>
+            ) : (
+              "Generate"
+            )}
+          </Button>
+        </form>
+      </Form>
+
+      {plan && (
+        <div className="mt-10">
+          <h2 className="text-2xl font-bold mb-4">Business Plan</h2>
+          <div className="whitespace-pre-line border rounded-md p-4">{plan}</div>
+
+          <div className="flex justify-end mt-4 space-x-4">
+            <Button onClick={copyToClipboard}>Copy to Clipboard</Button>
+            <Button onClick={downloadPDF} disabled={isPdfLoading}>
+              {isPdfLoading ? (
+                <>
+                  Downloading...
+                  <svg className="animate-spin h-5 w-5 ml-2" viewBox="0 0 24 24">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    ></path>
+                  </svg>
+                </>
+              ) : (
+                "Download as PDF"
+              )}
+            </Button>
+            <Button onClick={sendEmail} disabled={isEmailLoading}>
+              {isEmailLoading ? (
+                <>
+                  Sending...
+                  <svg className="animate-spin h-5 w-5 ml-2" viewBox="0 0 24 24">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    ></path>
+                  </svg>
+                </>
+              ) : (
+                "Send to Email"
+              )}
+            </Button>
+          </div>
+        </div>
       )}
     </div>
   )
 }
+
+export default BizPlanForm

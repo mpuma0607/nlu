@@ -278,4 +278,62 @@ export default function Navigation() {
                         className="flex items-center justify-between py-2"
                         onClick={() => item.submenu && item.submenu.length > 0 && toggleSubmenu(item.title)}
                       >
-                        \
+                        <Link href={item.href} className="text-gray-700 hover:text-green-600 font-medium">
+                          {item.title}
+                        </Link>
+                        {item.submenu && item.submenu.length > 0 && (
+                          <ChevronDown
+                            className={`h-4 w-4 text-gray-500 transition-colors ${
+                              activeSubmenu === item.title ? "transform rotate-180" : ""
+                            }`}
+                          />
+                        )}
+                      </div>
+
+                      {/* Mobile Submenu */}
+                      {item.submenu && item.submenu.length > 0 && activeSubmenu === item.title && (
+                        <div className="pl-4 space-y-2">
+                          {item.submenu.map((subItem) =>
+                            subItem.isHeader ? (
+                              <div
+                                key={subItem.title}
+                                className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                              >
+                                {subItem.title.replace(/──/g, "").trim()}
+                              </div>
+                            ) : (
+                              <Link
+                                key={subItem.href}
+                                href={subItem.href}
+                                className="block px-4 py-3 text-sm hover:bg-gray-50 hover:text-green-600"
+                              >
+                                {subItem.title}
+                              </Link>
+                            ),
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ),
+              )}
+              {/* Support Link */}
+              <Link href="/support" className="block py-2 text-gray-700 hover:text-green-600 font-medium">
+                Get Support
+              </Link>
+              {/* Profile Link - only show if not hidden for this tenant */}
+              {!isFeatureHidden("profile", tenantConfig) && (
+                <Link
+                  href="/profile"
+                  className="flex items-center gap-2 py-2 text-gray-700 hover:text-green-600 font-medium"
+                >
+                  <User className="h-4 w-4" />
+                  Profile
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </nav>
+  )
+}

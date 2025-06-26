@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Menu, X, ChevronDown, User } from "lucide-react"
+import { Menu, X, ChevronDown, ChevronRight, User } from "lucide-react"
 import { useTenantConfig, useTranslation } from "@/contexts/tenant-context"
 import { isFeatureHidden } from "@/lib/tenant-config"
 
@@ -278,26 +278,40 @@ export default function Navigation() {
                         className="flex items-center justify-between py-2"
                         onClick={() => item.submenu && item.submenu.length > 0 && toggleSubmenu(item.title)}
                       >
-                        <Link href={item.href} className="text-gray-700 hover:text-green-600 font-medium">
+                        <Link
+                          href={item.href}
+                          className="block text-gray-700 hover:text-green-600 font-medium"
+                          onClick={(e) => {
+                            if (item.submenu && item.submenu.length > 0) {
+                              e.preventDefault()
+                            } else {
+                              setMobileMenuOpen(false)
+                            }
+                          }}
+                        >
                           {item.title}
                         </Link>
                         {item.submenu && item.submenu.length > 0 && (
-                          <ChevronDown
-                            className={`h-4 w-4 text-gray-500 transition-colors ${
-                              activeSubmenu === item.title ? "transform rotate-180" : ""
-                            }`}
-                          />
+                          <Button variant="ghost" size="sm" className="p-1">
+                            {activeSubmenu === item.title ? (
+                              <ChevronDown className="h-4 w-4" />
+                            ) : (
+                              <ChevronRight className="h-4 w-4" />
+                            )}
+                          </Button>
                         )}
                       </div>
 
                       {/* Mobile Submenu */}
-                      {item.submenu && item.submenu.length > 0 && activeSubmenu === item.title && (
-                        <div className="pl-4 space-y-2">
+                      {activeSubmenu === item.title && item.submenu && item.submenu.length > 0 && (
+                        <div
+                          className={`pl-4 space-y-1 mt-1 ${item.submenu.length > 8 ? "max-h-80 overflow-y-auto" : ""}`}
+                        >
                           {item.submenu.map((subItem) =>
                             subItem.isHeader ? (
                               <div
                                 key={subItem.title}
-                                className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                                className="py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider"
                               >
                                 {subItem.title.replace(/──/g, "").trim()}
                               </div>
@@ -305,9 +319,13 @@ export default function Navigation() {
                               <Link
                                 key={subItem.href}
                                 href={subItem.href}
-                                className="block px-4 py-3 text-sm hover:bg-gray-50 hover:text-green-600"
+                                className="block py-2 text-sm hover:text-green-600"
+                                onClick={() => setMobileMenuOpen(false)}
                               >
-                                {subItem.title}
+                                <div className="font-medium text-gray-700">{subItem.title}</div>
+                                {subItem.description && (
+                                  <div className="text-xs text-gray-500 mt-1">{subItem.description}</div>
+                                )}
                               </Link>
                             ),
                           )}
@@ -316,15 +334,20 @@ export default function Navigation() {
                     </div>
                   ),
               )}
-              {/* Support Link */}
-              <Link href="/support" className="block py-2 text-gray-700 hover:text-green-600 font-medium">
+              {/* Mobile Get Support Link - positioned before Profile */}
+              <Link
+                href="/support"
+                className="flex items-center gap-2 py-2 text-gray-700 hover:text-green-600 font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
                 Get Support
               </Link>
-              {/* Profile Link - only show if not hidden for this tenant */}
+              {/* Mobile Profile Link - only show if not hidden for this tenant */}
               {!isFeatureHidden("profile", tenantConfig) && (
                 <Link
                   href="/profile"
                   className="flex items-center gap-2 py-2 text-gray-700 hover:text-green-600 font-medium"
+                  onClick={() => setMobileMenuOpen(false)}
                 >
                   <User className="h-4 w-4" />
                   Profile

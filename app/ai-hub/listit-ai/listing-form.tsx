@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "@/components/ui/use-toast"
-import { Copy, Download, Loader2, Mail, Save } from "lucide-react"
+import { Loader2, Copy, Download, Mail, Save } from "lucide-react"
 import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 

@@ -351,17 +351,15 @@ export default function GoalScreenForm() {
                   Email Wallpaper
                 </Button>
 
-                {isLoggedIn && (
-                  <Button
-                    variant="outline"
-                    onClick={handleSaveToProfile}
-                    disabled={isSaving || !calculations}
-                    size="lg"
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    {isSaving ? "Saving..." : "Save to Profile"}
-                  </Button>
-                )}
+                <Button
+                  variant="outline"
+                  onClick={handleSaveToProfile}
+                  disabled={isSaving || !calculations || !isLoggedIn}
+                  size="lg"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  {isSaving ? "Saving..." : "Save to Profile"}
+                </Button>
               </div>
             </div>
 

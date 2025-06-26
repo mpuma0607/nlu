@@ -670,11 +670,11 @@ export default function IdeaHubForm() {
         <Button
           variant="outline"
           onClick={saveToProfile}
-          disabled={isSaving || !isLoggedIn}
+          disabled={isSaving || !isLoggedIn || !result?.text}
           className="flex items-center justify-center gap-2"
         >
           {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          <span className="whitespace-nowrap">Save</span>
+          <span className="whitespace-nowrap">{!isLoggedIn ? "Login to Save" : "Save"}</span>
         </Button>
       </div>
 

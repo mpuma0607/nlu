@@ -13,6 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { generateContent } from "./actions"
 import { Loader2, Copy, Download, Mail } from "lucide-react"
 import Image from "next/image"
+import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
+import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
 
 const topicOptions = [
   "The benefits of working with a real estate agent",
@@ -339,6 +341,8 @@ export default function IdeaHubForm() {
   const [step, setStep] = useState(1)
   const [isGenerating, setIsGenerating] = useState(false)
   const [isSendingEmail, setIsSendingEmail] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const { user, isLoggedIn } = useMemberSpaceUser()
   const resultsRef = useRef<HTMLDivElement>(null)
   const [formData, setFormData] = useState<FormState>({
     primaryTopic: "",
@@ -444,6 +448,44 @@ export default function IdeaHubForm() {
       } finally {
         setIsSendingEmail(false)
       }
+    }
+  }
+
+  const saveToProfile = async () => {
+    if (!result?.text || !isLoggedIn || !user) {
+      alert("Please log in to save your content")
+      return
+    }
+
+    setIsSaving(true)
+    try {
+      const title = generateCreationTitle("ideahub-ai", formData)
+      const success = await saveUserCreation({
+        userId: user.id.toString(),
+        userEmail: user.email,
+        toolType: "ideahub-ai",
+        title,
+        content: result.text,
+        formData,
+        metadata: {
+          contentType: formData.contentType,
+          language: formData.language,
+          primaryTopic: formData.primaryTopic,
+          alternateTopic: formData.alternateTopic,
+          hasImage: !!result.imageUrl,
+        },
+      })
+
+      if (success) {
+        alert("Content saved to your profile successfully!")
+      } else {
+        throw new Error("Failed to save content")
+      }
+    } catch (error) {
+      console.error("Error saving content:", error)
+      alert("Failed to save content. Please try again.")
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -609,7 +651,7 @@ export default function IdeaHubForm() {
         </TabsContent>
       </Tabs>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <Button variant="outline" onClick={copyToClipboard} className="flex items-center justify-center gap-2">
           <Copy className="h-4 w-4" /> <span className="whitespace-nowrap">Copy</span>
         </Button>
@@ -624,6 +666,32 @@ export default function IdeaHubForm() {
         >
           {isSendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
           <span className="whitespace-nowrap">Email</span>
+        </Button>
+        <Button
+          variant="outline"
+          onClick={saveToProfile}
+          disabled={isSaving || !isLoggedIn}
+          className="flex items-center justify-center gap-2"
+        >
+          {isSaving ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-4 w-4"
+            >
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+              <polyline points="17,21 17,13 7,13 7,21" />
+              <polyline points="7,3 7,8 15,8" />
+            </svg>
+          )}
+          <span className="whitespace-nowrap">Save</span>
         </Button>
       </div>
 

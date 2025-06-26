@@ -27,7 +27,7 @@ const formSchema = z.object({
   description: z.string().optional(),
 })
 
-export function QuickCMAForm() {
+export default function QuickCMAForm() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 

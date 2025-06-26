@@ -11,8 +11,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { generateContent } from "./actions"
-import { Loader2, Copy, Download, Mail } from "lucide-react"
+import { Loader2, Copy, Download, Mail, Save } from "lucide-react"
 import Image from "next/image"
+import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
+import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 
 const topicOptions = [
   "The benefits of working with a real estate agent",
@@ -349,6 +351,8 @@ export default function IdeaHubForm() {
     contentType: "Social post",
   })
   const [result, setResult] = useState<ContentResult | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
+  const { user } = useMemberSpaceUser()
 
   // Auto-scroll to results when they're generated
   useEffect(() => {
@@ -443,6 +447,39 @@ export default function IdeaHubForm() {
         alert(`Failed to send email: ${error instanceof Error ? error.message : "Unknown error"}`)
       } finally {
         setIsSendingEmail(false)
+      }
+    }
+  }
+
+  const saveToDashboard = async () => {
+    if (result?.text && result?.imageUrl && user?.email) {
+      setIsSaving(true)
+      try {
+        const success = await saveUserCreation({
+          userId: user.id || user.email,
+          userEmail: user.email,
+          toolType: "ideahub-ai",
+          title: generateCreationTitle("ideahub-ai", formData),
+          content: result.text,
+          formData: formData,
+          metadata: {
+            imageUrl: result.imageUrl,
+            contentType: formData.contentType,
+            language: formData.language,
+            primaryTopic: formData.primaryTopic,
+          },
+        })
+
+        if (success) {
+          alert("Saved to Dashboard! Check your profile to view saved content.")
+        } else {
+          throw new Error("Failed to save")
+        }
+      } catch (error) {
+        console.error("Error saving to dashboard:", error)
+        alert("Failed to save to dashboard. Please try again.")
+      } finally {
+        setIsSaving(false)
       }
     }
   }
@@ -609,7 +646,7 @@ export default function IdeaHubForm() {
         </TabsContent>
       </Tabs>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <Button variant="outline" onClick={copyToClipboard} className="flex items-center justify-center gap-2">
           <Copy className="h-4 w-4" /> <span className="whitespace-nowrap">Copy</span>
         </Button>
@@ -624,6 +661,15 @@ export default function IdeaHubForm() {
         >
           {isSendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
           <span className="whitespace-nowrap">Email</span>
+        </Button>
+        <Button
+          variant="outline"
+          onClick={saveToDashboard}
+          disabled={isSaving || !user?.email}
+          className="flex items-center justify-center gap-2"
+        >
+          {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          <span className="whitespace-nowrap">Save</span>
         </Button>
       </div>
 

@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Target, Download, Mail, Calculator, TrendingUp, Phone, Brain, Eye, Zap } from "lucide-react"
+import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
+import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
 
 interface CalculationResults {
   monthlyIncome: number
@@ -25,6 +27,8 @@ export default function GoalScreenForm() {
   const [emailAddress, setEmailAddress] = useState("")
   const [showEmailInput, setShowEmailInput] = useState(false)
   const resultsRef = useRef<HTMLDivElement>(null)
+  const [isSaving, setIsSaving] = useState(false)
+  const { user, isLoggedIn } = useMemberSpaceUser()
 
   // Real estate calculation constants
   const AVG_COMMISSION = 9500
@@ -183,6 +187,42 @@ export default function GoalScreenForm() {
     }
   }
 
+  const handleSaveToProfile = async () => {
+    if (!calculations || !isLoggedIn || !user) return
+
+    setIsSaving(true)
+    try {
+      const success = await saveUserCreation({
+        userId: user.id.toString(),
+        userEmail: user.email,
+        toolType: "goalscreen-ai",
+        title: generateCreationTitle("goalscreen-ai", { monthlyIncome: calculations.monthlyIncome }),
+        content: `Daily Contacts Needed: ${calculations.dailyContacts}\nMonthly Income Goal: $${calculations.monthlyIncome.toLocaleString()}\nDeals Needed: ${calculations.dealsNeeded}\nAppointments Needed: ${calculations.appointmentsNeeded}\nConversations Needed: ${calculations.conversationsNeeded}`,
+        formData: {
+          monthlyIncome: calculations.monthlyIncome,
+          dailyContacts: calculations.dailyContacts,
+          dealsNeeded: calculations.dealsNeeded,
+          appointmentsNeeded: calculations.appointmentsNeeded,
+          conversationsNeeded: calculations.conversationsNeeded,
+        },
+        metadata: {
+          wallpaperGenerated: wallpaperGenerated,
+        },
+      })
+
+      if (success) {
+        alert("Goal screen saved to your profile successfully!")
+      } else {
+        alert("Failed to save to profile. Please try again.")
+      }
+    } catch (error) {
+      console.error("Error saving to profile:", error)
+      alert("Failed to save to profile. Please try again.")
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
   return (
     <div className="space-y-8">
       {/* Input Form */}
@@ -300,15 +340,29 @@ export default function GoalScreenForm() {
                 reminded of your daily contact goal.
               </p>
 
-              <Button onClick={handleGenerateWallpaper} disabled={isGenerating} size="lg" className="mr-4">
-                <Download className="h-4 w-4 mr-2" />
-                {isGenerating ? "Creating..." : "Download Wallpaper"}
-              </Button>
+              <div className="flex flex-wrap justify-center gap-4">
+                <Button onClick={handleGenerateWallpaper} disabled={isGenerating} size="lg">
+                  <Download className="h-4 w-4 mr-2" />
+                  {isGenerating ? "Creating..." : "Download Wallpaper"}
+                </Button>
 
-              <Button variant="outline" onClick={() => setShowEmailInput(!showEmailInput)} size="lg">
-                <Mail className="h-4 w-4 mr-2" />
-                Email Wallpaper
-              </Button>
+                <Button variant="outline" onClick={() => setShowEmailInput(!showEmailInput)} size="lg">
+                  <Mail className="h-4 w-4 mr-2" />
+                  Email Wallpaper
+                </Button>
+
+                {isLoggedIn && (
+                  <Button
+                    variant="outline"
+                    onClick={handleSaveToProfile}
+                    disabled={isSaving || !calculations}
+                    size="lg"
+                  >
+                    <Target className="h-4 w-4 mr-2" />
+                    {isSaving ? "Saving..." : "Save to Profile"}
+                  </Button>
+                )}
+              </div>
             </div>
 
             {showEmailInput && (

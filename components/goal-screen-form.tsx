@@ -2,172 +2,104 @@
 
 import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { toast } from "@/components/ui/use-toast"
-import { Copy, Download, Loader2, Mail, Save } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
+import { Loader2 } from "lucide-react"
+import { generateGoalScreenWallpaper } from "@/lib/generate-wallpaper"
+import { Save } from "lucide-react"
 import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 
-const formSchema = z.object({
-  goalText: z.string().min(2, {
-    message: "Goal must be at least 2 characters.",
-  }),
-  style: z.string().min(2, {
-    message: "Style must be at least 2 characters.",
-  }),
-  format: z.string().min(2, {
-    message: "Format must be at least 2 characters.",
-  }),
-})
-
-interface GoalScreenFormProps {
-  setResult: (result: any) => void
-  setLoading: (loading: boolean) => void
-  result: any
+interface Calculations {
+  monthlyIncome: number
+  dailyContacts: number
+  dealsNeeded: number
+  appointmentsNeeded: number
+  conversationsNeeded: number
 }
 
-export default function GoalScreenForm({ setResult, setLoading, result }: GoalScreenFormProps) {
-  const [isSendingEmail, setIsSendingEmail] = useState(false)
+const GoalScreenForm = () => {
+  const [monthlyIncome, setMonthlyIncome] = useState<number | "">("")
+  const [dailyContacts, setDailyContacts] = useState<number | "">("")
+  const [dealsNeeded, setDealsNeeded] = useState<number | "">("")
+  const [appointmentsNeeded, setAppointmentsNeeded] = useState<number | "">("")
+  const [conversationsNeeded, setConversationsNeeded] = useState<number | "">("")
+  const [calculations, setCalculations] = useState<Calculations | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const { user } = useMemberSpaceUser()
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      goalText: "",
-      style: "Abstract",
-      format: "Wallpaper",
-    },
-  })
+  const calculateGoals = () => {
+    const monthlyIncomeNum = Number(monthlyIncome)
+    const dailyContactsNum = Number(dailyContacts)
+    const dealsNeededNum = Number(dealsNeeded)
+    const appointmentsNeededNum = Number(appointmentsNeeded)
+    const conversationsNeededNum = Number(conversationsNeeded)
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setLoading(true)
-    setResult(null)
-    try {
-      const response = await fetch("/api/goal-screen", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      })
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const data = await response.json()
-      setResult(data)
-    } catch (error: any) {
-      console.error("Error submitting form:", error)
-      toast({
-        title: "Error",
-        description: error.message || "Failed to generate image.",
-        variant: "destructive",
-      })
-    } finally {
-      setLoading(false)
+    if (
+      isNaN(monthlyIncomeNum) ||
+      isNaN(dailyContactsNum) ||
+      isNaN(dealsNeededNum) ||
+      isNaN(appointmentsNeededNum) ||
+      isNaN(conversationsNeededNum)
+    ) {
+      alert("Please enter valid numbers for all fields.")
+      return
     }
+
+    setCalculations({
+      monthlyIncome: monthlyIncomeNum,
+      dailyContacts: dailyContactsNum,
+      dealsNeeded: dealsNeededNum,
+      appointmentsNeeded: appointmentsNeededNum,
+      conversationsNeeded: conversationsNeededNum,
+    })
   }
 
-  const copyToClipboard = () => {
-    if (result?.imageUrl) {
-      navigator.clipboard.writeText(result.imageUrl)
-      toast({
-        title: "Copied!",
-        description: "Image URL copied to clipboard.",
-      })
-    }
-  }
-
-  const downloadImage = () => {
-    if (result?.imageUrl) {
-      const link = document.createElement("a")
-      link.href = result.imageUrl
-      link.download = "goal-wallpaper.png"
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      toast({
-        title: "Downloading...",
-        description: "Image download started.",
-      })
-    }
-  }
-
-  const sendEmail = async () => {
-    if (result?.imageUrl) {
-      setIsSendingEmail(true)
+  const handleEmailWallpaper = async () => {
+    if (calculations) {
+      setIsLoading(true)
       try {
-        const response = await fetch("/api/send-email", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ imageUrl: result.imageUrl }),
-        })
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-
-        toast({
-          title: "Email Sent!",
-          description: "Image sent to your email address.",
-        })
-      } catch (error: any) {
+        await generateGoalScreenWallpaper(calculations)
+        alert("Wallpaper sent to your email!")
+      } catch (error) {
         console.error("Error sending email:", error)
-        toast({
-          title: "Error",
-          description: error.message || "Failed to send email.",
-          variant: "destructive",
-        })
+        alert("Failed to send email. Please try again.")
       } finally {
-        setIsSendingEmail(false)
+        setIsLoading(false)
       }
     }
   }
 
   const saveToDashboard = async () => {
-    if (result?.imageUrl && user?.email) {
+    if (calculations && user?.email) {
       setIsSaving(true)
       try {
         const success = await saveUserCreation({
           userId: user.id || user.email,
           userEmail: user.email,
           toolType: "goalscreen-ai",
-          title: generateCreationTitle("goalscreen-ai", form.getValues()),
-          content: `Goal Wallpaper: ${form.getValues().goalText}`,
-          formData: form.getValues(),
+          title: generateCreationTitle("goalscreen-ai", { monthlyIncome: calculations.monthlyIncome.toString() }),
+          content: `Monthly Income Goal: $${calculations.monthlyIncome.toLocaleString()}\nDaily Contacts Needed: ${calculations.dailyContacts}\nDeals Needed: ${calculations.dealsNeeded}\nAppointments Needed: ${calculations.appointmentsNeeded}\nConversations Needed: ${calculations.conversationsNeeded}`,
+          formData: { monthlyIncome: calculations.monthlyIncome.toString() },
           metadata: {
-            imageUrl: result.imageUrl,
-            goalText: form.getValues().goalText,
-            style: form.getValues().style,
-            format: form.getValues().format,
+            monthlyIncome: calculations.monthlyIncome,
+            dailyContacts: calculations.dailyContacts,
+            dealsNeeded: calculations.dealsNeeded,
+            appointmentsNeeded: calculations.appointmentsNeeded,
+            conversationsNeeded: calculations.conversationsNeeded,
           },
         })
 
         if (success) {
-          toast({
-            title: "Saved to Dashboard",
-            description: "Your goal wallpaper has been saved to your profile dashboard.",
-          })
+          alert("Saved to Dashboard! Check your profile to view saved content.")
         } else {
           throw new Error("Failed to save")
         }
       } catch (error) {
         console.error("Error saving to dashboard:", error)
-        toast({
-          title: "Save Failed",
-          description: "Failed to save to dashboard. Please try again.",
-          variant: "destructive",
-        })
+        alert("Failed to save to dashboard. Please try again.")
       } finally {
         setIsSaving(false)
       }
@@ -175,117 +107,94 @@ export default function GoalScreenForm({ setResult, setLoading, result }: GoalSc
   }
 
   return (
-    <div className="container mx-auto py-10">
-      <Card>
-        <CardHeader>
-          <CardTitle>Goal Screen AI</CardTitle>
-          <CardDescription>Enter your goal and desired style to generate a motivational wallpaper.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="goalText"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Your Goal</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="e.g., Run a marathon" className="resize-none" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="style"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Style</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a style" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Abstract">Abstract</SelectItem>
-                        <SelectItem value="Minimalist">Minimalist</SelectItem>
-                        <SelectItem value="Nature">Nature</SelectItem>
-                        <SelectItem value="Geometric">Geometric</SelectItem>
-                        <SelectItem value="Inspirational">Inspirational</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="format"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Format</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a format" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Wallpaper">Wallpaper</SelectItem>
-                        <SelectItem value="Poster">Poster</SelectItem>
-                        <SelectItem value="Mobile Wallpaper">Mobile Wallpaper</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit">Generate</Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-
-      {result && result.imageUrl && (
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>Your Goal Wallpaper</CardTitle>
-            <CardDescription>Here is your generated wallpaper. Download or share it!</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <img src={result.imageUrl || "/placeholder.svg"} alt="Goal Wallpaper" className="rounded-md" />
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-4">
-              <Button variant="outline" onClick={copyToClipboard} className="flex items-center justify-center gap-2">
-                <Copy className="h-4 w-4" /> <span className="whitespace-nowrap">Copy</span>
-              </Button>
-              <Button variant="outline" onClick={downloadImage} className="flex items-center justify-center gap-2">
-                <Download className="h-4 w-4" /> <span className="whitespace-nowrap">Download</span>
-              </Button>
-              <Button
-                variant="outline"
-                onClick={sendEmail}
-                disabled={isSendingEmail}
-                className="flex items-center justify-center gap-2"
-              >
-                {isSendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-                <span className="whitespace-nowrap">Email</span>
-              </Button>
-              <Button
-                variant="outline"
-                onClick={saveToDashboard}
-                disabled={isSaving || !user?.email}
-                className="flex items-center justify-center gap-2"
-              >
-                {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                <span className="whitespace-nowrap">Save</span>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+    <Card className="w-[500px]">
+      <CardHeader>
+        <CardTitle>Goal Screen Calculator</CardTitle>
+        <CardDescription>Enter your goals to calculate the required daily activities.</CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-4">
+        <div className="grid gap-2">
+          <Label htmlFor="monthlyIncome">Monthly Income Goal</Label>
+          <Input
+            id="monthlyIncome"
+            value={monthlyIncome}
+            onChange={(e) => setMonthlyIncome(e.target.value)}
+            type="number"
+            placeholder="Enter your desired monthly income"
+          />
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="dailyContacts">Daily Contacts</Label>
+          <Input
+            id="dailyContacts"
+            value={dailyContacts}
+            onChange={(e) => setDailyContacts(e.target.value)}
+            type="number"
+            placeholder="Enter the number of daily contacts"
+          />
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="dealsNeeded">Deals Needed</Label>
+          <Input
+            id="dealsNeeded"
+            value={dealsNeeded}
+            onChange={(e) => setDealsNeeded(e.target.value)}
+            type="number"
+            placeholder="Enter the number of deals needed"
+          />
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="appointmentsNeeded">Appointments Needed</Label>
+          <Input
+            id="appointmentsNeeded"
+            value={appointmentsNeeded}
+            onChange={(e) => setAppointmentsNeeded(e.target.value)}
+            type="number"
+            placeholder="Enter the number of appointments needed"
+          />
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="conversationsNeeded">Conversations Needed</Label>
+          <Input
+            id="conversationsNeeded"
+            value={conversationsNeeded}
+            onChange={(e) => setConversationsNeeded(e.target.value)}
+            type="number"
+            placeholder="Enter the number of conversations needed"
+          />
+        </div>
+        <Button onClick={calculateGoals}>Calculate</Button>
+        {calculations && (
+          <div className="mt-4">
+            <h3 className="text-lg font-semibold">Calculated Goals:</h3>
+            <p>Monthly Income Goal: ${calculations.monthlyIncome.toLocaleString()}</p>
+            <p>Daily Contacts Needed: {calculations.dailyContacts}</p>
+            <p>Deals Needed: {calculations.dealsNeeded}</p>
+            <p>Appointments Needed: {calculations.appointmentsNeeded}</p>
+            <p>Conversations Needed: {calculations.conversationsNeeded}</p>
+          </div>
+        )}
+        {calculations && (
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={handleEmailWallpaper} disabled={isLoading} size="lg">
+              {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Email Wallpaper
+            </Button>
+            <Button
+              variant="outline"
+              onClick={saveToDashboard}
+              disabled={isSaving || !user?.email}
+              size="lg"
+              className="ml-4"
+            >
+              {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+              Save to Dashboard
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   )
 }
+
+export default GoalScreenForm

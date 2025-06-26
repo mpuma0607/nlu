@@ -1,79 +1,75 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import * as z from "zod"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/components/ui/use-toast"
-import { Loader2, Copy, Download, Mail, Save } from "lucide-react"
+import { Mail, Loader2 } from "lucide-react"
+import { sendEmail } from "@/lib/email"
+import { Save } from "lucide-react"
 import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 
-interface ListingFormData {
-  propertyAddress: string
-  listingPrice: string
-  bedrooms: string
-  bathrooms: string
-  squareFootage: string
-  feature1: string
-  feature2: string
-  feature3: string
-  feature4: string
-  feature5: string
-  agentName: string
-  agentEmail: string
+const formSchema = z.object({
+  propertyAddress: z.string().min(2, {
+    message: "Property address must be at least 2 characters.",
+  }),
+  listingPrice: z.string().min(2, {
+    message: "Listing price must be at least 2 characters.",
+  }),
+  bedrooms: z.string().min(1, {
+    message: "Bedrooms must be at least 1 character.",
+  }),
+  bathrooms: z.string().min(1, {
+    message: "Bathrooms must be at least 1 character.",
+  }),
+  squareFootage: z.string().min(1, {
+    message: "Square footage must be at least 1 character.",
+  }),
+  additionalDetails: z.string().optional(),
+})
+
+interface ListingFormProps {
+  setResult: (result: any) => void
+  setLoading: (loading: boolean) => void
+  setError: (error: string | null) => void
 }
 
-export default function ListingForm() {
-  const [step, setStep] = useState(1)
-  const [formData, setFormData] = useState<ListingFormData>({
-    propertyAddress: "",
-    listingPrice: "",
-    bedrooms: "",
-    bathrooms: "",
-    squareFootage: "",
-    feature1: "",
-    feature2: "",
-    feature3: "",
-    feature4: "",
-    feature5: "",
-    agentName: "",
-    agentEmail: "",
-  })
+export function ListingForm({ setResult, setLoading, setError }: ListingFormProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const [result, setResult] = useState<{ description: string; title: string } | null>(null)
-  const [isEmailLoading, setIsEmailLoading] = useState(false)
+  const [emailLoading, setEmailLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const { user } = useMemberSpaceUser()
 
-  const handleInputChange = (field: keyof ListingFormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      propertyAddress: "",
+      listingPrice: "",
+      bedrooms: "",
+      bathrooms: "",
+      squareFootage: "",
+      additionalDetails: "",
+    },
+  })
 
-  const nextStep = () => {
-    setStep((prev) => prev + 1)
-  }
-
-  const prevStep = () => {
-    setStep((prev) => prev - 1)
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setLoading(true)
+    setError(null)
     setResult(null)
 
     try {
-      const response = await fetch("/api/generate-listing", {
+      const response = await fetch("/api/ai-hub/listit-ai", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(values),
       })
 
       if (!response.ok) {
@@ -82,109 +78,38 @@ export default function ListingForm() {
 
       const data = await response.json()
       setResult(data)
+    } catch (e: any) {
+      setError(e.message || "An unexpected error occurred")
+    } finally {
+      setLoading(false)
+    }
+  }
 
-      toast({
-        title: "Success!",
-        description: "Listing description generated successfully.",
-      })
+  const formData = form.watch()
+
+  const sendEmailFunction = async () => {
+    setEmailLoading(true)
+    try {
+      if (result?.description) {
+        await sendEmail({
+          subject: "Listit AI Result",
+          body: result?.description,
+        })
+        toast({
+          title: "Email Sent",
+          description: "Check your inbox for the result.",
+        })
+      } else {
+        throw new Error("No result to send")
+      }
     } catch (error: any) {
-      console.error("Error generating listing:", error)
       toast({
-        title: "Error",
-        description: error.message || "Failed to generate listing description.",
+        title: "Email Failed",
+        description: error.message || "Failed to send email. Please try again.",
         variant: "destructive",
       })
     } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const copyToClipboard = () => {
-    if (result?.description) {
-      navigator.clipboard.writeText(result.description)
-      toast({
-        title: "Copied!",
-        description: "Listing description copied to clipboard.",
-      })
-    }
-  }
-
-  const downloadPDF = async () => {
-    if (result?.description) {
-      try {
-        const response = await fetch("/api/generate-listing-pdf", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            description: result.description,
-            propertyDetails: formData,
-          }),
-        })
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-
-        const blob = await response.blob()
-        const url = window.URL.createObjectURL(blob)
-        const link = document.createElement("a")
-        link.href = url
-        link.download = "listing-description.pdf"
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-        window.URL.revokeObjectURL(url)
-
-        toast({
-          title: "Downloaded!",
-          description: "PDF downloaded successfully.",
-        })
-      } catch (error: any) {
-        console.error("Error downloading PDF:", error)
-        toast({
-          title: "Error",
-          description: "Failed to download PDF.",
-          variant: "destructive",
-        })
-      }
-    }
-  }
-
-  const sendEmail = async () => {
-    if (result?.description) {
-      setIsEmailLoading(true)
-      try {
-        const response = await fetch("/api/send-listing-email", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            description: result.description,
-            propertyDetails: formData,
-          }),
-        })
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-
-        toast({
-          title: "Email Sent!",
-          description: "Listing description sent to your email.",
-        })
-      } catch (error: any) {
-        console.error("Error sending email:", error)
-        toast({
-          title: "Error",
-          description: "Failed to send email.",
-          variant: "destructive",
-        })
-      } finally {
-        setIsEmailLoading(false)
-      }
+      setEmailLoading(false)
     }
   }
 
@@ -211,7 +136,7 @@ export default function ListingForm() {
         if (success) {
           toast({
             title: "Saved to Dashboard",
-            description: "Your listing description has been saved to your profile dashboard.",
+            description: "Check your profile to view saved content.",
           })
         } else {
           throw new Error("Failed to save")
@@ -230,228 +155,129 @@ export default function ListingForm() {
   }
 
   return (
-    <div className="container mx-auto py-10">
-      <Card>
-        <CardHeader>
-          <CardTitle>ListIT AI</CardTitle>
-          <CardDescription>Generate compelling property listing descriptions using AI.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {step === 1 && (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="propertyAddress">Property Address</Label>
-                    <Input
-                      id="propertyAddress"
-                      value={formData.propertyAddress}
-                      onChange={(e) => handleInputChange("propertyAddress", e.target.value)}
-                      placeholder="123 Main St, City, State"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="listingPrice">Listing Price</Label>
-                    <Input
-                      id="listingPrice"
-                      value={formData.listingPrice}
-                      onChange={(e) => handleInputChange("listingPrice", e.target.value)}
-                      placeholder="$500,000"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="bedrooms">Bedrooms</Label>
-                    <Select onValueChange={(value) => handleInputChange("bedrooms", value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select bedrooms" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="5">5+</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="bathrooms">Bathrooms</Label>
-                    <Select onValueChange={(value) => handleInputChange("bathrooms", value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select bathrooms" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="1.5">1.5</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="2.5">2.5</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                        <SelectItem value="3.5">3.5</SelectItem>
-                        <SelectItem value="4">4+</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="squareFootage">Square Footage</Label>
-                    <Input
-                      id="squareFootage"
-                      value={formData.squareFootage}
-                      onChange={(e) => handleInputChange("squareFootage", e.target.value)}
-                      placeholder="2,000"
-                    />
-                  </div>
-                </div>
-                <Button type="button" onClick={nextStep}>
-                  Next: Features
-                </Button>
-              </>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <FormField
+          control={form.control}
+          name="propertyAddress"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Property Address</FormLabel>
+              <FormControl>
+                <Input placeholder="123 Main St" {...field} />
+              </FormControl>
+              <FormDescription>This is the address of the property you want to list.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="listingPrice"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Listing Price</FormLabel>
+              <FormControl>
+                <Input placeholder="500000" {...field} />
+              </FormControl>
+              <FormDescription>The price you want to list the property for.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="bedrooms"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Bedrooms</FormLabel>
+                <FormControl>
+                  <Input placeholder="3" {...field} />
+                </FormControl>
+                <FormDescription>Number of bedrooms in the property.</FormDescription>
+                <FormMessage />
+              </FormItem>
             )}
-
-            {step === 2 && (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="feature1">Feature 1</Label>
-                    <Input
-                      id="feature1"
-                      value={formData.feature1}
-                      onChange={(e) => handleInputChange("feature1", e.target.value)}
-                      placeholder="e.g., Updated Kitchen"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="feature2">Feature 2</Label>
-                    <Input
-                      id="feature2"
-                      value={formData.feature2}
-                      onChange={(e) => handleInputChange("feature2", e.target.value)}
-                      placeholder="e.g., Hardwood Floors"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="feature3">Feature 3</Label>
-                    <Input
-                      id="feature3"
-                      value={formData.feature3}
-                      onChange={(e) => handleInputChange("feature3", e.target.value)}
-                      placeholder="e.g., Large Backyard"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="feature4">Feature 4</Label>
-                    <Input
-                      id="feature4"
-                      value={formData.feature4}
-                      onChange={(e) => handleInputChange("feature4", e.target.value)}
-                      placeholder="e.g., Swimming Pool"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="feature5">Feature 5</Label>
-                    <Input
-                      id="feature5"
-                      value={formData.feature5}
-                      onChange={(e) => handleInputChange("feature5", e.target.value)}
-                      placeholder="e.g., Close to Parks"
-                    />
-                  </div>
-                </div>
-                <Button type="button" onClick={prevStep} className="mr-2">
-                  Previous: Details
-                </Button>
-                <Button type="button" onClick={nextStep}>
-                  Next: Agent Info
-                </Button>
-              </>
+          />
+          <FormField
+            control={form.control}
+            name="bathrooms"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Bathrooms</FormLabel>
+                <FormControl>
+                  <Input placeholder="2" {...field} />
+                </FormControl>
+                <FormDescription>Number of bathrooms in the property.</FormDescription>
+                <FormMessage />
+              </FormItem>
             )}
-
-            {step === 3 && (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="agentName">Your Name</Label>
-                    <Input
-                      id="agentName"
-                      value={formData.agentName}
-                      onChange={(e) => handleInputChange("agentName", e.target.value)}
-                      placeholder="Your Name"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="agentEmail">Your Email</Label>
-                    <Input
-                      id="agentEmail"
-                      type="email"
-                      value={formData.agentEmail}
-                      onChange={(e) => handleInputChange("agentEmail", e.target.value)}
-                      placeholder="you@example.com"
-                      required
-                    />
-                  </div>
-                </div>
-                <Button type="button" onClick={prevStep} className="mr-2">
-                  Previous: Features
-                </Button>
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    "Generate Listing Description"
-                  )}
-                </Button>
-              </>
-            )}
-          </form>
-        </CardContent>
-      </Card>
-
-      {result && (
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>{result.title || "Generated Listing Description"}</CardTitle>
-            <CardDescription>Your AI-generated property listing description is ready!</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="bg-gray-50 p-4 rounded-lg mb-4">
-              <p className="whitespace-pre-wrap">{result.description}</p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-              <Button variant="outline" onClick={copyToClipboard} className="flex items-center justify-center gap-2">
-                <Copy className="h-4 w-4" />
-                <span className="whitespace-nowrap">Copy</span>
-              </Button>
-              <Button variant="outline" onClick={downloadPDF} className="flex items-center justify-center gap-2">
-                <Download className="h-4 w-4" />
-                <span className="whitespace-nowrap">Download</span>
-              </Button>
-              <Button
-                variant="outline"
-                onClick={sendEmail}
-                disabled={isEmailLoading}
-                className="flex items-center justify-center gap-2"
-              >
-                {isEmailLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-                <span className="whitespace-nowrap">Email</span>
-              </Button>
-              <Button
-                variant="outline"
-                onClick={saveToDashboard}
-                disabled={isSaving || !user?.email}
-                className="flex items-center justify-center gap-2"
-              >
-                {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                <span className="whitespace-nowrap">Save</span>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+          />
+        </div>
+        <FormField
+          control={form.control}
+          name="squareFootage"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Square Footage</FormLabel>
+              <FormControl>
+                <Input placeholder="1500" {...field} />
+              </FormControl>
+              <FormDescription>Total square footage of the property.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="additionalDetails"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Additional Details</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Any additional details about the property." {...field} />
+              </FormControl>
+              <FormDescription>Any additional details about the property.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+          Submit
+        </Button>
+      </form>
+      {result?.description && (
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold mb-4">Result</h2>
+          <p className="whitespace-pre-line">{result.description}</p>
+        </div>
       )}
-    </div>
+      {result?.description && (
+        <div className="mt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <Button
+              variant="outline"
+              onClick={sendEmailFunction}
+              disabled={emailLoading}
+              className="flex items-center justify-center gap-2"
+            >
+              {emailLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+              <span className="whitespace-nowrap">Email</span>
+            </Button>
+            <Button
+              variant="outline"
+              onClick={saveToDashboard}
+              disabled={isSaving || !user?.email}
+              className="flex items-center justify-center gap-2"
+            >
+              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              <span className="whitespace-nowrap">Save</span>
+            </Button>
+          </div>
+        </div>
+      )}
+    </Form>
   )
 }

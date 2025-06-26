@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 import { saveUserCreation } from "@/lib/auto-save-creation"
-import { generateCreationTitle } from "@/lib/user-creations"
 import { Save, Loader2 } from "lucide-react"
 
 interface RealBioFormProps {
@@ -81,7 +80,7 @@ const RealBioForm: React.FC<RealBioFormProps> = ({ onGenerate }) => {
 
     setIsSaving(true)
     try {
-      const title = generateCreationTitle("realbio", { name })
+      const title = `Bio for ${name || "User"} - ${new Date().toLocaleDateString()}`
 
       await saveUserCreation({
         userId: user.id,

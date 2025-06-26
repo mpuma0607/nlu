@@ -32,7 +32,7 @@ interface GoalScreenFormProps {
   result: any
 }
 
-export function GoalScreenForm({ setResult, setLoading, result }: GoalScreenFormProps) {
+export default function GoalScreenForm({ setResult, setLoading, result }: GoalScreenFormProps) {
   const [isSendingEmail, setIsSendingEmail] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const { user } = useMemberSpaceUser()

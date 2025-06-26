@@ -1,236 +1,188 @@
 "use client"
 
 import type React from "react"
-import { useState, useRef, useEffect } from "react"
+
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { generateListingDescription, generateListingHTML } from "./actions"
-import { Loader2, Copy, Download, Mail, Home, FileText, Save } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { toast } from "@/components/ui/use-toast"
+import { Copy, Download, Loader2, Mail, Save } from "lucide-react"
 import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 
-type FormState = {
-  propertyAddress: string
-  listingPrice: string
+interface ListingFormData {
+  address: string
+  price: string
   bedrooms: string
   bathrooms: string
   squareFootage: string
-  feature1: string
-  feature2: string
-  feature3: string
-  feature4: string
-  feature5: string
-  agentName: string
-  agentEmail: string
-}
-
-type ListingResult = {
-  description: string
+  propertyType: string
+  yearBuilt: string
+  lotSize: string
+  features: string
+  neighborhood: string
+  schools: string
+  additionalInfo: string
 }
 
 export default function ListingForm() {
-  const { toast } = useToast()
-  const resultsRef = useRef<HTMLDivElement>(null)
-  const [step, setStep] = useState(1)
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [isSendingEmail, setIsSendingEmail] = useState(false)
-  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
-  const [formData, setFormData] = useState<FormState>({
-    propertyAddress: "",
-    listingPrice: "",
+  const [formData, setFormData] = useState<ListingFormData>({
+    address: "",
+    price: "",
     bedrooms: "",
     bathrooms: "",
     squareFootage: "",
-    feature1: "",
-    feature2: "",
-    feature3: "",
-    feature4: "",
-    feature5: "",
-    agentName: "",
-    agentEmail: "",
+    propertyType: "",
+    yearBuilt: "",
+    lotSize: "",
+    features: "",
+    neighborhood: "",
+    schools: "",
+    additionalInfo: "",
   })
-  const [result, setResult] = useState<ListingResult | null>(null)
+
+  const [isLoading, setIsLoading] = useState(false)
+  const [result, setResult] = useState<string>("")
+  const [isEmailLoading, setIsEmailLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const { user } = useMemberSpaceUser()
 
-  // Auto-scroll to results when they're generated
-  useEffect(() => {
-    if (result && step === 4 && resultsRef.current) {
-      setTimeout(() => {
-        resultsRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        })
-      }, 100)
-    }
-  }, [result, step])
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+  const handleInputChange = (field: keyof ListingFormData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsGenerating(true)
+    setIsLoading(true)
+    setResult("")
 
     try {
-      // Format the price if it doesn't already have a $ sign
-      if (!formData.listingPrice.includes("$")) {
-        // Try to parse the price as a number
-        const priceNum = Number.parseFloat(formData.listingPrice.replace(/,/g, ""))
-        if (!isNaN(priceNum)) {
-          // Format with $ and commas
-          formData.listingPrice = `$${priceNum.toLocaleString()}`
-        } else {
-          // If not a valid number, just add $ prefix
-          formData.listingPrice = `$${formData.listingPrice}`
-        }
-      }
-
-      // Also ensure commas in the price even if $ is already there
-      if (formData.listingPrice.includes("$") && !formData.listingPrice.includes(",")) {
-        const priceWithoutSymbol = formData.listingPrice.replace("$", "")
-        const priceNum = Number.parseFloat(priceWithoutSymbol)
-        if (!isNaN(priceNum)) {
-          formData.listingPrice = `$${priceNum.toLocaleString()}`
-        }
-      }
-
-      console.log("Generating listing description with data:", formData)
-      const generatedListing = await generateListingDescription(formData)
-      console.log("Generated listing:", generatedListing)
-      setResult(generatedListing)
-      setStep(4) // Go to step 4 (results)
-      toast({
-        title: "Listing Description Generated Successfully",
-        description: "Your professional listing description is ready!",
+      const response = await fetch("/api/generate-listing", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       })
-    } catch (error) {
-      console.error("Error generating listing description:", error)
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      setResult(data.description)
+
       toast({
-        title: "Error Generating Description",
-        description: "Failed to generate listing description. Please try again.",
+        title: "Success!",
+        description: "Listing description generated successfully.",
+      })
+    } catch (error: any) {
+      console.error("Error generating listing:", error)
+      toast({
+        title: "Error",
+        description: error.message || "Failed to generate listing description.",
         variant: "destructive",
       })
     } finally {
-      setIsGenerating(false)
+      setIsLoading(false)
     }
   }
 
   const copyToClipboard = () => {
-    if (result?.description) {
-      navigator.clipboard.writeText(result.description)
+    if (result) {
+      navigator.clipboard.writeText(result)
       toast({
-        title: "Copied to Clipboard",
-        description: "Your listing description has been copied to clipboard.",
+        title: "Copied!",
+        description: "Listing description copied to clipboard.",
       })
     }
   }
 
   const downloadPDF = async () => {
-    if (result?.description) {
-      setIsGeneratingPDF(true)
+    if (result) {
       try {
-        // Call API route to generate and download PDF (same pattern as RealBio)
         const response = await fetch("/api/generate-listing-pdf", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            formData,
-            description: result.description,
+            description: result,
+            propertyDetails: formData,
           }),
         })
 
         if (!response.ok) {
-          throw new Error("Failed to generate PDF")
+          throw new Error(`HTTP error! status: ${response.status}`)
         }
 
-        // Get the PDF blob
         const blob = await response.blob()
-
-        // Create download link
         const url = window.URL.createObjectURL(blob)
         const link = document.createElement("a")
         link.href = url
-        link.download = `${formData.propertyAddress.replace(/\s+/g, "_")}_Listing_Description.pdf`
+        link.download = "listing-description.pdf"
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
         window.URL.revokeObjectURL(url)
 
         toast({
-          title: "PDF Downloaded",
-          description: "Your listing description PDF has been downloaded successfully.",
+          title: "Downloaded!",
+          description: "PDF downloaded successfully.",
         })
-      } catch (error) {
-        console.error("Error generating PDF:", error)
+      } catch (error: any) {
+        console.error("Error downloading PDF:", error)
         toast({
-          title: "PDF Generation Failed",
-          description: error instanceof Error ? error.message : "Failed to generate PDF. Please try again.",
+          title: "Error",
+          description: "Failed to download PDF.",
           variant: "destructive",
         })
-      } finally {
-        setIsGeneratingPDF(false)
       }
     }
   }
 
   const sendEmail = async () => {
-    if (result?.description) {
-      setIsSendingEmail(true)
+    if (result) {
+      setIsEmailLoading(true)
       try {
-        // Generate HTML for email
-        const listingHTML = await generateListingHTML(formData, result.description)
-
-        // Send email via API route
         const response = await fetch("/api/send-listing-email", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            to: formData.agentEmail,
-            name: formData.agentName,
-            description: result.description,
-            propertyAddress: formData.propertyAddress,
-            listingPrice: formData.listingPrice,
-            listingHTML: listingHTML,
+            description: result,
+            propertyDetails: formData,
           }),
         })
 
-        const data = await response.json()
-
-        if (data.success) {
-          toast({
-            title: "Email Sent Successfully",
-            description: "Check your inbox for your professional listing description!",
-          })
-        } else {
-          throw new Error(data.error || "Failed to send email")
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
         }
-      } catch (error) {
+
+        toast({
+          title: "Email Sent!",
+          description: "Listing description sent to your email.",
+        })
+      } catch (error: any) {
         console.error("Error sending email:", error)
         toast({
-          title: "Email Sending Failed",
-          description: error instanceof Error ? error.message : "Failed to send email. Please try again.",
+          title: "Error",
+          description: "Failed to send email.",
           variant: "destructive",
         })
       } finally {
-        setIsSendingEmail(false)
+        setIsEmailLoading(false)
       }
     }
   }
 
   const saveToDashboard = async () => {
-    if (result?.description && user?.email) {
+    if (result && user?.email) {
       setIsSaving(true)
       try {
         const success = await saveUserCreation({
@@ -238,14 +190,14 @@ export default function ListingForm() {
           userEmail: user.email,
           toolType: "listit-ai",
           title: generateCreationTitle("listit-ai", formData),
-          content: result.description,
+          content: result,
           formData: formData,
           metadata: {
-            propertyAddress: formData.propertyAddress,
-            listingPrice: formData.listingPrice,
+            address: formData.address,
+            price: formData.price,
+            propertyType: formData.propertyType,
             bedrooms: formData.bedrooms,
             bathrooms: formData.bathrooms,
-            squareFootage: formData.squareFootage,
           },
         })
 
@@ -270,447 +222,210 @@ export default function ListingForm() {
     }
   }
 
-  const renderStepOne = () => (
-    <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h3 className="text-lg font-semibold text-black">Property Information</h3>
-        <p className="text-gray-600">Enter the basic details about the property</p>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="propertyAddress">Property Address *</Label>
-        <Input
-          id="propertyAddress"
-          name="propertyAddress"
-          placeholder="Enter the full property address"
-          value={formData.propertyAddress}
-          onChange={handleInputChange}
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="listingPrice">Listing Price *</Label>
-        <Input
-          id="listingPrice"
-          name="listingPrice"
-          placeholder="e.g. $450,000"
-          value={formData.listingPrice}
-          onChange={handleInputChange}
-          required
-        />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="bedrooms">Bedrooms *</Label>
-          <Input
-            id="bedrooms"
-            name="bedrooms"
-            placeholder="e.g. 3"
-            value={formData.bedrooms}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="bathrooms">Bathrooms *</Label>
-          <Input
-            id="bathrooms"
-            name="bathrooms"
-            placeholder="e.g. 2.5"
-            value={formData.bathrooms}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="squareFootage">Square Footage *</Label>
-          <Input
-            id="squareFootage"
-            name="squareFootage"
-            placeholder="e.g. 2,100"
-            value={formData.squareFootage}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-      </div>
-
-      <Button
-        onClick={() => setStep(2)}
-        disabled={
-          !formData.propertyAddress ||
-          !formData.listingPrice ||
-          !formData.bedrooms ||
-          !formData.bathrooms ||
-          !formData.squareFootage
-        }
-        className="w-full bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-700 hover:to-amber-700 text-white"
-      >
-        Next: Property Features
-      </Button>
-    </div>
-  )
-
-  const renderStepTwo = () => (
-    <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h3 className="text-lg font-semibold text-black">Key Property Features</h3>
-        <p className="text-gray-600">List the 5 most important features that make this property special</p>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="feature1">Key Feature 1 *</Label>
-        <Input
-          id="feature1"
-          name="feature1"
-          placeholder="e.g. Newly renovated kitchen with granite countertops"
-          value={formData.feature1}
-          onChange={handleInputChange}
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="feature2">Key Feature 2 *</Label>
-        <Input
-          id="feature2"
-          name="feature2"
-          placeholder="e.g. Spacious backyard with covered patio"
-          value={formData.feature2}
-          onChange={handleInputChange}
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="feature3">Key Feature 3 *</Label>
-        <Input
-          id="feature3"
-          name="feature3"
-          placeholder="e.g. Open floor plan with hardwood floors"
-          value={formData.feature3}
-          onChange={handleInputChange}
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="feature4">Key Feature 4 *</Label>
-        <Input
-          id="feature4"
-          name="feature4"
-          placeholder="e.g. Master suite with walk-in closet and en-suite bathroom"
-          value={formData.feature4}
-          onChange={handleInputChange}
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="feature5">Key Feature 5 *</Label>
-        <Input
-          id="feature5"
-          name="feature5"
-          placeholder="e.g. Prime location near schools and shopping"
-          value={formData.feature5}
-          onChange={handleInputChange}
-          required
-        />
-      </div>
-
-      <div className="flex gap-4">
-        <Button variant="outline" onClick={() => setStep(1)} className="flex-1">
-          Back
-        </Button>
-        <Button
-          onClick={() => setStep(3)}
-          disabled={
-            !formData.feature1 || !formData.feature2 || !formData.feature3 || !formData.feature4 || !formData.feature5
-          }
-          className="flex-1 bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-700 hover:to-amber-700 text-white"
-        >
-          Next: Your Information
-        </Button>
-      </div>
-    </div>
-  )
-
-  const renderStepThree = () => (
-    <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h3 className="text-lg font-semibold text-black">Agent Information</h3>
-        <p className="text-gray-600">Enter your details to receive the listing description</p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="agentName">Your Name *</Label>
-          <Input
-            id="agentName"
-            name="agentName"
-            placeholder="Enter your name"
-            value={formData.agentName}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="agentEmail">Your Email *</Label>
-          <Input
-            id="agentEmail"
-            name="agentEmail"
-            type="email"
-            placeholder="Enter your email"
-            value={formData.agentEmail}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-      </div>
-
-      {/* Property Summary */}
-      <Card className="bg-gray-50 border-0">
-        <CardContent className="p-6">
-          <h4 className="font-semibold text-black mb-4 flex items-center gap-2">
-            <Home className="h-4 w-4" />
-            Property Summary
-          </h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div>
-              <p>
-                <span className="font-medium">Address:</span> {formData.propertyAddress}
-              </p>
-              <p>
-                <span className="font-medium">Price:</span> {formData.listingPrice}
-              </p>
-              <p>
-                <span className="font-medium">Bedrooms:</span> {formData.bedrooms}
-              </p>
-              <p>
-                <span className="font-medium">Bathrooms:</span> {formData.bathrooms}
-              </p>
-              <p>
-                <span className="font-medium">Square Footage:</span> {formData.squareFootage}
-              </p>
+  return (
+    <div className="container mx-auto py-10">
+      <Card>
+        <CardHeader>
+          <CardTitle>ListIT AI</CardTitle>
+          <CardDescription>Generate compelling property listing descriptions using AI.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="address">Property Address</Label>
+                <Input
+                  id="address"
+                  value={formData.address}
+                  onChange={(e) => handleInputChange("address", e.target.value)}
+                  placeholder="123 Main St, City, State"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="price">Price</Label>
+                <Input
+                  id="price"
+                  value={formData.price}
+                  onChange={(e) => handleInputChange("price", e.target.value)}
+                  placeholder="$500,000"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="bedrooms">Bedrooms</Label>
+                <Select onValueChange={(value) => handleInputChange("bedrooms", value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select bedrooms" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1</SelectItem>
+                    <SelectItem value="2">2</SelectItem>
+                    <SelectItem value="3">3</SelectItem>
+                    <SelectItem value="4">4</SelectItem>
+                    <SelectItem value="5">5+</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="bathrooms">Bathrooms</Label>
+                <Select onValueChange={(value) => handleInputChange("bathrooms", value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select bathrooms" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1</SelectItem>
+                    <SelectItem value="1.5">1.5</SelectItem>
+                    <SelectItem value="2">2</SelectItem>
+                    <SelectItem value="2.5">2.5</SelectItem>
+                    <SelectItem value="3">3</SelectItem>
+                    <SelectItem value="3.5">3.5</SelectItem>
+                    <SelectItem value="4">4+</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="squareFootage">Square Footage</Label>
+                <Input
+                  id="squareFootage"
+                  value={formData.squareFootage}
+                  onChange={(e) => handleInputChange("squareFootage", e.target.value)}
+                  placeholder="2,000"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="propertyType">Property Type</Label>
+                <Select onValueChange={(value) => handleInputChange("propertyType", value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select property type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Single Family">Single Family</SelectItem>
+                    <SelectItem value="Condo">Condo</SelectItem>
+                    <SelectItem value="Townhouse">Townhouse</SelectItem>
+                    <SelectItem value="Multi-Family">Multi-Family</SelectItem>
+                    <SelectItem value="Land">Land</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="yearBuilt">Year Built</Label>
+                <Input
+                  id="yearBuilt"
+                  value={formData.yearBuilt}
+                  onChange={(e) => handleInputChange("yearBuilt", e.target.value)}
+                  placeholder="2020"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lotSize">Lot Size</Label>
+                <Input
+                  id="lotSize"
+                  value={formData.lotSize}
+                  onChange={(e) => handleInputChange("lotSize", e.target.value)}
+                  placeholder="0.25 acres"
+                />
+              </div>
             </div>
-            <div>
-              <p>
-                <span className="font-medium">Feature 1:</span> {formData.feature1}
-              </p>
-              <p>
-                <span className="font-medium">Feature 2:</span> {formData.feature2}
-              </p>
-              <p>
-                <span className="font-medium">Feature 3:</span> {formData.feature3}
-              </p>
-              <p>
-                <span className="font-medium">Feature 4:</span> {formData.feature4}
-              </p>
-              <p>
-                <span className="font-medium">Feature 5:</span> {formData.feature5}
-              </p>
+
+            <div className="space-y-2">
+              <Label htmlFor="features">Key Features</Label>
+              <Textarea
+                id="features"
+                value={formData.features}
+                onChange={(e) => handleInputChange("features", e.target.value)}
+                placeholder="Updated kitchen, hardwood floors, large backyard..."
+                className="min-h-[100px]"
+              />
             </div>
-          </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="neighborhood">Neighborhood Info</Label>
+              <Textarea
+                id="neighborhood"
+                value={formData.neighborhood}
+                onChange={(e) => handleInputChange("neighborhood", e.target.value)}
+                placeholder="Quiet residential area, close to parks and shopping..."
+                className="min-h-[80px]"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="schools">Schools</Label>
+              <Input
+                id="schools"
+                value={formData.schools}
+                onChange={(e) => handleInputChange("schools", e.target.value)}
+                placeholder="Lincoln Elementary, Washington Middle, Roosevelt High"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="additionalInfo">Additional Information</Label>
+              <Textarea
+                id="additionalInfo"
+                value={formData.additionalInfo}
+                onChange={(e) => handleInputChange("additionalInfo", e.target.value)}
+                placeholder="Any other details you'd like to highlight..."
+                className="min-h-[80px]"
+              />
+            </div>
+
+            <Button type="submit" disabled={isLoading} className="w-full">
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                "Generate Listing Description"
+              )}
+            </Button>
+          </form>
         </CardContent>
       </Card>
 
-      <div className="flex gap-4">
-        <Button variant="outline" onClick={() => setStep(2)} className="flex-1">
-          Back
-        </Button>
-        <Button
-          onClick={handleSubmit}
-          disabled={isGenerating || !formData.agentName || !formData.agentEmail}
-          className="flex-1 bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-700 hover:to-amber-700 text-white"
-        >
-          {isGenerating ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating Description...
-            </>
-          ) : (
-            "Generate Listing Description"
-          )}
-        </Button>
-      </div>
-    </div>
-  )
-
-  const renderStepFour = () => (
-    <div ref={resultsRef} className="space-y-6">
-      <div className="text-center mb-6">
-        <h3 className="text-xl font-bold text-black">Your Listing Description is Ready!</h3>
-        <p className="text-gray-600">
-          Here's your professionally crafted listing description for {formData.propertyAddress}
-        </p>
-      </div>
-
-      <Tabs defaultValue="preview" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="preview">Preview</TabsTrigger>
-          <TabsTrigger value="text">Text Only</TabsTrigger>
-        </TabsList>
-        <TabsContent value="preview" className="space-y-4">
-          <Card className="border-0 shadow-md">
-            <CardContent className="p-6">
-              <div className="mb-4">
-                <h3 className="text-xl font-bold text-black">{formData.propertyAddress}</h3>
-                <p className="text-lg font-semibold text-yellow-600">{formData.listingPrice}</p>
-              </div>
-              <div className="prose prose-gray max-w-none">
-                <p className="whitespace-pre-wrap text-gray-800 leading-relaxed">{result?.description}</p>
-              </div>
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <div className="grid grid-cols-3 gap-4 text-sm text-gray-600">
-                  <div>
-                    <span className="font-medium">Bedrooms:</span> {formData.bedrooms}
-                  </div>
-                  <div>
-                    <span className="font-medium">Bathrooms:</span> {formData.bathrooms}
-                  </div>
-                  <div>
-                    <span className="font-medium">Sq Ft:</span> {formData.squareFootage}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="text">
-          <Card className="border-0 shadow-md">
-            <CardContent className="p-6">
-              <Textarea value={result?.description || ""} readOnly className="min-h-[300px] resize-none" />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <Button variant="outline" onClick={copyToClipboard} className="flex items-center justify-center gap-2">
-          <Copy className="h-4 w-4" /> <span className="whitespace-nowrap">Copy</span>
-        </Button>
-        <Button
-          variant="outline"
-          onClick={downloadPDF}
-          disabled={isGeneratingPDF}
-          className="flex items-center justify-center gap-2"
-        >
-          {isGeneratingPDF ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-          <span className="whitespace-nowrap">Download</span>
-        </Button>
-        <Button
-          variant="outline"
-          onClick={sendEmail}
-          disabled={isSendingEmail}
-          className="flex items-center justify-center gap-2"
-        >
-          {isSendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-          <span className="whitespace-nowrap">Email</span>
-        </Button>
-        <Button
-          variant="outline"
-          onClick={saveToDashboard}
-          disabled={isSaving || !user?.email}
-          className="flex items-center justify-center gap-2"
-        >
-          {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          <span className="whitespace-nowrap">Save</span>
-        </Button>
-      </div>
-
-      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-        <h5 className="font-medium text-blue-900 mb-2 flex items-center gap-2">
-          <FileText className="h-4 w-4" />💡 How to Use Your Listing Description:
-        </h5>
-        <ul className="text-sm text-blue-800 space-y-1">
-          <li>• Add it to your MLS listing</li>
-          <li>• Use it in property brochures and flyers</li>
-          <li>• Include it in email marketing campaigns</li>
-          <li>• Post it on your website and social media</li>
-          <li>• Share it with potential buyers</li>
-          <li>• Download the PDF for professional presentations</li>
-        </ul>
-      </div>
-
-      <Button
-        onClick={() => {
-          setStep(1)
-          setResult(null)
-          setFormData({
-            propertyAddress: "",
-            listingPrice: "",
-            bedrooms: "",
-            bathrooms: "",
-            squareFootage: "",
-            feature1: "",
-            feature2: "",
-            feature3: "",
-            feature4: "",
-            feature5: "",
-            agentName: "",
-            agentEmail: "",
-          })
-        }}
-        className="w-full bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-700 hover:to-amber-700 text-white"
-      >
-        Create Another Listing
-      </Button>
-    </div>
-  )
-
-  return (
-    <div className="bg-white rounded-lg p-6">
-      <div className="mb-8">
-        <div className="flex items-center justify-center space-x-2">
-          <div
-            className={`w-10 h-10 rounded-full flex items-center justify-center ${
-              step >= 1 ? "bg-yellow-600 text-white" : "bg-gray-200 text-gray-600"
-            }`}
-          >
-            1
-          </div>
-          <div className={`h-1 w-16 ${step >= 2 ? "bg-yellow-600" : "bg-gray-200"}`}></div>
-          <div
-            className={`w-10 h-10 rounded-full flex items-center justify-center ${
-              step >= 2 ? "bg-yellow-600 text-white" : "bg-gray-200 text-gray-600"
-            }`}
-          >
-            2
-          </div>
-          <div className={`h-1 w-16 ${step >= 3 ? "bg-yellow-600" : "bg-gray-200"}`}></div>
-          <div
-            className={`w-10 h-10 rounded-full flex items-center justify-center ${
-              step >= 3 ? "bg-yellow-600 text-white" : "bg-gray-200 text-gray-600"
-            }`}
-          >
-            3
-          </div>
-          <div className={`h-1 w-16 ${step >= 4 ? "bg-yellow-600" : "bg-gray-200"}`}></div>
-          <div
-            className={`w-10 h-10 rounded-full flex items-center justify-center ${
-              step >= 4 ? "bg-yellow-600 text-white" : "bg-gray-200 text-gray-600"
-            }`}
-          >
-            ✓
-          </div>
-        </div>
-        <div className="text-center mt-4">
-          <p className="text-sm text-gray-600">
-            {step === 1 && "Property Information"}
-            {step === 2 && "Key Features"}
-            {step === 3 && "Agent Information"}
-            {step === 4 && "Generated Description"}
-          </p>
-        </div>
-      </div>
-
-      <form onSubmit={(e) => e.preventDefault()}>
-        {step === 1 && renderStepOne()}
-        {step === 2 && renderStepTwo()}
-        {step === 3 && renderStepThree()}
-        {step === 4 && renderStepFour()}
-      </form>
+      {result && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Generated Listing Description</CardTitle>
+            <CardDescription>Your AI-generated property listing description is ready!</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-gray-50 p-4 rounded-lg mb-4">
+              <p className="whitespace-pre-wrap">{result}</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+              <Button variant="outline" onClick={copyToClipboard} className="flex items-center justify-center gap-2">
+                <Copy className="h-4 w-4" />
+                <span className="whitespace-nowrap">Copy</span>
+              </Button>
+              <Button variant="outline" onClick={downloadPDF} className="flex items-center justify-center gap-2">
+                <Download className="h-4 w-4" />
+                <span className="whitespace-nowrap">Download</span>
+              </Button>
+              <Button
+                variant="outline"
+                onClick={sendEmail}
+                disabled={isEmailLoading}
+                className="flex items-center justify-center gap-2"
+              >
+                {isEmailLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+                <span className="whitespace-nowrap">Email</span>
+              </Button>
+              <Button
+                variant="outline"
+                onClick={saveToDashboard}
+                disabled={isSaving || !user?.email}
+                className="flex items-center justify-center gap-2"
+              >
+                {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                <span className="whitespace-nowrap">Save</span>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

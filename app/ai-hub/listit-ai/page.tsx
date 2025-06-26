@@ -1,6 +1,5 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { FileText, Sparkles } from "lucide-react"
-import ListingForm from "./listing-form"
 
 export default function ListITPage() {
   return (
@@ -65,27 +64,4 @@ export default function ListITPage() {
                 className="h-12 w-12 text-orange-500 mx-auto mb-4"
               >
                 <path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4c0-1.1.9-2 2-2h8a2 2 0 0 1 2 2v5Z" />
-                <path d="M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1" />
-              </svg>
-              <CardTitle className="text-black">Sensory-Rich Language</CardTitle>
-              <CardDescription>Descriptions that engage all senses and create emotional connections</CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
-
-        {/* Tool Interface */}
-        <Card className="max-w-4xl mx-auto border-0 shadow-xl">
-          <CardHeader>
-            <CardTitle className="text-2xl text-black text-center">Listing Description Generator</CardTitle>
-            <CardDescription className="text-center">
-              Fill out the property details below to generate a professional listing description
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ListingForm />
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  )
-}
+                <path d="M18 9h\

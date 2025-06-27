@@ -1,15 +1,19 @@
 "use client"
 
 import type React from "react"
+
 import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, Calculator, MapPin, Clock } from "lucide-react"
+import { Loader2, Calculator, MapPin, Clock, Save } from "lucide-react"
 import { analyzeComparables } from "./actions"
 import { QuickCMAResults } from "./quickcma-results"
 import Image from "next/image"
+import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
+import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
+import { toast } from "@/hooks/use-toast"
 
 interface QuickCMAFormProps {
   onAnalysisComplete?: (data: any) => void
@@ -20,7 +24,9 @@ export default function QuickCMAForm({ onAnalysisComplete }: QuickCMAFormProps) 
   const [analysisData, setAnalysisData] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
   const [loadingMessage, setLoadingMessage] = useState("")
+  const [isSaving, setIsSaving] = useState(false)
   const resultsRef = useRef<HTMLDivElement>(null)
+  const { user } = useMemberSpaceUser()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -96,6 +102,74 @@ export default function QuickCMAForm({ onAnalysisComplete }: QuickCMAFormProps) 
       setIsLoading(false)
       setLoadingMessage("")
       console.log("=== LOADING STATE CLEARED ===")
+    }
+  }
+
+  const handleSave = async () => {
+    if (!user?.id) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to save your CMA report.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!analysisData) {
+      toast({
+        title: "No Data to Save",
+        description: "Please generate a CMA report first.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsSaving(true)
+
+    try {
+      const title = generateCreationTitle("quickcma-ai", analysisData.address || "CMA Report")
+
+      const content = `CMA Report for ${analysisData.address}
+
+Market Summary:
+- Average Price: $${analysisData.comparableData?.summary?.averagePrice?.toLocaleString() || "N/A"}
+- Average Size: ${analysisData.comparableData?.summary?.averageSqft?.toLocaleString() || "N/A"} sq ft
+- Total Comparables: ${analysisData.comparableData?.totalComparables || 0}
+
+${analysisData.analysisText || "No analysis available"}
+
+Generated on ${new Date().toLocaleDateString()}`
+
+      const result = await saveUserCreation({
+        userId: user.id.toString(),
+        userEmail: user.email || "",
+        toolType: "quickcma-ai",
+        title,
+        content,
+        metadata: {
+          address: analysisData.address,
+          comparableData: analysisData.comparableData,
+          sections: analysisData.sections,
+        },
+      })
+
+      if (result.success) {
+        toast({
+          title: "CMA Report Saved!",
+          description: "Your CMA report has been saved to your dashboard.",
+        })
+      } else {
+        throw new Error(result.error || "Failed to save")
+      }
+    } catch (error) {
+      console.error("Save error:", error)
+      toast({
+        title: "Save Failed",
+        description: error instanceof Error ? error.message : "Failed to save CMA report.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -184,19 +258,37 @@ export default function QuickCMAForm({ onAnalysisComplete }: QuickCMAFormProps) 
               </div>
             </div>
 
-            <Button type="submit" disabled={isLoading} className="w-full" size="lg">
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Generating CMA Report...
-                </>
-              ) : (
-                <>
-                  <Calculator className="mr-2 h-5 w-5" />
-                  Generate CMA Report
-                </>
+            <div className="flex gap-2">
+              <Button type="submit" disabled={isLoading} className="flex-1" size="lg">
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Generating CMA Report...
+                  </>
+                ) : (
+                  <>
+                    <Calculator className="mr-2 h-5 w-5" />
+                    Generate CMA Report
+                  </>
+                )}
+              </Button>
+
+              {analysisData && (
+                <Button type="button" variant="outline" onClick={handleSave} disabled={isSaving || !user?.id} size="lg">
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="mr-2 h-4 w-4" />
+                      Save to Dashboard
+                    </>
+                  )}
+                </Button>
               )}
-            </Button>
+            </div>
           </form>
 
           {error && (

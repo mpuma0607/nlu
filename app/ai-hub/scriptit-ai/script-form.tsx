@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { generateScript } from "./actions"
-import { Loader2, Copy, Download, Mail, FileText, MessageSquare, Save } from "lucide-react"
+import { Loader2, Copy, Download, Mail, FileText, MessageSquare, Save, UserCheck } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
@@ -72,6 +72,17 @@ export default function ScriptForm() {
   const isLoggedIn = !!user && !isUserLoading
 
   const resultsRef = useRef<HTMLDivElement>(null)
+
+  // Auto-populate user data when available
+  useEffect(() => {
+    if (user && !isUserLoading) {
+      setFormData((prev) => ({
+        ...prev,
+        agentName: prev.agentName || user.name || `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+        agentEmail: prev.agentEmail || user.email || "",
+      }))
+    }
+  }, [user, isUserLoading])
 
   // Auto-scroll to results when they're generated
   useEffect(() => {
@@ -246,7 +257,7 @@ export default function ScriptForm() {
         },
       })
 
-      if (success) {
+      if (success.success) {
         toast({
           title: "Script Saved",
           description: "Your script has been saved to your profile dashboard.",
@@ -275,7 +286,9 @@ export default function ScriptForm() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <Label htmlFor="agentName">Your Name *</Label>
+          <Label htmlFor="agentName" className="flex items-center gap-2">
+            Your Name *{user && <UserCheck className="h-4 w-4 text-green-600" title="Auto-filled from your profile" />}
+          </Label>
           <Input
             id="agentName"
             name="agentName"
@@ -284,6 +297,9 @@ export default function ScriptForm() {
             onChange={handleInputChange}
             required
           />
+          {user && formData.agentName === (user.name || `${user.firstName || ""} ${user.lastName || ""}`.trim()) && (
+            <p className="text-xs text-green-600">✓ Auto-filled from your profile</p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -397,7 +413,10 @@ export default function ScriptForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="agentEmail">Your Email Address *</Label>
+        <Label htmlFor="agentEmail" className="flex items-center gap-2">
+          Your Email Address *
+          {user && <UserCheck className="h-4 w-4 text-green-600" title="Auto-filled from your profile" />}
+        </Label>
         <Input
           id="agentEmail"
           name="agentEmail"
@@ -407,6 +426,9 @@ export default function ScriptForm() {
           onChange={handleInputChange}
           required
         />
+        {user && formData.agentEmail === user.email && (
+          <p className="text-xs text-green-600">✓ Auto-filled from your profile</p>
+        )}
       </div>
 
       {/* Script Summary */}
@@ -594,13 +616,13 @@ export default function ScriptForm() {
           setStep(1)
           setResult(null)
           setFormData({
-            agentName: "",
+            agentName: user?.name || `${user?.firstName || ""} ${user?.lastName || ""}`.trim() || "",
             brokerageName: "",
             scriptType: "",
             topic: "",
             customTopic: "",
             additionalDetails: "",
-            agentEmail: "",
+            agentEmail: user?.email || "",
           })
         }}
         className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white"

@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { generateActionPlan } from "./actions"
-import { Loader2, Copy, Download, Mail, CheckCircle, Save } from "lucide-react"
+import { Loader2, Copy, Download, Mail, CheckCircle, Save, UserCheck } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 import { saveUserCreation } from "@/lib/auto-save-creation"
@@ -31,7 +31,7 @@ type ActionPlanResult = {
 
 export default function ActionPlanForm() {
   const { toast } = useToast()
-  const { user, isLoggedIn } = useMemberSpaceUser()
+  const { user, isLoading: userLoading } = useMemberSpaceUser()
   const [step, setStep] = useState(1)
   const [isGenerating, setIsGenerating] = useState(false)
   const [isSendingEmail, setIsSendingEmail] = useState(false)
@@ -46,6 +46,17 @@ export default function ActionPlanForm() {
     specificGoals: "",
   })
   const [result, setResult] = useState<ActionPlanResult | null>(null)
+
+  // Auto-populate user data when available
+  useEffect(() => {
+    if (user && !userLoading) {
+      setFormData((prev) => ({
+        ...prev,
+        name: prev.name || user.name || `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+        email: prev.email || user.email || "",
+      }))
+    }
+  }, [user, userLoading])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -173,17 +184,19 @@ export default function ActionPlanForm() {
   }
 
   const saveToProfile = async () => {
-    if (!result || !isLoggedIn) return
+    if (!result || !user) return
 
     setIsSaving(true)
     try {
       const title = `Action Plan - ${formData.prospectType === "Other" ? formData.customProspectType : formData.prospectType}`
 
-      await saveUserCreation({
+      const success = await saveUserCreation({
         userId: user?.id || "anonymous",
-        contentType: "action-plan",
+        userEmail: user?.email || "",
+        toolType: "action-plan",
         title,
         content: result.plan,
+        formData,
         metadata: {
           formData,
           generatedAt: new Date().toISOString(),
@@ -191,10 +204,14 @@ export default function ActionPlanForm() {
         },
       })
 
-      toast({
-        title: "Saved Successfully",
-        description: "Action plan saved to your profile!",
-      })
+      if (success.success) {
+        toast({
+          title: "Saved Successfully",
+          description: "Action plan saved to your profile!",
+        })
+      } else {
+        throw new Error("Failed to save")
+      }
     } catch (error) {
       console.error("Error saving action plan:", error)
       toast({
@@ -216,7 +233,9 @@ export default function ActionPlanForm() {
 
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="name">Your Name *</Label>
+          <Label htmlFor="name" className="flex items-center gap-2">
+            Your Name *{user && <UserCheck className="h-4 w-4 text-green-600" title="Auto-filled from your profile" />}
+          </Label>
           <Input
             id="name"
             name="name"
@@ -225,10 +244,15 @@ export default function ActionPlanForm() {
             onChange={handleInputChange}
             required
           />
+          {user && formData.name === (user.name || `${user.firstName || ""} ${user.lastName || ""}`.trim()) && (
+            <p className="text-xs text-green-600">✓ Auto-filled from your profile</p>
+          )}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="email">Your Email *</Label>
+          <Label htmlFor="email" className="flex items-center gap-2">
+            Your Email *{user && <UserCheck className="h-4 w-4 text-green-600" title="Auto-filled from your profile" />}
+          </Label>
           <Input
             id="email"
             name="email"
@@ -238,6 +262,9 @@ export default function ActionPlanForm() {
             onChange={handleInputChange}
             required
           />
+          {user && formData.email === user.email && (
+            <p className="text-xs text-green-600">✓ Auto-filled from your profile</p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -433,11 +460,11 @@ export default function ActionPlanForm() {
         <Button
           variant="outline"
           onClick={saveToProfile}
-          disabled={isSaving || !isLoggedIn}
+          disabled={isSaving || !user}
           className="flex items-center justify-center gap-2 bg-transparent"
         >
           {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          <span className="whitespace-nowrap">{!isLoggedIn ? "Login to Save" : "Save"}</span>
+          <span className="whitespace-nowrap">{!user ? "Login to Save" : "Save"}</span>
         </Button>
       </div>
 
@@ -459,8 +486,8 @@ export default function ActionPlanForm() {
           setStep(1)
           setResult(null)
           setFormData({
-            name: "",
-            email: "",
+            name: user?.name || `${user?.firstName || ""} ${user?.lastName || ""}`.trim() || "",
+            email: user?.email || "",
             prospectType: "",
             customProspectType: "",
             language: "English",

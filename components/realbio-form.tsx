@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { generateAgentBio } from "../lib/realbio-actions"
-import { Loader2, Copy, Mail, User, Download, FileText, Save } from "lucide-react"
+import { Loader2, Copy, Mail, User, Download, FileText, Save, UserCheck } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
@@ -56,6 +56,17 @@ export default function RealBioForm() {
   })
   const [result, setResult] = useState<BioResult | null>(null)
   const { user, isLoading: userLoading } = useMemberSpaceUser()
+
+  // Auto-populate user data when available
+  useEffect(() => {
+    if (user && !userLoading) {
+      setFormData((prev) => ({
+        ...prev,
+        name: prev.name || user.name || `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+        email: prev.email || user.email || "",
+      }))
+    }
+  }, [user, userLoading])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -217,7 +228,7 @@ export default function RealBioForm() {
         },
       })
 
-      if (success) {
+      if (success.success) {
         toast({
           title: "Saved to Profile!",
           description: "Your bio has been saved to your content dashboard.",
@@ -241,7 +252,9 @@ export default function RealBioForm() {
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <Label htmlFor="name">Your Name *</Label>
+          <Label htmlFor="name" className="flex items-center gap-2">
+            Your Name *{user && <UserCheck className="h-4 w-4 text-green-600" title="Auto-filled from your profile" />}
+          </Label>
           <Input
             id="name"
             name="name"
@@ -250,6 +263,9 @@ export default function RealBioForm() {
             onChange={handleInputChange}
             required
           />
+          {user && formData.name === (user.name || `${user.firstName || ""} ${user.lastName || ""}`.trim()) && (
+            <p className="text-xs text-green-600">✓ Auto-filled from your profile</p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -340,7 +356,10 @@ export default function RealBioForm() {
   const renderStepTwo = () => (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="email">Your Email Address *</Label>
+        <Label htmlFor="email" className="flex items-center gap-2">
+          Your Email Address *
+          {user && <UserCheck className="h-4 w-4 text-green-600" title="Auto-filled from your profile" />}
+        </Label>
         <Input
           id="email"
           name="email"
@@ -350,6 +369,9 @@ export default function RealBioForm() {
           onChange={handleInputChange}
           required
         />
+        {user && formData.email === user.email && (
+          <p className="text-xs text-green-600">✓ Auto-filled from your profile</p>
+        )}
       </div>
 
       {/* Preview of entered information */}
@@ -479,13 +501,13 @@ export default function RealBioForm() {
           setStep(1)
           setResult(null)
           setFormData({
-            name: "",
+            name: user?.name || `${user?.firstName || ""} ${user?.lastName || ""}`.trim() || "",
             brokerage: "",
             timeInIndustry: "",
             origin: "",
             areasServed: "",
             hobbies: "",
-            email: "",
+            email: user?.email || "",
           })
         }}
         className="w-full bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 text-white"

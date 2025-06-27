@@ -40,6 +40,19 @@ export async function saveUserCreation(params: SaveCreationParams): Promise<{ su
   }
 }
 
+// Auto-save function that can be called automatically
+export async function autoSaveCreation(params: SaveCreationParams): Promise<void> {
+  try {
+    const result = await saveUserCreation(params)
+    if (!result.success) {
+      console.warn("Auto-save failed:", result.error)
+    }
+  } catch (error) {
+    console.warn("Auto-save error:", error)
+    // Don't throw error for auto-save failures to avoid disrupting user experience
+  }
+}
+
 // Helper function to generate titles for different tool types
 export function generateCreationTitle(toolType: string, formData: any): string {
   switch (toolType) {

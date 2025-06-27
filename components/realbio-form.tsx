@@ -12,7 +12,7 @@ import { generateAgentBio } from "../lib/realbio-actions"
 import { Loader2, Copy, Mail, User, Download, FileText, Save } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
-import { saveUserCreation } from "@/lib/auto-save-creation"
+import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
 
 type BioFormState = {
   name: string
@@ -197,13 +197,15 @@ export default function RealBioForm() {
 
     setIsSaving(true)
     try {
-      const title = `Bio for ${formData.name || "User"} - ${new Date().toLocaleDateString()}`
+      const title = generateCreationTitle("realbio", { agentName: formData.name })
 
-      await saveUserCreation({
+      const success = await saveUserCreation({
         userId: user.id,
-        contentType: "realbio",
+        userEmail: user.email || "",
+        toolType: "realbio",
         title,
         content: result.bio,
+        formData,
         metadata: {
           name: formData.name,
           brokerage: formData.brokerage,
@@ -215,10 +217,14 @@ export default function RealBioForm() {
         },
       })
 
-      toast({
-        title: "Saved to Profile!",
-        description: "Your bio has been saved to your content dashboard.",
-      })
+      if (success) {
+        toast({
+          title: "Saved to Profile!",
+          description: "Your bio has been saved to your content dashboard.",
+        })
+      } else {
+        throw new Error("Save operation returned false")
+      }
     } catch (error) {
       console.error("Error saving bio:", error)
       toast({
@@ -418,14 +424,18 @@ export default function RealBioForm() {
       </Card>
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <Button variant="outline" onClick={copyToClipboard} className="flex items-center justify-center gap-2">
+        <Button
+          variant="outline"
+          onClick={copyToClipboard}
+          className="flex items-center justify-center gap-2 bg-transparent"
+        >
           <Copy className="h-4 w-4" /> <span className="whitespace-nowrap">Copy</span>
         </Button>
         <Button
           variant="outline"
           onClick={downloadPDF}
           disabled={isGeneratingPDF}
-          className="flex items-center justify-center gap-2"
+          className="flex items-center justify-center gap-2 bg-transparent"
         >
           {isGeneratingPDF ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
           <span className="whitespace-nowrap">Download</span>
@@ -434,7 +444,7 @@ export default function RealBioForm() {
           variant="outline"
           onClick={sendEmail}
           disabled={isSendingEmail}
-          className="flex items-center justify-center gap-2"
+          className="flex items-center justify-center gap-2 bg-transparent"
         >
           {isSendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
           <span className="whitespace-nowrap">Email</span>
@@ -443,7 +453,7 @@ export default function RealBioForm() {
           variant="outline"
           onClick={saveToProfile}
           disabled={!user || isSaving}
-          className="flex items-center justify-center gap-2"
+          className="flex items-center justify-center gap-2 bg-transparent"
         >
           {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           <span className="whitespace-nowrap">{user ? "Save" : "Login to Save"}</span>

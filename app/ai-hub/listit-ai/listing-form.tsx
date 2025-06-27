@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { generateListingDescription, generateListingHTML } from "./actions"
-import { Loader2, Copy, Download, Mail, Home, FileText, Save } from "lucide-react"
+import { Loader2, Copy, Download, Mail, Home, FileText, Save, Check } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
@@ -69,6 +69,17 @@ export default function ListingForm() {
       }, 100)
     }
   }, [result, step])
+
+  // Auto-populate user data when logged in
+  useEffect(() => {
+    if (isLoggedIn && user) {
+      setFormData((prev) => ({
+        ...prev,
+        agentName: user.name || `${user.firstName || ""} ${user.lastName || ""}`.trim() || prev.agentName,
+        agentEmail: user.email || prev.agentEmail,
+      }))
+    }
+  }, [isLoggedIn, user])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -458,7 +469,15 @@ export default function ListingForm() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="agentName">Your Name *</Label>
+          <Label htmlFor="agentName" className="flex items-center gap-2">
+            Your Name *
+            {isLoggedIn && user && (user.name || user.firstName) && (
+              <span className="flex items-center gap-1 text-green-600 text-xs">
+                <Check className="h-3 w-3" />
+                Auto-filled
+              </span>
+            )}
+          </Label>
           <Input
             id="agentName"
             name="agentName"
@@ -469,7 +488,15 @@ export default function ListingForm() {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="agentEmail">Your Email *</Label>
+          <Label htmlFor="agentEmail" className="flex items-center gap-2">
+            Your Email *
+            {isLoggedIn && user?.email && (
+              <span className="flex items-center gap-1 text-green-600 text-xs">
+                <Check className="h-3 w-3" />
+                Auto-filled
+              </span>
+            )}
+          </Label>
           <Input
             id="agentEmail"
             name="agentEmail"
@@ -651,9 +678,7 @@ export default function ListingForm() {
 
       <Button
         onClick={() => {
-          setStep(1)
-          setResult(null)
-          setFormData({
+          const newFormData = {
             propertyAddress: "",
             listingPrice: "",
             bedrooms: "",
@@ -664,9 +689,12 @@ export default function ListingForm() {
             feature3: "",
             feature4: "",
             feature5: "",
-            agentName: "",
-            agentEmail: "",
-          })
+            agentName: isLoggedIn && user ? user.name || `${user.firstName || ""} ${user.lastName || ""}`.trim() : "",
+            agentEmail: isLoggedIn && user ? user.email : "",
+          }
+          setFormData(newFormData)
+          setStep(1)
+          setResult(null)
         }}
         className="w-full bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-700 hover:to-amber-700 text-white"
       >

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Textarea } from "@/components/ui/textarea"
-import { Loader2, Mail, TrendingUp, FileText, Save } from "lucide-react"
+import { Loader2, Mail, TrendingUp, FileText, Save, Check } from "lucide-react"
 import { Smartphone, Target } from "lucide-react"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
@@ -70,6 +70,17 @@ export default function BizPlanForm() {
       }, 100)
     }
   }, [businessPlan])
+
+  // Auto-populate user data when logged in
+  useEffect(() => {
+    if (isLoggedIn && user) {
+      setFormData((prev) => ({
+        ...prev,
+        name: user.name || `${user.firstName || ""} ${user.lastName || ""}`.trim() || prev.name,
+        email: user.email || prev.email,
+      }))
+    }
+  }, [isLoggedIn, user])
 
   const calculateBusinessPlan = () => {
     setIsCalculating(true)
@@ -626,7 +637,15 @@ Money Plan: ${formData.moneyPlan}`
           {/* Personal Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name" className="flex items-center gap-2">
+                Name
+                {isLoggedIn && user && (user.name || user.firstName) && (
+                  <span className="flex items-center gap-1 text-green-600 text-xs">
+                    <Check className="h-3 w-3" />
+                    Auto-filled
+                  </span>
+                )}
+              </Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -635,7 +654,15 @@ Money Plan: ${formData.moneyPlan}`
               />
             </div>
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="flex items-center gap-2">
+                Email
+                {isLoggedIn && user?.email && (
+                  <span className="flex items-center gap-1 text-green-600 text-xs">
+                    <Check className="h-3 w-3" />
+                    Auto-filled
+                  </span>
+                )}
+              </Label>
               <Input
                 id="email"
                 type="email"
@@ -936,7 +963,7 @@ Money Plan: ${formData.moneyPlan}`
                   onClick={emailWallpaper}
                   disabled={isEmailingWallpaper}
                   variant="outline"
-                  className="border-purple-300 text-purple-700 hover:bg-purple-50"
+                  className="border-purple-300 text-purple-700 hover:bg-purple-50 bg-transparent"
                 >
                   {isEmailingWallpaper ? (
                     <>
@@ -975,7 +1002,12 @@ Money Plan: ${formData.moneyPlan}`
                   </>
                 )}
               </Button>
-              <Button onClick={handleEmailPlan} disabled={isEmailing} variant="outline" className="flex-1">
+              <Button
+                onClick={handleEmailPlan}
+                disabled={isEmailing}
+                variant="outline"
+                className="flex-1 bg-transparent"
+              >
                 {isEmailing ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -988,7 +1020,12 @@ Money Plan: ${formData.moneyPlan}`
                   </>
                 )}
               </Button>
-              <Button onClick={saveToProfile} disabled={isSaving || !isLoggedIn} variant="outline" className="flex-1">
+              <Button
+                onClick={saveToProfile}
+                disabled={isSaving || !isLoggedIn}
+                variant="outline"
+                className="flex-1 bg-transparent"
+              >
                 {isSaving ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

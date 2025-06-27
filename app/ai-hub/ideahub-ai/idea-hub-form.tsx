@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { generateContent } from "./actions"
-import { Loader2, Copy, Download, Mail, Save } from "lucide-react"
+import { Loader2, Copy, Download, Mail, Save, Check } from "lucide-react"
 import Image from "next/image"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
@@ -366,6 +366,17 @@ export default function IdeaHubForm() {
     }
   }, [result, step])
 
+  // Auto-populate user data when logged in
+  useEffect(() => {
+    if (isLoggedIn && user) {
+      setFormData((prev) => ({
+        ...prev,
+        name: user.name || `${user.firstName || ""} ${user.lastName || ""}`.trim() || prev.name,
+        email: user.email || prev.email,
+      }))
+    }
+  }, [isLoggedIn, user])
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
@@ -564,7 +575,15 @@ export default function IdeaHubForm() {
   const renderStepTwo = () => (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="name">Your Name *</Label>
+        <Label htmlFor="name" className="flex items-center gap-2">
+          Your Name *
+          {isLoggedIn && user && (user.name || user.firstName) && (
+            <span className="flex items-center gap-1 text-green-600 text-xs">
+              <Check className="h-3 w-3" />
+              Auto-filled
+            </span>
+          )}
+        </Label>
         <Input
           id="name"
           name="name"
@@ -576,7 +595,15 @@ export default function IdeaHubForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="email">Your Email *</Label>
+        <Label htmlFor="email" className="flex items-center gap-2">
+          Your Email *
+          {isLoggedIn && user?.email && (
+            <span className="flex items-center gap-1 text-green-600 text-xs">
+              <Check className="h-3 w-3" />
+              Auto-filled
+            </span>
+          )}
+        </Label>
         <Input
           id="email"
           name="email"
@@ -652,17 +679,25 @@ export default function IdeaHubForm() {
       </Tabs>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <Button variant="outline" onClick={copyToClipboard} className="flex items-center justify-center gap-2">
+        <Button
+          variant="outline"
+          onClick={copyToClipboard}
+          className="flex items-center justify-center gap-2 bg-transparent"
+        >
           <Copy className="h-4 w-4" /> <span className="whitespace-nowrap">Copy</span>
         </Button>
-        <Button variant="outline" onClick={downloadImage} className="flex items-center justify-center gap-2">
+        <Button
+          variant="outline"
+          onClick={downloadImage}
+          className="flex items-center justify-center gap-2 bg-transparent"
+        >
           <Download className="h-4 w-4" /> <span className="whitespace-nowrap">Download</span>
         </Button>
         <Button
           variant="outline"
           onClick={sendEmail}
           disabled={isSendingEmail}
-          className="flex items-center justify-center gap-2"
+          className="flex items-center justify-center gap-2 bg-transparent"
         >
           {isSendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
           <span className="whitespace-nowrap">Email</span>
@@ -671,7 +706,7 @@ export default function IdeaHubForm() {
           variant="outline"
           onClick={saveToProfile}
           disabled={isSaving || !isLoggedIn || !result?.text}
-          className="flex items-center justify-center gap-2"
+          className="flex items-center justify-center gap-2 bg-transparent"
         >
           {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           <span className="whitespace-nowrap">{!isLoggedIn ? "Login to Save" : "Save"}</span>
@@ -682,14 +717,15 @@ export default function IdeaHubForm() {
         onClick={() => {
           setStep(1)
           setResult(null)
-          setFormData({
+          const newFormData = {
             primaryTopic: "",
             alternateTopic: "",
             language: "English",
-            name: "",
-            email: "",
+            name: isLoggedIn && user ? user.name || `${user.firstName || ""} ${user.lastName || ""}`.trim() : "",
+            email: isLoggedIn && user ? user.email : "",
             contentType: "Social post",
-          })
+          }
+          setFormData(newFormData)
         }}
         className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
       >

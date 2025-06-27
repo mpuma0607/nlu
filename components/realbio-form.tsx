@@ -1,499 +1,738 @@
 "use client"
 
 import type React from "react"
-
-import { useState, useRef, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Mic, MicOff, Save } from "lucide-react"
-import { generateRealBio } from "@/lib/realbio-actions"
+import { Loader2, Copy, Mail, User, Download, FileText, Save, UserCheck, Mic, MicOff } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
-import { saveUserCreation } from "@/lib/user-creations"
-import { toast } from "sonner"
+import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
+import { generateAgentBio } from "../lib/realbio-actions"
 
-interface FormData {
-  fullName: string
-  yearsInRealEstate: string
-  specialties: string
-  personalBackground: string
-  achievements: string
-  personalInterests: string
-  communityInvolvement: string
-  uniqueSellingPoints: string
-  tone: string
-  length: string
+type BioFormState = {
+  name: string
+  brokerage: string
+  timeInIndustry: string
+  origin: string
+  areasServed: string
+  hobbies: string
+  email: string
 }
 
-interface RealBioFormProps {
-  onGenerate: (bio: string, formData: FormData) => void
-  isGenerating: boolean
+type BioResult = {
+  bio: string
 }
 
-export function RealBioForm({ onGenerate, isGenerating }: RealBioFormProps) {
-  const { user } = useMemberSpaceUser()
-  const [formData, setFormData] = useState<FormData>({
-    fullName: "",
-    yearsInRealEstate: "",
-    specialties: "",
-    personalBackground: "",
-    achievements: "",
-    personalInterests: "",
-    communityInvolvement: "",
-    uniqueSellingPoints: "",
-    tone: "professional",
-    length: "medium",
-  })
+const timeInIndustryOptions = [
+  "Less than 1 year",
+  "1-2 years",
+  "3-5 years",
+  "6-10 years",
+  "11-15 years",
+  "16-20 years",
+  "Over 20 years",
+]
 
-  const [isListening, setIsListening] = useState(false)
-  const [currentField, setCurrentField] = useState<string | null>(null)
-  const recognitionRef = useRef<any>(null)
+export default function RealBioForm() {
+  const { toast } = useToast()
+  const [step, setStep] = useState(1)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [isSendingEmail, setIsSendingEmail] = useState(false)
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [isListeningOrigin, setIsListeningOrigin] = useState(false)
+  const [isListeningAreas, setIsListeningAreas] = useState(false)
+  const [isListeningHobbies, setIsListeningHobbies] = useState(false)
+  const [formData, setFormData] = useState<BioFormState>({
+    name: "",
+    brokerage: "",
+    timeInIndustry: "",
+    origin: "",
+    areasServed: "",
+    hobbies: "",
+    email: "",
+  })
+  const [result, setResult] = useState<BioResult | null>(null)
+  const { user, isLoading: userLoading } = useMemberSpaceUser()
 
-  // Auto-populate user data
+  // Auto-populate user data when available
   useEffect(() => {
-    if (user?.name && !formData.fullName) {
+    if (user && !userLoading) {
       setFormData((prev) => ({
         ...prev,
-        fullName: user.name,
+        name: prev.name || user.name || `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+        email: prev.email || user.email || "",
       }))
     }
-  }, [user, formData.fullName])
+  }, [user, userLoading])
 
-  const startListening = (fieldName: string) => {
-    if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
-      alert("Speech recognition is not supported in this browser.")
-      return
-    }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
 
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-    recognitionRef.current = new SpeechRecognition()
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
 
-    // Mobile optimization
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+  const startListening = (field: "origin" | "areasServed" | "hobbies") => {
+    if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition
+      const recognition = new SpeechRecognition()
 
-    recognitionRef.current.continuous = false
-    recognitionRef.current.interimResults = true
-    recognitionRef.current.lang = "en-US"
+      // Mobile-optimized settings
+      recognition.continuous = false
+      recognition.interimResults = true
+      recognition.lang = "en-US"
+      recognition.maxAlternatives = 3
 
-    if (isMobile) {
-      recognitionRef.current.maxAlternatives = 1
-    }
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        recognition.continuous = false
+        recognition.interimResults = true
+        recognition.speechTimeoutLength = 10000
+        recognition.speechInputPossiblyComplete = 8000
+      }
 
-    recognitionRef.current.onstart = () => {
-      setIsListening(true)
-      setCurrentField(fieldName)
-    }
-
-    recognitionRef.current.onresult = (event: any) => {
       let finalTranscript = ""
       let interimTranscript = ""
 
-      for (let i = 0; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript
-        if (event.results[i].isFinal) {
-          finalTranscript += transcript
-        } else {
-          interimTranscript += transcript
+      recognition.onstart = () => {
+        if (field === "origin") setIsListeningOrigin(true)
+        if (field === "areasServed") setIsListeningAreas(true)
+        if (field === "hobbies") setIsListeningHobbies(true)
+        console.log("Voice recognition started for", field)
+      }
+
+      recognition.onresult = (event: any) => {
+        finalTranscript = ""
+        interimTranscript = ""
+
+        for (let i = 0; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript
+          } else {
+            interimTranscript += transcript
+          }
+        }
+
+        const currentText = (finalTranscript || interimTranscript).trim()
+        if (currentText) {
+          setFormData((prev) => ({
+            ...prev,
+            [field]: currentText, // REPLACE instead of append
+          }))
+        }
+
+        console.log("Voice result:", { final: finalTranscript, interim: interimTranscript })
+      }
+
+      recognition.onerror = (event: any) => {
+        console.error("Voice recognition error:", event.error)
+        setIsListeningOrigin(false)
+        setIsListeningAreas(false)
+        setIsListeningHobbies(false)
+
+        let errorMessage = "Voice recognition failed. "
+        switch (event.error) {
+          case "no-speech":
+            errorMessage += "No speech detected. Please try again."
+            break
+          case "audio-capture":
+            errorMessage += "Microphone not accessible. Please check permissions."
+            break
+          case "not-allowed":
+            errorMessage += "Microphone permission denied. Please enable microphone access."
+            break
+          case "network":
+            errorMessage += "Network error. Please check your connection."
+            break
+          default:
+            errorMessage += "Please try typing your response instead."
+        }
+
+        if (event.error !== "aborted") {
+          toast({
+            title: "Voice Recognition Error",
+            description: errorMessage,
+            variant: "destructive",
+          })
         }
       }
 
-      const currentText = (finalTranscript || interimTranscript).trim()
-
-      if (currentText) {
-        setFormData((prev) => ({
-          ...prev,
-          [fieldName]: currentText, // REPLACE instead of append
-        }))
+      recognition.onend = () => {
+        setIsListeningOrigin(false)
+        setIsListeningAreas(false)
+        setIsListeningHobbies(false)
+        console.log("Voice recognition ended")
       }
-    }
 
-    recognitionRef.current.onerror = (event: any) => {
-      console.error("Speech recognition error:", event.error)
-      setIsListening(false)
-      setCurrentField(null)
-
-      if (event.error === "not-allowed") {
-        alert("Microphone access denied. Please allow microphone access and try again.")
-      } else if (event.error === "no-speech") {
-        alert("No speech detected. Please try again.")
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        navigator.mediaDevices
+          ?.getUserMedia({ audio: true })
+          .then(() => {
+            recognition.start()
+          })
+          .catch((err) => {
+            console.error("Microphone permission error:", err)
+            toast({
+              title: "Microphone Access Required",
+              description: "Please allow microphone access to use voice input.",
+              variant: "destructive",
+            })
+          })
+      } else {
+        recognition.start()
       }
+    } else {
+      toast({
+        title: "Voice Recognition Not Supported",
+        description: "Voice recognition is not supported in your browser. Please try Chrome or Safari.",
+        variant: "destructive",
+      })
     }
-
-    recognitionRef.current.onend = () => {
-      setIsListening(false)
-      setCurrentField(null)
-    }
-
-    try {
-      recognitionRef.current.start()
-    } catch (error) {
-      console.error("Error starting speech recognition:", error)
-      setIsListening(false)
-      setCurrentField(null)
-    }
-  }
-
-  const stopListening = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop()
-    }
-    setIsListening(false)
-    setCurrentField(null)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (!formData.fullName.trim()) {
-      alert("Please enter your full name.")
-      return
-    }
+    setIsGenerating(true)
 
     try {
-      const bio = await generateRealBio(formData)
-      onGenerate(bio, formData)
+      const generatedBio = await generateAgentBio(formData)
+      setResult(generatedBio)
+      setStep(3)
+      toast({
+        title: "Bio Generated Successfully",
+        description: "Your professional agent bio is ready!",
+      })
     } catch (error) {
       console.error("Error generating bio:", error)
-      alert("Failed to generate bio. Please try again.")
+      toast({
+        title: "Error Generating Bio",
+        description: "Failed to generate bio. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsGenerating(false)
     }
   }
 
-  const handleSave = async () => {
-    if (!user?.id) {
-      toast.error("Please log in to save your work")
-      return
+  const copyToClipboard = () => {
+    if (result?.bio) {
+      navigator.clipboard.writeText(result.bio)
+      toast({
+        title: "Copied to Clipboard",
+        description: "Your bio has been copied to clipboard.",
+      })
     }
+  }
 
-    if (!formData.fullName.trim()) {
-      toast.error("Please enter your full name before saving")
-      return
+  const downloadPDF = async () => {
+    if (result?.bio) {
+      setIsGeneratingPDF(true)
+      try {
+        const response = await fetch("/api/realbio", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            action: "download-pdf",
+            formData,
+            bio: result.bio,
+          }),
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.error || "Failed to generate PDF")
+        }
+
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement("a")
+        link.href = url
+        link.download = `${formData.name.replace(/\s+/g, "_")}_Agent_Bio.pdf`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+
+        toast({
+          title: "PDF Downloaded",
+          description: "Your bio PDF has been downloaded successfully.",
+        })
+      } catch (error) {
+        console.error("Error generating PDF:", error)
+        toast({
+          title: "PDF Generation Failed",
+          description: error instanceof Error ? error.message : "Failed to generate PDF. Please try again.",
+          variant: "destructive",
+        })
+      } finally {
+        setIsGeneratingPDF(false)
+      }
     }
+  }
+
+  const sendEmail = async () => {
+    if (result?.bio) {
+      setIsSendingEmail(true)
+      try {
+        const response = await fetch("/api/realbio", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            action: "send-email",
+            formData,
+            bio: result.bio,
+          }),
+        })
+
+        const data = await response.json()
+        console.log("Email response:", data) // Add this for debugging
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to send email")
+        }
+
+        if (data.success) {
+          toast({
+            title: "Email Sent Successfully",
+            description: "Check your inbox for your professional bio!",
+          })
+        } else {
+          throw new Error(data.error || "Failed to send email")
+        }
+      } catch (error) {
+        console.error("Error sending email:", error)
+        toast({
+          title: "Email Sending Failed",
+          description: error instanceof Error ? error.message : "Failed to send email. Please try again.",
+          variant: "destructive",
+        })
+      } finally {
+        setIsSendingEmail(false)
+      }
+    }
+  }
+
+  const saveToProfile = async () => {
+    if (!result?.bio || !user) return
 
     setIsSaving(true)
     try {
-      await saveUserCreation({
+      const title = generateCreationTitle("realbio", { agentName: formData.name })
+
+      const success = await saveUserCreation({
         userId: user.id,
-        toolName: "RealBio AI",
-        creationType: "bio_form",
-        content: JSON.stringify(formData),
+        userEmail: user.email || "",
+        toolType: "realbio",
+        title,
+        content: result.bio,
+        formData,
         metadata: {
-          fullName: formData.fullName,
-          tone: formData.tone,
-          length: formData.length,
+          name: formData.name,
+          brokerage: formData.brokerage,
+          timeInIndustry: formData.timeInIndustry,
+          origin: formData.origin,
+          areasServed: formData.areasServed,
+          hobbies: formData.hobbies,
+          generatedAt: new Date().toISOString(),
         },
       })
-      toast.success("Bio form saved successfully!")
+
+      if (success.success) {
+        toast({
+          title: "Saved to Profile!",
+          description: "Your bio has been saved to your content dashboard.",
+        })
+      } else {
+        throw new Error("Save operation returned false")
+      }
     } catch (error) {
-      console.error("Error saving bio form:", error)
-      toast.error("Failed to save bio form")
+      console.error("Error saving bio:", error)
+      toast({
+        title: "Save Failed",
+        description: "Failed to save bio to your profile. Please try again.",
+        variant: "destructive",
+      })
     } finally {
       setIsSaving(false)
     }
   }
 
+  const renderStepOne = () => (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <Label htmlFor="name" className="flex items-center gap-2">
+            Your Name *{user && <UserCheck className="h-4 w-4 text-green-600" title="Auto-filled from your profile" />}
+          </Label>
+          <Input
+            id="name"
+            name="name"
+            placeholder="Enter your full name"
+            value={formData.name}
+            onChange={handleInputChange}
+            required
+          />
+          {user && formData.name === (user.name || `${user.firstName || ""} ${user.lastName || ""}`.trim()) && (
+            <p className="text-xs text-green-600">✓ Auto-filled from your profile</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="brokerage">Brokerage Name *</Label>
+          <Input
+            id="brokerage"
+            name="brokerage"
+            placeholder="Enter your brokerage name"
+            value={formData.brokerage}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="timeInIndustry">Time in Industry *</Label>
+        <Select value={formData.timeInIndustry} onValueChange={(value) => handleSelectChange("timeInIndustry", value)}>
+          <SelectTrigger id="timeInIndustry">
+            <SelectValue placeholder="Select how long you've been in real estate" />
+          </SelectTrigger>
+          <SelectContent>
+            {timeInIndustryOptions.map((option, index) => (
+              <SelectItem key={index} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="origin">Your Origin Story *</Label>
+        <div className="relative">
+          <Textarea
+            id="origin"
+            name="origin"
+            placeholder="Tell us about your background - what led you to real estate? What's your story? (e.g., former teacher, military background, local native, etc.)"
+            value={formData.origin}
+            onChange={handleInputChange}
+            className="min-h-[100px] pr-12"
+            required
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="absolute top-2 right-2"
+            onClick={() => startListening("origin")}
+            disabled={isListeningOrigin}
+          >
+            {isListeningOrigin ? <MicOff className="h-4 w-4 text-red-500" /> : <Mic className="h-4 w-4" />}
+          </Button>
+        </div>
+        {isListeningOrigin && (
+          <div className="flex items-center gap-2 text-sm text-blue-600">
+            <div className="animate-pulse w-2 h-2 bg-red-500 rounded-full"></div>
+            Listening... Tell us your story
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="areasServed">Areas You Serve *</Label>
+        <div className="relative">
+          <Textarea
+            id="areasServed"
+            name="areasServed"
+            placeholder="List the cities, neighborhoods, or regions you serve (e.g., Downtown Miami, Coral Gables, Aventura, etc.)"
+            value={formData.areasServed}
+            onChange={handleInputChange}
+            className="min-h-[80px] pr-12"
+            required
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="absolute top-2 right-2"
+            onClick={() => startListening("areasServed")}
+            disabled={isListeningAreas}
+          >
+            {isListeningAreas ? <MicOff className="h-4 w-4 text-red-500" /> : <Mic className="h-4 w-4" />}
+          </Button>
+        </div>
+        {isListeningAreas && (
+          <div className="flex items-center gap-2 text-sm text-blue-600">
+            <div className="animate-pulse w-2 h-2 bg-red-500 rounded-full"></div>
+            Listening... Tell us the areas you serve
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="hobbies">Personal Interests & Hobbies *</Label>
+        <div className="relative">
+          <Textarea
+            id="hobbies"
+            name="hobbies"
+            placeholder="Share your hobbies, interests, and what you enjoy outside of real estate (e.g., hiking, cooking, volunteering, sports, travel, etc.)"
+            value={formData.hobbies}
+            onChange={handleInputChange}
+            className="min-h-[80px] pr-12"
+            required
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="absolute top-2 right-2"
+            onClick={() => startListening("hobbies")}
+            disabled={isListeningHobbies}
+          >
+            {isListeningHobbies ? <MicOff className="h-4 w-4 text-red-500" /> : <Mic className="h-4 w-4" />}
+          </Button>
+        </div>
+        {isListeningHobbies && (
+          <div className="flex items-center gap-2 text-sm text-blue-600">
+            <div className="animate-pulse w-2 h-2 bg-red-500 rounded-full"></div>
+            Listening... Tell us about your interests and hobbies
+          </div>
+        )}
+      </div>
+
+      {/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) && (
+        <div className="text-xs text-muted-foreground mt-2 p-2 bg-blue-50 rounded">
+          <strong>Voice Input Tips:</strong> Speak clearly, hold phone close to mouth, ensure good internet connection
+        </div>
+      )}
+
+      <Button
+        onClick={() => setStep(2)}
+        disabled={
+          !formData.name ||
+          !formData.brokerage ||
+          !formData.timeInIndustry ||
+          !formData.origin ||
+          !formData.areasServed ||
+          !formData.hobbies
+        }
+        className="w-full bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 text-white"
+      >
+        Next
+      </Button>
+    </div>
+  )
+
+  const renderStepTwo = () => (
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <Label htmlFor="email" className="flex items-center gap-2">
+          Your Email Address *
+          {user && <UserCheck className="h-4 w-4 text-green-600" title="Auto-filled from your profile" />}
+        </Label>
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          placeholder="Enter your email to receive your bio"
+          value={formData.email}
+          onChange={handleInputChange}
+          required
+        />
+        {user && formData.email === user.email && (
+          <p className="text-xs text-green-600">✓ Auto-filled from your profile</p>
+        )}
+      </div>
+
+      {/* Preview of entered information */}
+      <Card className="bg-gray-50 border-0">
+        <CardContent className="p-6">
+          <h4 className="font-semibold text-black mb-4 flex items-center gap-2">
+            <User className="h-4 w-4" />
+            Bio Preview Information
+          </h4>
+          <div className="space-y-2 text-sm">
+            <p>
+              <span className="font-medium">Name:</span> {formData.name}
+            </p>
+            <p>
+              <span className="font-medium">Brokerage:</span> {formData.brokerage}
+            </p>
+            <p>
+              <span className="font-medium">Experience:</span> {formData.timeInIndustry}
+            </p>
+            <p>
+              <span className="font-medium">Areas Served:</span> {formData.areasServed}
+            </p>
+            <p>
+              <span className="font-medium">Background:</span> {formData.origin.substring(0, 100)}
+              {formData.origin.length > 100 && "..."}
+            </p>
+            <p>
+              <span className="font-medium">Interests:</span> {formData.hobbies.substring(0, 100)}
+              {formData.hobbies.length > 100 && "..."}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="flex gap-4">
+        <Button variant="outline" onClick={() => setStep(1)} className="flex-1">
+          Back
+        </Button>
+        <Button
+          onClick={handleSubmit}
+          disabled={isGenerating || !formData.email}
+          className="flex-1 bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 text-white"
+        >
+          {isGenerating ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating Bio...
+            </>
+          ) : (
+            "Generate My Bio"
+          )}
+        </Button>
+      </div>
+    </div>
+  )
+
+  const renderStepThree = () => (
+    <div className="space-y-6">
+      <div className="text-center mb-6">
+        <h3 className="text-xl font-bold text-black">Your Professional Bio is Ready!</h3>
+        <p className="text-gray-600">Here's your compelling, professionally crafted agent bio</p>
+      </div>
+
+      <Card className="border-0 shadow-md">
+        <CardContent className="p-6">
+          <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 p-6 rounded-lg border border-yellow-200">
+            <h4 className="font-semibold text-black mb-4">Your Agent Bio:</h4>
+            <div className="prose prose-gray max-w-none">
+              <p className="whitespace-pre-wrap text-gray-800 leading-relaxed">{result?.bio}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <Button
+          variant="outline"
+          onClick={copyToClipboard}
+          className="flex items-center justify-center gap-2 bg-transparent"
+        >
+          <Copy className="h-4 w-4" /> <span className="whitespace-nowrap">Copy</span>
+        </Button>
+        <Button
+          variant="outline"
+          onClick={downloadPDF}
+          disabled={isGeneratingPDF}
+          className="flex items-center justify-center gap-2 bg-transparent"
+        >
+          {isGeneratingPDF ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+          <span className="whitespace-nowrap">Download</span>
+        </Button>
+        <Button
+          variant="outline"
+          onClick={sendEmail}
+          disabled={isSendingEmail}
+          className="flex items-center justify-center gap-2 bg-transparent"
+        >
+          {isSendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+          <span className="whitespace-nowrap">Email</span>
+        </Button>
+        <Button
+          variant="outline"
+          onClick={saveToProfile}
+          disabled={!user || isSaving}
+          className="flex items-center justify-center gap-2 bg-transparent"
+        >
+          {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          <span className="whitespace-nowrap">{user ? "Save" : "Login to Save"}</span>
+        </Button>
+      </div>
+
+      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+        <h5 className="font-medium text-blue-900 mb-2 flex items-center gap-2">
+          <FileText className="h-4 w-4" />💡 How to Use Your Bio:
+        </h5>
+        <ul className="text-sm text-blue-800 space-y-1">
+          <li>• Add it to your website's "About" page</li>
+          <li>• Use it in your social media profiles</li>
+          <li>• Include it in marketing materials and brochures</li>
+          <li>• Add it to your email signature</li>
+          <li>• Use it for speaking engagements and networking events</li>
+          <li>• Print the PDF for professional presentations</li>
+        </ul>
+      </div>
+
+      <Button
+        onClick={() => {
+          setStep(1)
+          setResult(null)
+          setFormData({
+            name: user?.name || `${user?.firstName || ""} ${user?.lastName || ""}`.trim() || "",
+            brokerage: "",
+            timeInIndustry: "",
+            origin: "",
+            areasServed: "",
+            hobbies: "",
+            email: user?.email || "",
+          })
+        }}
+        className="w-full bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 text-white"
+      >
+        Create Another Bio
+      </Button>
+    </div>
+  )
+
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader>
-        <CardTitle>Real Estate Bio Generator</CardTitle>
-        <CardDescription>
-          Create a professional real estate bio that showcases your expertise and personality
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name *</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="fullName"
-                  value={formData.fullName}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, fullName: e.target.value }))}
-                  placeholder="Enter your full name"
-                  required
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={() =>
-                    isListening && currentField === "fullName" ? stopListening() : startListening("fullName")
-                  }
-                  className={isListening && currentField === "fullName" ? "bg-red-100" : ""}
-                >
-                  {isListening && currentField === "fullName" ? (
-                    <MicOff className="h-4 w-4" />
-                  ) : (
-                    <Mic className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="yearsInRealEstate">Years in Real Estate</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="yearsInRealEstate"
-                  value={formData.yearsInRealEstate}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, yearsInRealEstate: e.target.value }))}
-                  placeholder="e.g., 5 years, Over a decade"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={() =>
-                    isListening && currentField === "yearsInRealEstate"
-                      ? stopListening()
-                      : startListening("yearsInRealEstate")
-                  }
-                  className={isListening && currentField === "yearsInRealEstate" ? "bg-red-100" : ""}
-                >
-                  {isListening && currentField === "yearsInRealEstate" ? (
-                    <MicOff className="h-4 w-4" />
-                  ) : (
-                    <Mic className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-            </div>
+    <div className="bg-white rounded-lg p-6">
+      <div className="mb-8">
+        <div className="flex items-center justify-center space-x-2">
+          <div
+            className={`w-10 h-10 rounded-full flex items-center justify-center ${
+              step >= 1 ? "bg-yellow-600 text-white" : "bg-gray-200 text-gray-600"
+            }`}
+          >
+            1
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="specialties">Specialties & Areas of Expertise</Label>
-            <div className="flex gap-2">
-              <Textarea
-                id="specialties"
-                value={formData.specialties}
-                onChange={(e) => setFormData((prev) => ({ ...prev, specialties: e.target.value }))}
-                placeholder="e.g., First-time homebuyers, luxury properties, investment properties, commercial real estate"
-                rows={3}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={() =>
-                  isListening && currentField === "specialties" ? stopListening() : startListening("specialties")
-                }
-                className={isListening && currentField === "specialties" ? "bg-red-100" : ""}
-              >
-                {isListening && currentField === "specialties" ? (
-                  <MicOff className="h-4 w-4" />
-                ) : (
-                  <Mic className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
+          <div className={`h-1 w-16 ${step >= 2 ? "bg-yellow-600" : "bg-gray-200"}`}></div>
+          <div
+            className={`w-10 h-10 rounded-full flex items-center justify-center ${
+              step >= 2 ? "bg-yellow-600 text-white" : "bg-gray-200 text-gray-600"
+            }`}
+          >
+            2
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="personalBackground">Personal Background</Label>
-            <div className="flex gap-2">
-              <Textarea
-                id="personalBackground"
-                value={formData.personalBackground}
-                onChange={(e) => setFormData((prev) => ({ ...prev, personalBackground: e.target.value }))}
-                placeholder="Share your background, what led you to real estate, your passion for helping clients"
-                rows={3}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={() =>
-                  isListening && currentField === "personalBackground"
-                    ? stopListening()
-                    : startListening("personalBackground")
-                }
-                className={isListening && currentField === "personalBackground" ? "bg-red-100" : ""}
-              >
-                {isListening && currentField === "personalBackground" ? (
-                  <MicOff className="h-4 w-4" />
-                ) : (
-                  <Mic className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
+          <div className={`h-1 w-16 ${step >= 3 ? "bg-yellow-600" : "bg-gray-200"}`}></div>
+          <div
+            className={`w-10 h-10 rounded-full flex items-center justify-center ${
+              step >= 3 ? "bg-yellow-600 text-white" : "bg-gray-200 text-gray-600"
+            }`}
+          >
+            3
           </div>
+        </div>
+      </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="achievements">Professional Achievements</Label>
-            <div className="flex gap-2">
-              <Textarea
-                id="achievements"
-                value={formData.achievements}
-                onChange={(e) => setFormData((prev) => ({ ...prev, achievements: e.target.value }))}
-                placeholder="Awards, certifications, sales records, recognition, etc."
-                rows={3}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={() =>
-                  isListening && currentField === "achievements" ? stopListening() : startListening("achievements")
-                }
-                className={isListening && currentField === "achievements" ? "bg-red-100" : ""}
-              >
-                {isListening && currentField === "achievements" ? (
-                  <MicOff className="h-4 w-4" />
-                ) : (
-                  <Mic className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="personalInterests">Personal Interests & Hobbies</Label>
-            <div className="flex gap-2">
-              <Textarea
-                id="personalInterests"
-                value={formData.personalInterests}
-                onChange={(e) => setFormData((prev) => ({ ...prev, personalInterests: e.target.value }))}
-                placeholder="What do you enjoy outside of work? Family, sports, travel, volunteering, etc."
-                rows={3}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={() =>
-                  isListening && currentField === "personalInterests"
-                    ? stopListening()
-                    : startListening("personalInterests")
-                }
-                className={isListening && currentField === "personalInterests" ? "bg-red-100" : ""}
-              >
-                {isListening && currentField === "personalInterests" ? (
-                  <MicOff className="h-4 w-4" />
-                ) : (
-                  <Mic className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="communityInvolvement">Community Involvement</Label>
-            <div className="flex gap-2">
-              <Textarea
-                id="communityInvolvement"
-                value={formData.communityInvolvement}
-                onChange={(e) => setFormData((prev) => ({ ...prev, communityInvolvement: e.target.value }))}
-                placeholder="Local organizations, charities, community activities you're involved in"
-                rows={3}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={() =>
-                  isListening && currentField === "communityInvolvement"
-                    ? stopListening()
-                    : startListening("communityInvolvement")
-                }
-                className={isListening && currentField === "communityInvolvement" ? "bg-red-100" : ""}
-              >
-                {isListening && currentField === "communityInvolvement" ? (
-                  <MicOff className="h-4 w-4" />
-                ) : (
-                  <Mic className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="uniqueSellingPoints">What Makes You Unique?</Label>
-            <div className="flex gap-2">
-              <Textarea
-                id="uniqueSellingPoints"
-                value={formData.uniqueSellingPoints}
-                onChange={(e) => setFormData((prev) => ({ ...prev, uniqueSellingPoints: e.target.value }))}
-                placeholder="What sets you apart from other agents? Your unique approach, philosophy, or strengths"
-                rows={3}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={() =>
-                  isListening && currentField === "uniqueSellingPoints"
-                    ? stopListening()
-                    : startListening("uniqueSellingPoints")
-                }
-                className={isListening && currentField === "uniqueSellingPoints" ? "bg-red-100" : ""}
-              >
-                {isListening && currentField === "uniqueSellingPoints" ? (
-                  <MicOff className="h-4 w-4" />
-                ) : (
-                  <Mic className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="tone">Tone</Label>
-              <Select
-                value={formData.tone}
-                onValueChange={(value) => setFormData((prev) => ({ ...prev, tone: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select tone" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="professional">Professional</SelectItem>
-                  <SelectItem value="friendly">Friendly & Approachable</SelectItem>
-                  <SelectItem value="confident">Confident & Authoritative</SelectItem>
-                  <SelectItem value="warm">Warm & Personal</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="length">Bio Length</Label>
-              <Select
-                value={formData.length}
-                onValueChange={(value) => setFormData((prev) => ({ ...prev, length: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select length" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="short">Short (100-150 words)</SelectItem>
-                  <SelectItem value="medium">Medium (200-300 words)</SelectItem>
-                  <SelectItem value="long">Long (400-500 words)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="flex gap-4">
-            <Button type="submit" disabled={isGenerating} className="flex-1">
-              {isGenerating ? "Generating..." : "Generate Bio"}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleSave}
-              disabled={isSaving || !formData.fullName.trim()}
-              className="flex items-center gap-2 bg-transparent"
-            >
-              <Save className="h-4 w-4" />
-              {isSaving ? "Saving..." : "Save"}
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+      <form onSubmit={(e) => e.preventDefault()}>
+        {step === 1 && renderStepOne()}
+        {step === 2 && renderStepTwo()}
+        {step === 3 && renderStepThree()}
+      </form>
+    </div>
   )
 }

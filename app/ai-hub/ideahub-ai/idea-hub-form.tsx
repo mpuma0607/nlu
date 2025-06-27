@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { generateContent } from "./actions"
-import { Loader2, Copy, Download, Mail, Save, Check, Mic, MicOff } from "lucide-react"
+import { Loader2, Copy, Download, Mail, Save, Mic, MicOff } from "lucide-react"
 import Image from "next/image"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
@@ -340,12 +340,12 @@ type ContentResult = {
 
 export default function IdeaHubForm() {
   const { toast } = useToast()
+  const { user, isLoggedIn } = useMemberSpaceUser()
   const [step, setStep] = useState(1)
   const [isGenerating, setIsGenerating] = useState(false)
   const [isSendingEmail, setIsSendingEmail] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [isListening, setIsListening] = useState(false)
-  const { user, isLoggedIn } = useMemberSpaceUser()
   const resultsRef = useRef<HTMLDivElement>(null)
   const [formData, setFormData] = useState<FormState>({
     primaryTopic: "",
@@ -396,19 +396,16 @@ export default function IdeaHubForm() {
 
       // Mobile-optimized settings (copied from PropBot)
       recognition.continuous = false
-      recognition.interimResults = true
+      recognition.interimResults = false
       recognition.lang = "en-US"
       recognition.maxAlternatives = 3
 
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         recognition.continuous = false
-        recognition.interimResults = true
+        recognition.interimResults = false
         recognition.speechTimeoutLength = 10000
         recognition.speechInputPossiblyComplete = 8000
       }
-
-      let finalTranscript = ""
-      let interimTranscript = ""
 
       recognition.onstart = () => {
         setIsListening(true)
@@ -416,27 +413,14 @@ export default function IdeaHubForm() {
       }
 
       recognition.onresult = (event: any) => {
-        finalTranscript = ""
-        interimTranscript = ""
-
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript
-          if (event.results[i].isFinal) {
-            finalTranscript += transcript
-          } else {
-            interimTranscript += transcript
-          }
-        }
-
-        const currentText = finalTranscript || interimTranscript
-        if (currentText.trim()) {
+        const transcript = event.results[0][0].transcript
+        if (transcript.trim()) {
           setFormData((prev) => ({
             ...prev,
-            alternateTopic: currentText.trim(),
+            alternateTopic: transcript.trim(), // REPLACE instead of append
           }))
         }
-
-        console.log("Voice result:", { final: finalTranscript, interim: interimTranscript })
+        console.log("Voice result:", transcript)
       }
 
       recognition.onerror = (event: any) => {
@@ -473,13 +457,6 @@ export default function IdeaHubForm() {
       recognition.onend = () => {
         setIsListening(false)
         console.log("Voice recognition ended")
-
-        if (finalTranscript.trim()) {
-          setFormData((prev) => ({
-            ...prev,
-            alternateTopic: finalTranscript.trim(),
-          }))
-        }
       }
 
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
@@ -707,12 +684,6 @@ export default function IdeaHubForm() {
         )}
       </div>
 
-      {/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) && (
-        <div className="text-xs text-muted-foreground mt-2 p-2 bg-blue-50 rounded">
-          <strong>Mobile Voice Tips:</strong> Speak clearly, hold phone close to mouth, ensure good internet connection
-        </div>
-      )}
-
       <div className="space-y-2">
         <Label htmlFor="contentType">Content Type *</Label>
         <Select value={formData.contentType} onValueChange={(value) => handleSelectChange("contentType", value)}>
@@ -758,15 +729,7 @@ export default function IdeaHubForm() {
   const renderStepTwo = () => (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="name" className="flex items-center gap-2">
-          Your Name *
-          {isLoggedIn && user && (user.name || user.firstName) && (
-            <span className="flex items-center gap-1 text-green-600 text-xs">
-              <Check className="h-3 w-3" />
-              Auto-filled
-            </span>
-          )}
-        </Label>
+        <Label htmlFor="name">Your Name *</Label>
         <Input
           id="name"
           name="name"
@@ -778,15 +741,7 @@ export default function IdeaHubForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="email" className="flex items-center gap-2">
-          Your Email *
-          {isLoggedIn && user?.email && (
-            <span className="flex items-center gap-1 text-green-600 text-xs">
-              <Check className="h-3 w-3" />
-              Auto-filled
-            </span>
-          )}
-        </Label>
+        <Label htmlFor="email">Your Email *</Label>
         <Input
           id="email"
           name="email"
@@ -900,15 +855,14 @@ export default function IdeaHubForm() {
         onClick={() => {
           setStep(1)
           setResult(null)
-          const newFormData = {
+          setFormData({
             primaryTopic: "",
             alternateTopic: "",
             language: "English",
             name: isLoggedIn && user ? user.name || `${user.firstName || ""} ${user.lastName || ""}`.trim() : "",
             email: isLoggedIn && user ? user.email : "",
             contentType: "Social post",
-          }
-          setFormData(newFormData)
+          })
         }}
         className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
       >

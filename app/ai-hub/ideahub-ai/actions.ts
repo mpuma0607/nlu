@@ -129,6 +129,3 @@ This image should look like it was taken by a professional photographer and shou
     throw new Error("Failed to generate content. Please try again.")
   }
 }
-
-// Export alias for compatibility
-export const generateIdeaHubContent = generateContent

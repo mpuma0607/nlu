@@ -86,16 +86,19 @@ export default function ListingForm() {
 
       // Mobile-optimized settings (copied exactly from PropBot)
       recognition.continuous = false
-      recognition.interimResults = false
+      recognition.interimResults = true
       recognition.lang = "en-US"
-      recognition.maxAlternatives = 1
+      recognition.maxAlternatives = 3
 
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         recognition.continuous = false
-        recognition.interimResults = false
+        recognition.interimResults = true
         recognition.speechTimeoutLength = 10000
         recognition.speechInputPossiblyComplete = 8000
       }
+
+      let finalTranscript = ""
+      let interimTranscript = ""
 
       recognition.onstart = () => {
         setIsListeningDescription(true)
@@ -103,14 +106,28 @@ export default function ListingForm() {
       }
 
       recognition.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript
-        console.log("Voice transcript:", transcript)
+        finalTranscript = ""
+        interimTranscript = ""
 
-        // Replace the content completely (like PropBot does)
-        setFormData((prev) => ({
-          ...prev,
-          propertyDescription: transcript,
-        }))
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript
+          } else {
+            interimTranscript += transcript
+          }
+        }
+
+        const currentText = finalTranscript || interimTranscript
+        if (currentText.trim()) {
+          // REPLACE the content, don't append (this fixes the repetition issue)
+          setFormData((prev) => ({
+            ...prev,
+            propertyDescription: currentText.trim(),
+          }))
+        }
+
+        console.log("Voice result:", { final: finalTranscript, interim: interimTranscript })
       }
 
       recognition.onerror = (event: any) => {
@@ -147,6 +164,13 @@ export default function ListingForm() {
       recognition.onend = () => {
         setIsListeningDescription(false)
         console.log("Voice recognition ended")
+
+        if (finalTranscript.trim()) {
+          setFormData((prev) => ({
+            ...prev,
+            propertyDescription: finalTranscript.trim(),
+          }))
+        }
       }
 
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {

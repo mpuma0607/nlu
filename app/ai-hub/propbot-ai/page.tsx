@@ -6,23 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import {
-  Mic,
-  MicOff,
-  Search,
-  Home,
-  MapPin,
-  Bed,
-  Bath,
-  Square,
-  DollarSign,
-  Calendar,
-  CheckCircle,
-  ExternalLink,
-  ArrowUpDown,
-  AlertTriangle,
-  ThumbsUp,
-} from "lucide-react"
+import { Mic, MicOff, Search, Home, MapPin, Bed, Bath, Square, DollarSign, Calendar, CheckCircle, ExternalLink, ArrowUpDown, AlertTriangle, ThumbsUp } from 'lucide-react'
 import { searchProperties } from "./actions"
 import { useActionState } from "react"
 

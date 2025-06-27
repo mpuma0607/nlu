@@ -23,30 +23,41 @@ function getSessionId(): string {
 export function useTracking() {
   const pathname = usePathname()
   const lastPathRef = useRef<string>("")
+  const isInitializedRef = useRef(false)
 
   useEffect(() => {
-    // Only track if path has changed
-    if (pathname === lastPathRef.current) return
+    // Skip if not in browser
+    if (typeof window === "undefined") return
+
+    // Only track if path has changed or first load
+    if (pathname === lastPathRef.current && isInitializedRef.current) return
+
     lastPathRef.current = pathname
+    isInitializedRef.current = true
 
     const sessionId = getSessionId()
     if (!sessionId) return
 
-    // Track page view
-    fetch("/api/track/page-view", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        sessionId,
-        pagePath: pathname,
-        pageTitle: document.title,
-        referrer: document.referrer || undefined,
-      }),
-    }).catch((error) => {
-      console.error("Failed to track page view:", error)
-    })
+    // Small delay to ensure document is ready
+    const timer = setTimeout(() => {
+      // Track page view
+      fetch("/api/track/page-view", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sessionId,
+          pagePath: pathname,
+          pageTitle: document.title,
+          referrer: document.referrer || undefined,
+        }),
+      }).catch((error) => {
+        console.error("Failed to track page view:", error)
+      })
+    }, 100)
+
+    return () => clearTimeout(timer)
   }, [pathname])
 
   const trackEvent = (eventType: string, eventData?: any) => {

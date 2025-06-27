@@ -13,7 +13,7 @@ import { generateScript } from "./actions"
 import { Loader2, Copy, Download, Mail, FileText, MessageSquare, Save } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
-import { saveUserCreation } from "@/lib/auto-save-creation"
+import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
 
 type ScriptFormState = {
   agentName: string
@@ -217,43 +217,52 @@ export default function ScriptForm() {
   }
 
   const saveToProfile = async () => {
-    if (result?.script && user) {
-      setIsSaving(true)
-      try {
-        await saveUserCreation({
-          userId: user.id,
-          contentType: "script",
-          title: `${scriptTypeOptions.find((opt) => opt.value === formData.scriptType)?.label} - ${
-            formData.topic === "other"
-              ? formData.customTopic
-              : topicOptions.find((opt) => opt.value === formData.topic)?.label
-          }`,
-          content: result.script,
-          metadata: {
-            agentName: formData.agentName,
-            brokerageName: formData.brokerageName,
-            scriptType: formData.scriptType,
-            topic: formData.topic,
-            customTopic: formData.customTopic,
-            additionalDetails: formData.additionalDetails,
-            agentEmail: formData.agentEmail,
-          },
-        })
+    if (!result?.script || !user) {
+      toast({
+        title: "Save Failed",
+        description: "Please log in to save your script.",
+        variant: "destructive",
+      })
+      return
+    }
 
+    setIsSaving(true)
+    try {
+      const title = generateCreationTitle("scriptit-ai", formData)
+      const success = await saveUserCreation({
+        userId: user.id.toString(),
+        userEmail: user.email,
+        toolType: "scriptit-ai",
+        title,
+        content: result.script,
+        formData,
+        metadata: {
+          agentName: formData.agentName,
+          brokerageName: formData.brokerageName,
+          scriptType: formData.scriptType,
+          topic: formData.topic,
+          customTopic: formData.customTopic,
+          additionalDetails: formData.additionalDetails,
+        },
+      })
+
+      if (success) {
         toast({
           title: "Script Saved",
           description: "Your script has been saved to your profile dashboard.",
         })
-      } catch (error) {
-        console.error("Error saving script:", error)
-        toast({
-          title: "Save Failed",
-          description: "Failed to save script. Please try again.",
-          variant: "destructive",
-        })
-      } finally {
-        setIsSaving(false)
+      } else {
+        throw new Error("Failed to save script")
       }
+    } catch (error) {
+      console.error("Error saving script:", error)
+      toast({
+        title: "Save Failed",
+        description: "Failed to save script. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSaving(false)
     }
   }
 

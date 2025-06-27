@@ -16,6 +16,8 @@ export async function saveUserCreation(params: SaveCreationParams): Promise<bool
       return true
     }
 
+    console.log("Saving user creation:", params)
+
     const response = await fetch("/api/user-creations", {
       method: "POST",
       headers: {
@@ -25,7 +27,8 @@ export async function saveUserCreation(params: SaveCreationParams): Promise<bool
     })
 
     if (!response.ok) {
-      throw new Error("Failed to save creation")
+      const errorData = await response.json()
+      throw new Error(errorData.error || "Failed to save creation")
     }
 
     const result = await response.json()

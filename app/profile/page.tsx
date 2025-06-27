@@ -266,109 +266,111 @@ export default function ProfilePage() {
         </div>
 
         {/* Creations Dashboard Section */}
-        <div className="bg-white rounded-lg shadow-sm border">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 rounded-t-lg">
-            <h2 className="text-xl font-bold flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Your Creations Dashboard
-            </h2>
-            {user && <p className="text-blue-100 text-sm mt-1">Welcome back, {user.firstName || user.name}!</p>}
-          </div>
+        {user && (
+          <div className="bg-white rounded-lg shadow-sm border">
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 rounded-t-lg">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Your Creations Dashboard
+              </h2>
+              <p className="text-blue-100 text-sm mt-1">Welcome back, {user.firstName || user.name}!</p>
+            </div>
 
-          <div className="p-6">
-            {isLoading || loadingCreations ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              </div>
-            ) : creations.length === 0 ? (
-              <div className="text-center py-12">
-                <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600 text-lg">No saved creations yet.</p>
-                <p className="text-sm text-gray-500 mt-2">
-                  Use the "Save to Dashboard" button in any AI tool to save your creations here.
-                </p>
-              </div>
-            ) : (
-              <Tabs defaultValue={Object.keys(creationsByTool)[0]} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-1 mb-6">
-                  {Object.keys(creationsByTool).map((toolType) => {
-                    const Icon = toolIcons[toolType as keyof typeof toolIcons] || FileText
-                    return (
-                      <TabsTrigger key={toolType} value={toolType} className="flex items-center gap-2 p-3">
-                        <Icon className="h-4 w-4" />
-                        <span className="hidden sm:inline">
-                          {toolNames[toolType as keyof typeof toolNames] || toolType}
-                        </span>
-                        <span className="sm:hidden text-xs">
-                          {(toolNames[toolType as keyof typeof toolNames] || toolType).split(" ")[0]}
-                        </span>
-                      </TabsTrigger>
-                    )
-                  })}
-                </TabsList>
+            <div className="p-6">
+              {isLoading || loadingCreations ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                </div>
+              ) : creations.length === 0 ? (
+                <div className="text-center py-12">
+                  <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600 text-lg">No saved creations yet.</p>
+                  <p className="text-sm text-gray-500 mt-2">
+                    Use the "Save to Dashboard" button in any AI tool to save your creations here.
+                  </p>
+                </div>
+              ) : (
+                <Tabs defaultValue={Object.keys(creationsByTool)[0]} className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-1 mb-6">
+                    {Object.keys(creationsByTool).map((toolType) => {
+                      const Icon = toolIcons[toolType as keyof typeof toolIcons] || FileText
+                      return (
+                        <TabsTrigger key={toolType} value={toolType} className="flex items-center gap-2 p-3">
+                          <Icon className="h-4 w-4" />
+                          <span className="hidden sm:inline">
+                            {toolNames[toolType as keyof typeof toolNames] || toolType}
+                          </span>
+                          <span className="sm:hidden text-xs">
+                            {(toolNames[toolType as keyof typeof toolNames] || toolType).split(" ")[0]}
+                          </span>
+                        </TabsTrigger>
+                      )
+                    })}
+                  </TabsList>
 
-                {Object.entries(creationsByTool).map(([toolType, toolCreations]) => (
-                  <TabsContent key={toolType} value={toolType} className="mt-0">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {toolCreations
-                        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-                        .map((creation) => (
-                          <Card
-                            key={creation.id}
-                            className="border-l-4 border-l-blue-500 hover:shadow-md transition-shadow"
-                          >
-                            <CardHeader className="pb-3">
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1 min-w-0">
-                                  <CardTitle className="text-lg line-clamp-2">{creation.title}</CardTitle>
-                                  <div className="flex items-center gap-2 mt-2">
-                                    <Badge variant="outline" className="text-xs">
-                                      {toolNames[toolType as keyof typeof toolNames] || toolType}
-                                    </Badge>
-                                    <div className="flex items-center gap-1 text-xs text-gray-500">
-                                      <Calendar className="h-3 w-3" />
-                                      {new Date(creation.created_at).toLocaleDateString()}
+                  {Object.entries(creationsByTool).map(([toolType, toolCreations]) => (
+                    <TabsContent key={toolType} value={toolType} className="mt-0">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {toolCreations
+                          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                          .map((creation) => (
+                            <Card
+                              key={creation.id}
+                              className="border-l-4 border-l-blue-500 hover:shadow-md transition-shadow"
+                            >
+                              <CardHeader className="pb-3">
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1 min-w-0">
+                                    <CardTitle className="text-lg line-clamp-2">{creation.title}</CardTitle>
+                                    <div className="flex items-center gap-2 mt-2">
+                                      <Badge variant="outline" className="text-xs">
+                                        {toolNames[toolType as keyof typeof toolNames] || toolType}
+                                      </Badge>
+                                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                                        <Calendar className="h-3 w-3" />
+                                        {new Date(creation.created_at).toLocaleDateString()}
+                                      </div>
                                     </div>
                                   </div>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => downloadCreation(creation)}
+                                    className="flex items-center gap-1 ml-2 flex-shrink-0"
+                                  >
+                                    <Download className="h-3 w-3" />
+                                    <span className="hidden sm:inline">Download</span>
+                                  </Button>
                                 </div>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => downloadCreation(creation)}
-                                  className="flex items-center gap-1 ml-2 flex-shrink-0"
-                                >
-                                  <Download className="h-3 w-3" />
-                                  <span className="hidden sm:inline">Download</span>
-                                </Button>
-                              </div>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="text-sm text-gray-600 line-clamp-4 mb-3">
-                                {creation.content.substring(0, 300)}
-                                {creation.content.length > 300 && "..."}
-                              </div>
-                              <div className="flex items-center justify-between text-xs text-gray-400">
-                                <span>
-                                  {creation.tool_type === "ideahub-ai" && creation.metadata?.imageUrl && "📷 "}
-                                  {creation.tool_type === "goalscreen-ai" && creation.metadata?.imageUrl && "🖼️ "}
-                                  {creation.tool_type === "ideahub-ai"
-                                    ? "Image + Text"
-                                    : creation.tool_type === "goalscreen-ai"
-                                      ? "Image"
-                                      : "PDF"}
-                                </span>
-                                <span>Expires: {new Date(creation.expires_at).toLocaleDateString()}</span>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
-                    </div>
-                  </TabsContent>
-                ))}
-              </Tabs>
-            )}
+                              </CardHeader>
+                              <CardContent>
+                                <div className="text-sm text-gray-600 line-clamp-4 mb-3">
+                                  {creation.content.substring(0, 300)}
+                                  {creation.content.length > 300 && "..."}
+                                </div>
+                                <div className="flex items-center justify-between text-xs text-gray-400">
+                                  <span>
+                                    {creation.tool_type === "ideahub-ai" && creation.metadata?.imageUrl && "📷 "}
+                                    {creation.tool_type === "goalscreen-ai" && creation.metadata?.imageUrl && "🖼️ "}
+                                    {creation.tool_type === "ideahub-ai"
+                                      ? "Image + Text"
+                                      : creation.tool_type === "goalscreen-ai"
+                                        ? "Image"
+                                        : "PDF"}
+                                  </span>
+                                  <span>Expires: {new Date(creation.expires_at).toLocaleDateString()}</span>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                      </div>
+                    </TabsContent>
+                  ))}
+                </Tabs>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

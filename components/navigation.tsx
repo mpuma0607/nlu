@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Menu, X, ChevronDown, ChevronRight, User } from "lucide-react"
+import { Menu, X, ChevronDown, ChevronRight } from "lucide-react"
 import { useTenantConfig, useTranslation } from "@/contexts/tenant-context"
 import { isFeatureHidden } from "@/lib/tenant-config"
 
@@ -129,6 +129,22 @@ const navigationItems = [
     href: "/gear-hub",
     submenu: [],
   },
+  {
+    title: "Profile",
+    href: "/profile",
+    submenu: [
+      {
+        title: "Profile",
+        href: "/profile",
+        description: "Manage your member profile",
+      },
+      {
+        title: "Creations Dashboard",
+        href: "/creations-dashboard",
+        description: "View your saved AI creations",
+      },
+    ],
+  },
 ]
 
 export default function Navigation() {
@@ -242,20 +258,10 @@ export default function Navigation() {
                   </div>
                 ),
             )}
-            {/* Get Support Link - positioned before Profile */}
+            {/* Get Support Link */}
             <Link href="/support" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
               Get Support
             </Link>
-            {/* Profile Link - only show if not hidden for this tenant */}
-            {!isFeatureHidden("profile", tenantConfig) && (
-              <Link
-                href="/profile"
-                className="flex items-center gap-2 text-gray-700 hover:text-green-600 font-medium transition-colors"
-              >
-                <User className="h-4 w-4" />
-                Profile
-              </Link>
-            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -334,7 +340,7 @@ export default function Navigation() {
                     </div>
                   ),
               )}
-              {/* Mobile Get Support Link - positioned before Profile */}
+              {/* Mobile Get Support Link */}
               <Link
                 href="/support"
                 className="flex items-center gap-2 py-2 text-gray-700 hover:text-green-600 font-medium"
@@ -342,17 +348,6 @@ export default function Navigation() {
               >
                 Get Support
               </Link>
-              {/* Mobile Profile Link - only show if not hidden for this tenant */}
-              {!isFeatureHidden("profile", tenantConfig) && (
-                <Link
-                  href="/profile"
-                  className="flex items-center gap-2 py-2 text-gray-700 hover:text-green-600 font-medium"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <User className="h-4 w-4" />
-                  Profile
-                </Link>
-              )}
             </div>
           </div>
         )}

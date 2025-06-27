@@ -1,225 +1,403 @@
 "use client"
 
 import type React from "react"
-import { useState, useRef } from "react"
+
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, Calculator, MapPin, Clock } from "lucide-react"
-import { analyzeComparables } from "./actions"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Badge } from "@/components/ui/badge"
 import { QuickCMAResults } from "./quickcma-results"
-import Image from "next/image"
+import { MapPin, TrendingUp, DollarSign, Save } from "lucide-react"
+import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
+import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
+import { toast } from "sonner"
 
-interface QuickCMAFormProps {
-  onAnalysisComplete?: (data: any) => void
+interface FormData {
+  address: string
+  propertyType: string
+  bedrooms: string
+  bathrooms: string
+  sqft: string
+  yearBuilt: string
+  lotSize: string
+  additionalFeatures: string
+  marketConditions: string
+  timeframe: string
+  priceRange: string
+  radius: string
 }
 
-export default function QuickCMAForm({ onAnalysisComplete }: QuickCMAFormProps) {
+export function QuickCMAForm() {
+  const [formData, setFormData] = useState<FormData>({
+    address: "",
+    propertyType: "Single Family",
+    bedrooms: "",
+    bathrooms: "",
+    sqft: "",
+    yearBuilt: "",
+    lotSize: "",
+    additionalFeatures: "",
+    marketConditions: "Balanced",
+    timeframe: "Current",
+    priceRange: "",
+    radius: "0.5",
+  })
+
   const [isLoading, setIsLoading] = useState(false)
-  const [analysisData, setAnalysisData] = useState<any>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [loadingMessage, setLoadingMessage] = useState("")
-  const resultsRef = useRef<HTMLDivElement>(null)
+  const [results, setResults] = useState<any>(null)
+  const [isSaving, setIsSaving] = useState(false)
+  const { user, isLoggedIn } = useMemberSpaceUser()
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleInputChange = (field: keyof FormData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!formData.address.trim()) {
+      toast.error("Please enter a property address")
+      return
+    }
 
-    // Immediately set loading state
     setIsLoading(true)
-    setError(null)
-    setAnalysisData(null)
-    setLoadingMessage("Starting CMA analysis...")
-
-    console.log("=== LOADING STATE SET ===")
-    console.log("isLoading:", true)
-
     try {
-      const formData = new FormData(e.currentTarget)
-      const street = formData.get("street") as string
-      const city = formData.get("city") as string
-      const state = formData.get("state") as string
-      const zip = formData.get("zip") as string
-
-      if (!street || !city || !state || !zip) {
-        throw new Error("Please fill in all address fields")
-      }
-
-      // Create full address string
-      const fullAddress = `${street} ${city} ${state} ${zip}`
-      setLoadingMessage(`Analyzing comparable properties for ${fullAddress}...`)
-
-      console.log("=== QuickCMA Form Debug ===")
-      console.log("Full Address:", fullAddress)
-      console.log("Form Data:", { street, city, state, zip })
-
-      // Add a small delay to ensure loading state shows
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
-      setLoadingMessage("Fetching comparable properties from Zillow...")
-
-      const result = await analyzeComparables(fullAddress)
-
-      console.log("Analysis result:", result)
-
-      // Check if the result contains an error
-      if (result.error) {
-        throw new Error(result.message || "Failed to analyze comparables")
-      }
-
-      console.log("Analysis successful:", {
-        hasResult: !!result,
-        totalComparables: result?.comparableData?.totalComparables,
-        hasAnalysisText: !!result?.analysisText,
+      const response = await fetch("/api/quickcma", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
       })
 
-      setLoadingMessage("Generating AI analysis...")
+      if (!response.ok) {
+        throw new Error("Failed to generate CMA")
+      }
 
-      // Another small delay for the final step
-      await new Promise((resolve) => setTimeout(resolve, 300))
-
-      setAnalysisData(result)
-      onAnalysisComplete?.(result)
-
-      // Auto-scroll to results
-      setTimeout(() => {
-        resultsRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        })
-      }, 100)
-    } catch (err) {
-      console.error("QuickCMA Form Error:", err)
-      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred"
-      setError(errorMessage)
+      const data = await response.json()
+      setResults(data)
+    } catch (error) {
+      console.error("Error:", error)
+      toast.error("Failed to generate CMA. Please try again.")
     } finally {
       setIsLoading(false)
-      setLoadingMessage("")
-      console.log("=== LOADING STATE CLEARED ===")
     }
   }
 
-  // Debug: Log loading state changes
-  console.log("Current loading state:", isLoading)
+  const saveToProfile = async () => {
+    if (!isLoggedIn || !user) {
+      toast.error("Please log in to save to your profile")
+      return
+    }
+
+    if (!results) {
+      toast.error("No CMA results to save")
+      return
+    }
+
+    setIsSaving(true)
+
+    try {
+      const title = generateCreationTitle("quickcma-ai", formData)
+      const content = `Comparative Market Analysis for ${formData.address}\n\nMarket Summary:\n- Average Price: $${results.comparableData?.summary?.averagePrice?.toLocaleString() || "N/A"}\n- Average Square Footage: ${results.comparableData?.summary?.averageSqft?.toLocaleString() || "N/A"} sq ft\n- Total Comparables: ${results.comparableData?.totalComparables || 0}\n- Price Range: $${results.comparableData?.summary?.priceRange?.min?.toLocaleString() || "N/A"} - $${results.comparableData?.summary?.priceRange?.max?.toLocaleString() || "N/A"}`
+
+      const success = await saveUserCreation({
+        userId: user.id,
+        userEmail: user.email || "",
+        toolType: "quickcma-ai",
+        title,
+        content,
+        formData,
+        metadata: {
+          address: formData.address,
+          comparableData: results.comparableData,
+          analysisText: results.analysisText,
+          sections: results.sections,
+          generatedAt: new Date().toISOString(),
+        },
+      })
+
+      if (success) {
+        toast.success("CMA report saved to your profile!")
+      } else {
+        toast.error("Failed to save CMA report")
+      }
+    } catch (error) {
+      console.error("Save error:", error)
+      toast.error("Failed to save CMA report")
+    } finally {
+      setIsSaving(false)
+    }
+  }
 
   return (
-    <div className="space-y-6 relative">
-      {/* LOADING OVERLAY - ALWAYS VISIBLE WHEN isLoading IS TRUE */}
-      {isLoading && (
-        <>
-          <div
-            className="fixed inset-0 bg-black bg-opacity-60 z-[9999] flex items-center justify-center"
-            style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0 }}
-          >
-            <div className="bg-white rounded-xl p-8 max-w-md mx-4 text-center shadow-2xl border-2 border-blue-200">
-              <div className="relative mb-6">
-                <Image
-                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/NLU%20site%20icons%20%2847%29-MsI3IOXyfpXO9n0VxbJ3qOErJcv5pO.png"
-                  alt="Next Level U Logo"
-                  width={120}
-                  height={120}
-                  className="animate-spin mx-auto"
-                  style={{ animationDuration: "2s" }}
+    <div className="max-w-4xl mx-auto p-6 space-y-8">
+      <div className="text-center space-y-4">
+        <div className="flex items-center justify-center gap-3">
+          <div className="p-3 bg-blue-100 rounded-full">
+            <TrendingUp className="h-8 w-8 text-blue-600" />
+          </div>
+          <h1 className="text-4xl font-bold text-gray-900">QuickCMA AI</h1>
+        </div>
+        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          Generate comprehensive Comparative Market Analysis reports instantly with AI-powered property valuation and
+          market insights.
+        </p>
+        <div className="flex items-center justify-center gap-4">
+          <Badge variant="secondary" className="bg-green-100 text-green-800">
+            <MapPin className="h-4 w-4 mr-1" />
+            Location-Based Analysis
+          </Badge>
+          <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+            <DollarSign className="h-4 w-4 mr-1" />
+            Market Valuation
+          </Badge>
+          <Badge variant="secondary" className="bg-purple-100 text-purple-800">
+            <TrendingUp className="h-4 w-4 mr-1" />
+            Trend Analysis
+          </Badge>
+        </div>
+      </div>
+
+      <Card className="border-2 border-blue-200 shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
+          <CardTitle className="text-2xl text-blue-800">Property Information</CardTitle>
+        </CardHeader>
+        <CardContent className="p-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
+                <Label htmlFor="address" className="text-base font-semibold">
+                  Property Address *
+                </Label>
+                <Input
+                  id="address"
+                  value={formData.address}
+                  onChange={(e) => handleInputChange("address", e.target.value)}
+                  placeholder="123 Main St, City, State ZIP"
+                  className="mt-2"
+                  required
                 />
               </div>
-              <div className="flex items-center justify-center mb-4">
-                <Clock className="w-6 h-6 text-blue-600 mr-2" />
-                <h3 className="text-2xl font-bold text-blue-800">CMA Generating</h3>
-              </div>
-              <p className="text-blue-600 mb-4 font-medium">Please wait while we analyze the market...</p>
-              <div className="bg-blue-50 rounded-lg p-3 mb-4">
-                <p className="text-sm text-blue-700">{loadingMessage}</p>
-              </div>
-              <div className="flex items-center justify-center space-x-2 mb-4">
-                <div
-                  className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"
-                  style={{ animationDelay: "0ms" }}
-                ></div>
-                <div
-                  className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"
-                  style={{ animationDelay: "150ms" }}
-                ></div>
-                <div
-                  className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"
-                  style={{ animationDelay: "300ms" }}
-                ></div>
-              </div>
-              <p className="text-xs text-gray-500">This typically takes 30-60 seconds</p>
-            </div>
-          </div>
-        </>
-      )}
 
-      <Card className={isLoading ? "opacity-50" : ""}>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calculator className="h-5 w-5" />
-            QuickCMA AI - Comparative Market Analysis
-          </CardTitle>
-          <CardDescription>
-            Generate comprehensive CMA reports with comparable homes data and AI-powered market analysis
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="street" className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4" />
-                  Street Address
+              <div>
+                <Label htmlFor="propertyType" className="text-base font-semibold">
+                  Property Type
                 </Label>
-                <Input id="street" name="street" placeholder="123 Main Street" required disabled={isLoading} />
+                <Select
+                  value={formData.propertyType}
+                  onValueChange={(value) => handleInputChange("propertyType", value)}
+                >
+                  <SelectTrigger className="mt-2">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Single Family">Single Family Home</SelectItem>
+                    <SelectItem value="Condo">Condominium</SelectItem>
+                    <SelectItem value="Townhouse">Townhouse</SelectItem>
+                    <SelectItem value="Multi-Family">Multi-Family</SelectItem>
+                    <SelectItem value="Land">Vacant Land</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="city">City</Label>
-                <Input id="city" name="city" placeholder="Tampa" required disabled={isLoading} />
+
+              <div>
+                <Label htmlFor="bedrooms" className="text-base font-semibold">
+                  Bedrooms
+                </Label>
+                <Input
+                  id="bedrooms"
+                  type="number"
+                  value={formData.bedrooms}
+                  onChange={(e) => handleInputChange("bedrooms", e.target.value)}
+                  placeholder="3"
+                  className="mt-2"
+                />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="state">State</Label>
-                <Input id="state" name="state" placeholder="FL" required disabled={isLoading} />
+
+              <div>
+                <Label htmlFor="bathrooms" className="text-base font-semibold">
+                  Bathrooms
+                </Label>
+                <Input
+                  id="bathrooms"
+                  type="number"
+                  step="0.5"
+                  value={formData.bathrooms}
+                  onChange={(e) => handleInputChange("bathrooms", e.target.value)}
+                  placeholder="2.5"
+                  className="mt-2"
+                />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="zip">ZIP Code</Label>
-                <Input id="zip" name="zip" placeholder="33543" required disabled={isLoading} />
+
+              <div>
+                <Label htmlFor="sqft" className="text-base font-semibold">
+                  Square Footage
+                </Label>
+                <Input
+                  id="sqft"
+                  type="number"
+                  value={formData.sqft}
+                  onChange={(e) => handleInputChange("sqft", e.target.value)}
+                  placeholder="2000"
+                  className="mt-2"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="yearBuilt" className="text-base font-semibold">
+                  Year Built
+                </Label>
+                <Input
+                  id="yearBuilt"
+                  type="number"
+                  value={formData.yearBuilt}
+                  onChange={(e) => handleInputChange("yearBuilt", e.target.value)}
+                  placeholder="1995"
+                  className="mt-2"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="lotSize" className="text-base font-semibold">
+                  Lot Size (acres)
+                </Label>
+                <Input
+                  id="lotSize"
+                  type="number"
+                  step="0.01"
+                  value={formData.lotSize}
+                  onChange={(e) => handleInputChange("lotSize", e.target.value)}
+                  placeholder="0.25"
+                  className="mt-2"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <Label htmlFor="additionalFeatures" className="text-base font-semibold">
+                  Additional Features
+                </Label>
+                <Textarea
+                  id="additionalFeatures"
+                  value={formData.additionalFeatures}
+                  onChange={(e) => handleInputChange("additionalFeatures", e.target.value)}
+                  placeholder="Pool, garage, updated kitchen, hardwood floors, etc."
+                  className="mt-2"
+                  rows={3}
+                />
               </div>
             </div>
 
-            <Button type="submit" disabled={isLoading} className="w-full" size="lg">
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Generating CMA Report...
-                </>
-              ) : (
-                <>
-                  <Calculator className="mr-2 h-5 w-5" />
-                  Generate CMA Report
-                </>
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-semibold mb-4">Analysis Parameters</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <Label htmlFor="marketConditions" className="text-base font-semibold">
+                    Market Conditions
+                  </Label>
+                  <Select
+                    value={formData.marketConditions}
+                    onValueChange={(value) => handleInputChange("marketConditions", value)}
+                  >
+                    <SelectTrigger className="mt-2">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Hot">Hot Market</SelectItem>
+                      <SelectItem value="Balanced">Balanced Market</SelectItem>
+                      <SelectItem value="Cool">Cool Market</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="timeframe" className="text-base font-semibold">
+                    Analysis Timeframe
+                  </Label>
+                  <Select value={formData.timeframe} onValueChange={(value) => handleInputChange("timeframe", value)}>
+                    <SelectTrigger className="mt-2">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Current">Current Market</SelectItem>
+                      <SelectItem value="3-Month">Last 3 Months</SelectItem>
+                      <SelectItem value="6-Month">Last 6 Months</SelectItem>
+                      <SelectItem value="1-Year">Last Year</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="radius" className="text-base font-semibold">
+                    Search Radius (miles)
+                  </Label>
+                  <Select value={formData.radius} onValueChange={(value) => handleInputChange("radius", value)}>
+                    <SelectTrigger className="mt-2">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0.25">0.25 miles</SelectItem>
+                      <SelectItem value="0.5">0.5 miles</SelectItem>
+                      <SelectItem value="1">1 mile</SelectItem>
+                      <SelectItem value="2">2 miles</SelectItem>
+                      <SelectItem value="5">5 miles</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-4 pt-6">
+              <Button type="submit" disabled={isLoading} className="flex-1 bg-blue-600 hover:bg-blue-700 text-lg py-3">
+                {isLoading ? (
+                  <>
+                    <img
+                      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/NLU%20site%20icons%20%2847%29-MsI3IOXyfpXO9n0VxbJ3qOErJcv5pO.png"
+                      alt="Next Level U"
+                      className="h-5 w-5 animate-spin mr-2"
+                    />
+                    Generating CMA Report...
+                  </>
+                ) : (
+                  <>
+                    <TrendingUp className="h-5 w-5 mr-2" />
+                    Generate CMA Report
+                  </>
+                )}
+              </Button>
+
+              {results && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={saveToProfile}
+                  disabled={isSaving || !isLoggedIn}
+                  className="flex items-center gap-2 bg-transparent"
+                >
+                  {isSaving ? (
+                    <>
+                      <img
+                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/NLU%20site%20icons%20%2847%29-MsI3IOXyfpXO9n0VxbJ3qOErJcv5pO.png"
+                        alt="Next Level U"
+                        className="h-4 w-4 animate-spin"
+                      />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4" />
+                      {isLoggedIn ? "Save to Profile" : "Login to Save"}
+                    </>
+                  )}
+                </Button>
               )}
-            </Button>
-          </form>
-
-          {error && (
-            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-red-700 font-medium">{error}</p>
-              <div className="mt-2 text-xs text-red-600">
-                <p>Debug steps:</p>
-                <ol className="list-decimal list-inside space-y-1">
-                  <li>Check if the address format is correct</li>
-                  <li>Try a different address</li>
-                  <li>Check browser console for detailed logs</li>
-                </ol>
-              </div>
             </div>
-          )}
+          </form>
         </CardContent>
       </Card>
 
-      {analysisData && !analysisData.error && (
-        <div ref={resultsRef}>
-          <QuickCMAResults data={analysisData} />
-        </div>
-      )}
+      {results && <QuickCMAResults data={results} />}
     </div>
   )
 }

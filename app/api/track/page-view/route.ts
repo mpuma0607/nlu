@@ -3,16 +3,16 @@ import { createOrUpdateSession, trackPageView } from "@/lib/tracking"
 
 export async function POST(request: NextRequest) {
   try {
-    const { sessionId, pagePath, pageTitle, referrer } = await request.json()
+    const body = await request.json()
+    const { sessionId, pagePath, pageTitle, referrer, userAgent } = body
 
     if (!sessionId || !pagePath) {
-      return NextResponse.json({ error: "Session ID and page path are required" }, { status: 400 })
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    // Get user info
-    const userAgent = request.headers.get("user-agent") || undefined
-    const forwarded = request.headers.get("x-forwarded-for")
-    const ipAddress = forwarded ? forwarded.split(",")[0] : request.ip
+    // Get IP address from request
+    const ipAddress =
+      request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || request.ip || "unknown"
 
     // Create or update session
     await createOrUpdateSession(sessionId, userAgent, ipAddress)

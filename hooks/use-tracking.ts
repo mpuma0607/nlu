@@ -1,82 +1,72 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect } from "react"
 import { usePathname } from "next/navigation"
-
-// Generate a simple session ID
-function generateSessionId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-}
-
-// Get or create session ID
-function getSessionId(): string {
-  if (typeof window === "undefined") return ""
-
-  let sessionId = sessionStorage.getItem("tracking_session_id")
-  if (!sessionId) {
-    sessionId = generateSessionId()
-    sessionStorage.setItem("tracking_session_id", sessionId)
-  }
-  return sessionId
-}
 
 export function useTracking() {
   const pathname = usePathname()
-  const lastPathRef = useRef<string>("")
-  const isInitializedRef = useRef(false)
 
   useEffect(() => {
-    // Skip if not in browser
-    if (typeof window === "undefined") return
+    // Generate a session ID if it doesn't exist
+    let sessionId = localStorage.getItem("session_id")
+    if (!sessionId) {
+      sessionId = Math.random().toString(36).substring(2) + Date.now().toString(36)
+      localStorage.setItem("session_id", sessionId)
+    }
 
-    // Only track if path has changed or first load
-    if (pathname === lastPathRef.current && isInitializedRef.current) return
+    // Track page view
+    const trackPageView = async () => {
+      try {
+        const response = await fetch("/api/track/page-view", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            sessionId,
+            pagePath: pathname,
+            pageTitle: document.title,
+            referrer: document.referrer,
+            userAgent: navigator.userAgent,
+            ipAddress: null, // Will be extracted server-side
+          }),
+        })
 
-    lastPathRef.current = pathname
-    isInitializedRef.current = true
+        const result = await response.json()
+        console.log("Page view tracked:", result)
+      } catch (error) {
+        console.error("Failed to track page view:", error)
+      }
+    }
 
-    const sessionId = getSessionId()
-    if (!sessionId) return
+    trackPageView()
+  }, [pathname])
 
-    // Small delay to ensure document is ready
-    const timer = setTimeout(() => {
-      // Track page view
-      fetch("/api/track/page-view", {
+  const trackEvent = async (eventType: string, eventData?: any) => {
+    try {
+      let sessionId = localStorage.getItem("session_id")
+      if (!sessionId) {
+        sessionId = Math.random().toString(36).substring(2) + Date.now().toString(36)
+        localStorage.setItem("session_id", sessionId)
+      }
+
+      const response = await fetch("/api/track/event", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           sessionId,
-          pagePath: pathname,
-          pageTitle: document.title,
-          referrer: document.referrer || undefined,
+          eventType,
+          eventData,
         }),
-      }).catch((error) => {
-        console.error("Failed to track page view:", error)
       })
-    }, 100)
 
-    return () => clearTimeout(timer)
-  }, [pathname])
-
-  const trackEvent = (eventType: string, eventData?: any) => {
-    const sessionId = getSessionId()
-    if (!sessionId) return
-
-    fetch("/api/track/event", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        sessionId,
-        eventType,
-        eventData,
-      }),
-    }).catch((error) => {
+      const result = await response.json()
+      console.log("Event tracked:", result)
+    } catch (error) {
       console.error("Failed to track event:", error)
-    })
+    }
   }
 
   return { trackEvent }

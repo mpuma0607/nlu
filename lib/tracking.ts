@@ -39,8 +39,10 @@ export async function createOrUpdateSession(sessionId: string, userAgent?: strin
         user_agent = COALESCE(EXCLUDED.user_agent, user_sessions.user_agent),
         ip_address = COALESCE(EXCLUDED.ip_address, user_sessions.ip_address)
     `
+    console.log("Session created/updated:", sessionId)
   } catch (error) {
     console.error("Error creating/updating session:", error)
+    throw error
   }
 }
 
@@ -55,8 +57,10 @@ export async function trackPageView(
       INSERT INTO page_views (session_id, page_path, page_title, referrer)
       VALUES (${sessionId}, ${pagePath}, ${pageTitle}, ${referrer})
     `
+    console.log("Page view tracked:", { sessionId, pagePath })
   } catch (error) {
     console.error("Error tracking page view:", error)
+    throw error
   }
 }
 
@@ -66,8 +70,10 @@ export async function trackEvent(sessionId: string, eventType: string, eventData
       INSERT INTO user_events (session_id, event_type, event_data)
       VALUES (${sessionId}, ${eventType}, ${eventData ? JSON.stringify(eventData) : null})
     `
+    console.log("Event tracked:", { sessionId, eventType })
   } catch (error) {
     console.error("Error tracking event:", error)
+    throw error
   }
 }
 
@@ -75,6 +81,8 @@ export async function getAnalytics(days = 7) {
   try {
     const startDate = new Date()
     startDate.setDate(startDate.getDate() - days)
+
+    console.log("Getting analytics for date range:", startDate.toISOString())
 
     // Get page views
     const pageViews = await sql`
@@ -119,6 +127,13 @@ export async function getAnalytics(days = 7) {
       FROM page_views 
       WHERE timestamp >= ${startDate.toISOString()}
     `
+
+    console.log("Analytics results:", {
+      pageViews: pageViews.length,
+      dailyStats: dailyStats.length,
+      topEvents: topEvents.length,
+      totalStats: totalStats[0],
+    })
 
     return {
       pageViews,

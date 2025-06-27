@@ -84,7 +84,7 @@ export default function ListingForm() {
       const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition
       const recognition = new SpeechRecognition()
 
-      // Mobile-optimized settings
+      // Mobile-optimized settings (copied exactly from PropBot)
       recognition.continuous = false
       recognition.interimResults = true
       recognition.lang = "en-US"
@@ -120,9 +120,10 @@ export default function ListingForm() {
 
         const currentText = finalTranscript || interimTranscript
         if (currentText.trim()) {
+          // REPLACE the content, don't append (this is the key fix)
           setFormData((prev) => ({
             ...prev,
-            propertyDescription: prev.propertyDescription + (prev.propertyDescription ? " " : "") + currentText,
+            propertyDescription: currentText.trim(),
           }))
         }
 
@@ -163,6 +164,13 @@ export default function ListingForm() {
       recognition.onend = () => {
         setIsListeningDescription(false)
         console.log("Voice recognition ended")
+
+        if (finalTranscript.trim()) {
+          setFormData((prev) => ({
+            ...prev,
+            propertyDescription: finalTranscript.trim(),
+          }))
+        }
       }
 
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {

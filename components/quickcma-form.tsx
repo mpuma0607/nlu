@@ -11,10 +11,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { QuickCMAResults } from "./quickcma-results"
-import { MapPin, TrendingUp, DollarSign, Save } from "lucide-react"
+import { MapPin, TrendingUp, DollarSign } from "lucide-react"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
 import { toast } from "sonner"
+import { Save } from "lucide-react"
 
 interface FormData {
   address: string

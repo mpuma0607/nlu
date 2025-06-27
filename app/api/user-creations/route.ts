@@ -51,21 +51,22 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "User ID is required" }, { status: 400 })
     }
 
-    let query = `
-      SELECT id, tool_type, title, content, form_data, metadata, created_at, expires_at
-      FROM user_creations 
-      WHERE user_id = $1 AND expires_at > NOW()
-    `
-    const params = [userId]
-
+    let result
     if (toolType) {
-      query += ` AND tool_type = $2`
-      params.push(toolType)
+      result = await sql`
+        SELECT id, tool_type, title, content, form_data, metadata, created_at, expires_at
+        FROM user_creations 
+        WHERE user_id = ${userId} AND tool_type = ${toolType} AND expires_at > NOW()
+        ORDER BY created_at DESC
+      `
+    } else {
+      result = await sql`
+        SELECT id, tool_type, title, content, form_data, metadata, created_at, expires_at
+        FROM user_creations 
+        WHERE user_id = ${userId} AND expires_at > NOW()
+        ORDER BY created_at DESC
+      `
     }
-
-    query += ` ORDER BY created_at DESC`
-
-    const result = await sql(query, params)
 
     return NextResponse.json({
       success: true,

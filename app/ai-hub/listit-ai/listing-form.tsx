@@ -230,20 +230,26 @@ export default function ListingForm() {
   }
 
   const saveToProfile = async () => {
-    if (!result?.description || !isLoggedIn) return
+    if (!result?.description || !isLoggedIn) {
+      toast({
+        title: "Save Failed",
+        description: !isLoggedIn ? "Please log in to save your creations." : "No content to save.",
+        variant: "destructive",
+      })
+      return
+    }
 
     setIsSaving(true)
     try {
-      const title = generateCreationTitle("listing", {
-        propertyAddress: formData.propertyAddress,
-        listingPrice: formData.listingPrice,
-      })
+      const title = generateCreationTitle("listit-ai", formData)
 
-      await saveUserCreation({
+      const success = await saveUserCreation({
         userId: user?.id || "anonymous",
-        contentType: "listing",
+        userEmail: user?.email || "",
+        toolType: "listit-ai",
         title,
         content: result.description,
+        formData,
         metadata: {
           propertyAddress: formData.propertyAddress,
           listingPrice: formData.listingPrice,
@@ -256,10 +262,14 @@ export default function ListingForm() {
         },
       })
 
-      toast({
-        title: "Saved Successfully",
-        description: "Your listing description has been saved to your profile.",
-      })
+      if (success) {
+        toast({
+          title: "Saved Successfully",
+          description: "Your listing description has been saved to your profile.",
+        })
+      } else {
+        throw new Error("Save operation failed")
+      }
     } catch (error) {
       console.error("Error saving to profile:", error)
       toast({
@@ -589,14 +599,18 @@ export default function ListingForm() {
       </Tabs>
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <Button variant="outline" onClick={copyToClipboard} className="flex items-center justify-center gap-2">
+        <Button
+          variant="outline"
+          onClick={copyToClipboard}
+          className="flex items-center justify-center gap-2 bg-transparent"
+        >
           <Copy className="h-4 w-4" /> <span className="whitespace-nowrap">Copy</span>
         </Button>
         <Button
           variant="outline"
           onClick={downloadPDF}
           disabled={isGeneratingPDF}
-          className="flex items-center justify-center gap-2"
+          className="flex items-center justify-center gap-2 bg-transparent"
         >
           {isGeneratingPDF ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
           <span className="whitespace-nowrap">Download</span>
@@ -605,7 +619,7 @@ export default function ListingForm() {
           variant="outline"
           onClick={sendEmail}
           disabled={isSendingEmail}
-          className="flex items-center justify-center gap-2"
+          className="flex items-center justify-center gap-2 bg-transparent"
         >
           {isSendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
           <span className="whitespace-nowrap">Email</span>
@@ -613,8 +627,8 @@ export default function ListingForm() {
         <Button
           variant="outline"
           onClick={saveToProfile}
-          disabled={isSaving || !result?.description}
-          className="flex items-center justify-center gap-2"
+          disabled={isSaving || !result?.description || !isLoggedIn}
+          className="flex items-center justify-center gap-2 bg-transparent"
         >
           {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           <span className="whitespace-nowrap">{!isLoggedIn ? "Login to Save" : "Save"}</span>

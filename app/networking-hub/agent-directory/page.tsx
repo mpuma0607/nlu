@@ -2,27 +2,26 @@
 
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, AlertCircle, CheckCircle } from "lucide-react"
+import { Users, AlertCircle, CheckCircle, Loader2 } from "lucide-react"
 
 export default function AgentDirectoryPage() {
-  const [directoryLoaded, setDirectoryLoaded] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     console.log("=== AGENT DIRECTORY PAGE LOADED ===")
 
     // Load CommunityBox script
-    const loadCommunityBoxScript = () => {
+    const loadCommunityBox = () => {
       try {
-        setIsLoading(true)
-
-        // Remove existing scripts if any
+        // Remove existing script if any
         const existingScript = document.getElementById("communitybox-script")
         if (existingScript) {
           existingScript.remove()
         }
 
-        // Create and execute the bootstrap script
+        // Create XMLHttpRequest to get the revision
         const xhr = new XMLHttpRequest()
         xhr.open("POST", "https://cfapi.communitybox.co/bootstrap/revision", true)
 
@@ -31,8 +30,8 @@ export default function AgentDirectoryPage() {
             try {
               const returnObj = JSON.parse(xhr.responseText)
               if (returnObj.hasOwnProperty("err")) {
-                console.error("CommunityBox bootstrap error:", returnObj.err)
-                setDirectoryLoaded(false)
+                console.error("CommunityBox error:", returnObj.err)
+                setError(returnObj.err)
                 setIsLoading(false)
               } else {
                 const r = returnObj.revision
@@ -42,13 +41,14 @@ export default function AgentDirectoryPage() {
 
                 script.onload = () => {
                   console.log("CommunityBox script loaded successfully")
-                  setDirectoryLoaded(true)
+                  setIsLoaded(true)
                   setIsLoading(false)
+                  setError(null)
                 }
 
                 script.onerror = () => {
                   console.error("Failed to load CommunityBox script")
-                  setDirectoryLoaded(false)
+                  setError("Failed to load community directory")
                   setIsLoading(false)
                 }
 
@@ -56,31 +56,31 @@ export default function AgentDirectoryPage() {
               }
             } catch (parseError) {
               console.error("Error parsing CommunityBox response:", parseError)
-              setDirectoryLoaded(false)
+              setError("Failed to parse community response")
               setIsLoading(false)
             }
           } else {
-            console.error("CommunityBox bootstrap request failed:", xhr.status, xhr.statusText)
-            setDirectoryLoaded(false)
+            console.error("CommunityBox request failed:", xhr.status, xhr.statusText)
+            setError(`Request failed: ${xhr.status} ${xhr.statusText}`)
             setIsLoading(false)
           }
         }
 
         xhr.onerror = () => {
-          console.error("CommunityBox bootstrap network error")
-          setDirectoryLoaded(false)
+          console.error("CommunityBox request error")
+          setError("Network error loading community")
           setIsLoading(false)
         }
 
         xhr.send("f8f0cb28-5e59-4cd2-91e5-29bc474bc78e")
       } catch (error) {
         console.error("Error loading CommunityBox:", error)
-        setDirectoryLoaded(false)
+        setError(error instanceof Error ? error.message : "Unknown error")
         setIsLoading(false)
       }
     }
 
-    loadCommunityBoxScript()
+    loadCommunityBox()
 
     // Cleanup function
     return () => {
@@ -96,12 +96,13 @@ export default function AgentDirectoryPage() {
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-green-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
+          <div className="w-20 h-20 bg-gradient-to-br from-green-600 to-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
             <Users className="h-10 w-10 text-white" />
           </div>
           <h1 className="text-4xl font-bold text-black mb-4">Agent Directory</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Connect with fellow real estate professionals, find potential partners, and build your network.
+            Connect with fellow real estate professionals in your network. Find agents, share experiences, and build
+            meaningful relationships.
           </p>
 
           {/* Status Display */}
@@ -109,13 +110,22 @@ export default function AgentDirectoryPage() {
             {isLoading && (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 max-w-md mx-auto">
                 <div className="flex items-center justify-center text-sm text-blue-800">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
                   Loading agent directory...
                 </div>
               </div>
             )}
 
-            {directoryLoaded && (
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 max-w-md mx-auto">
+                <div className="text-sm text-red-800">
+                  <AlertCircle className="h-4 w-4 inline mr-2" />
+                  Error: {error}
+                </div>
+              </div>
+            )}
+
+            {isLoaded && (
               <div className="bg-green-50 border border-green-200 rounded-lg p-3 max-w-md mx-auto">
                 <div className="flex items-center justify-center text-sm text-green-800">
                   <CheckCircle className="h-4 w-4 mr-2" />
@@ -123,51 +133,102 @@ export default function AgentDirectoryPage() {
                 </div>
               </div>
             )}
-
-            {!isLoading && !directoryLoaded && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3 max-w-md mx-auto">
-                <div className="text-sm text-red-800">
-                  <AlertCircle className="h-4 w-4 inline mr-2" />
-                  Failed to load agent directory. Please refresh the page.
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
-        {/* Agent Directory Embed */}
+        {/* Features */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <Card className="text-center border-0 shadow-lg">
+            <CardHeader>
+              <Users className="h-12 w-12 text-blue-500 mx-auto mb-4" />
+              <CardTitle className="text-black">Find Agents</CardTitle>
+              <CardDescription>Browse and search through our network of real estate professionals</CardDescription>
+            </CardHeader>
+          </Card>
+          <Card className="text-center border-0 shadow-lg">
+            <CardHeader>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-12 w-12 text-green-500 mx-auto mb-4"
+              >
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+              <CardTitle className="text-black">Direct Messaging</CardTitle>
+              <CardDescription>Connect and communicate directly with other agents in the network</CardDescription>
+            </CardHeader>
+          </Card>
+          <Card className="text-center border-0 shadow-lg">
+            <CardHeader>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-12 w-12 text-purple-500 mx-auto mb-4"
+              >
+                <circle cx="12" cy="12" r="3" />
+                <path d="M12 1v6m0 6v6" />
+                <path d="m21 12-6 0m-6 0-6 0" />
+              </svg>
+              <CardTitle className="text-black">Network Building</CardTitle>
+              <CardDescription>
+                Build your professional network and discover collaboration opportunities
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+
+        {/* CommunityBox Embed */}
         <div className="mb-8">
           <Card className="max-w-6xl mx-auto border-0 shadow-xl overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-blue-600 to-green-600 text-white">
+            <CardHeader className="bg-gradient-to-r from-green-600 to-blue-600 text-white">
               <CardTitle className="text-2xl">Agent Directory</CardTitle>
-              <CardDescription className="text-blue-100">
-                Browse and connect with real estate professionals in your network
-                {directoryLoaded && <span className="ml-2">✅ Connected</span>}
+              <CardDescription className="text-green-100">
+                Browse and connect with agents in your network
+                {isLoaded && <span className="ml-2">✅ Connected</span>}
               </CardDescription>
             </CardHeader>
             <CardContent className="p-0">
-              <div className="min-h-[800px] w-full relative">
+              <div className="min-h-[600px] w-full relative">
                 {isLoading && (
                   <div className="absolute inset-0 bg-white bg-opacity-90 flex flex-col justify-center items-center z-10">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+                    <Loader2 className="h-12 w-12 animate-spin text-blue-600 mb-4" />
                     <span className="text-gray-600">Loading agent directory...</span>
                   </div>
                 )}
 
-                {/* CommunityBox Directory Container */}
-                <div
-                  id="communitybox-target"
-                  box="6bdb3884-cffe-43f5-bbca-d38f5aa62029"
-                  className="w-full min-h-[800px]"
-                >
-                  {!directoryLoaded && !isLoading && (
-                    <div className="flex flex-col items-center justify-center h-96 text-gray-500 p-6">
+                {error && (
+                  <div className="absolute inset-0 bg-white bg-opacity-90 flex flex-col justify-center items-center z-10">
+                    <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
+                    <span className="text-gray-600 mb-2">Failed to load agent directory</span>
+                    <span className="text-sm text-gray-500">{error}</span>
+                    <button
+                      onClick={() => window.location.reload()}
+                      className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    >
+                      Try Again
+                    </button>
+                  </div>
+                )}
+
+                {/* CommunityBox Container */}
+                <div className="w-full min-h-[600px] p-6">
+                  <div id="communitybox-target" box="6bdb3884-cffe-43f5-bbca-d38f5aa62029"></div>
+
+                  {!isLoaded && !isLoading && !error && (
+                    <div className="flex flex-col items-center justify-center h-96 text-gray-500">
                       <Users className="h-16 w-16 mb-4" />
-                      <p className="text-lg mb-2">Agent directory is not available</p>
-                      <p className="text-sm text-center">
-                        The agent directory failed to load. Please refresh the page or contact support if the issue
-                        persists.
-                      </p>
+                      <p>Agent directory is loading...</p>
+                      <p className="text-sm mt-2">If this takes too long, please refresh the page.</p>
                     </div>
                   )}
                 </div>

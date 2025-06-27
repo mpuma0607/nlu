@@ -1,12 +1,16 @@
-import { Loader2 } from "lucide-react"
-
-export default function CreationsDashboardLoading() {
+export default function Loading() {
   return (
-    <div className="min-h-screen bg-white py-12">
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col items-center justify-center h-96">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mb-4" />
-          <p className="text-gray-600">Loading your creations dashboard...</p>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="bg-white rounded-lg shadow-sm border">
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 rounded-t-lg">
+            <h2 className="text-xl font-bold">Loading Creations Dashboard...</h2>
+          </div>
+          <div className="p-6">
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -14,9 +14,19 @@ export async function POST(request: NextRequest) {
   try {
     console.log("Starting database migration...")
 
+    // Drop existing tables if they exist with wrong schema
+    try {
+      await sql`DROP TABLE IF EXISTS page_views CASCADE`
+      await sql`DROP TABLE IF EXISTS user_events CASCADE`
+      await sql`DROP TABLE IF EXISTS user_sessions CASCADE`
+      console.log("Dropped existing tables with wrong schema")
+    } catch (error) {
+      console.log("No existing tables to drop, continuing...")
+    }
+
     // Create tracking tables with correct schema
     await sql`
-      CREATE TABLE IF NOT EXISTS user_sessions (
+      CREATE TABLE user_sessions (
           id SERIAL PRIMARY KEY,
           session_id VARCHAR(255) UNIQUE NOT NULL,
           user_agent TEXT,
@@ -28,7 +38,7 @@ export async function POST(request: NextRequest) {
     console.log("Created user_sessions table")
 
     await sql`
-      CREATE TABLE IF NOT EXISTS page_views (
+      CREATE TABLE page_views (
           id SERIAL PRIMARY KEY,
           session_id VARCHAR(255) NOT NULL,
           page_path VARCHAR(500) NOT NULL,
@@ -40,7 +50,7 @@ export async function POST(request: NextRequest) {
     console.log("Created page_views table")
 
     await sql`
-      CREATE TABLE IF NOT EXISTS user_events (
+      CREATE TABLE user_events (
           id SERIAL PRIMARY KEY,
           session_id VARCHAR(255) NOT NULL,
           event_type VARCHAR(100) NOT NULL,
@@ -67,14 +77,14 @@ export async function POST(request: NextRequest) {
     console.log("Created user_creations table")
 
     // Create indexes
-    await sql`CREATE INDEX IF NOT EXISTS idx_user_sessions_session_id ON user_sessions(session_id)`
-    await sql`CREATE INDEX IF NOT EXISTS idx_page_views_session_id ON page_views(session_id)`
-    await sql`CREATE INDEX IF NOT EXISTS idx_page_views_timestamp ON page_views(timestamp)`
-    await sql`CREATE INDEX IF NOT EXISTS idx_user_events_session_id ON user_events(session_id)`
-    await sql`CREATE INDEX IF NOT EXISTS idx_user_events_timestamp ON user_events(timestamp)`
-    await sql`CREATE INDEX IF NOT EXISTS idx_user_creations_user_id ON user_creations(user_id)`
-    await sql`CREATE INDEX IF NOT EXISTS idx_user_creations_tool_type ON user_creations(tool_type)`
-    await sql`CREATE INDEX IF NOT EXISTS idx_user_creations_created_at ON user_creations(created_at)`
+    await sql`CREATE INDEX idx_user_sessions_session_id ON user_sessions(session_id)`
+    await sql`CREATE INDEX idx_page_views_session_id ON page_views(session_id)`
+    await sql`CREATE INDEX idx_page_views_timestamp ON page_views(timestamp)`
+    await sql`CREATE INDEX idx_user_events_session_id ON user_events(session_id)`
+    await sql`CREATE INDEX idx_user_events_timestamp ON user_events(timestamp)`
+    await sql`CREATE INDEX idx_user_creations_user_id ON user_creations(user_id)`
+    await sql`CREATE INDEX idx_user_creations_tool_type ON user_creations(tool_type)`
+    await sql`CREATE INDEX idx_user_creations_created_at ON user_creations(created_at)`
     console.log("Created indexes")
 
     console.log("Database migration completed successfully")

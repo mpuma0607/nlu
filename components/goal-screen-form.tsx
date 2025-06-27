@@ -1,13 +1,13 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { Target, Download, Mail, Calculator, TrendingUp, Phone, Brain, Eye, Zap, Save } from "lucide-react"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
+import { Target, Download, Mail, Calculator, TrendingUp, Phone, Brain, Eye, Zap, Save, CheckCircle } from "lucide-react"
 import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
 
 interface CalculationResults {
@@ -29,6 +29,13 @@ export default function GoalScreenForm() {
   const resultsRef = useRef<HTMLDivElement>(null)
   const [isSaving, setIsSaving] = useState(false)
   const { user, isLoggedIn } = useMemberSpaceUser()
+
+  // Auto-populate email when user data is available
+  useEffect(() => {
+    if (isLoggedIn && user?.email && !emailAddress) {
+      setEmailAddress(user.email)
+    }
+  }, [isLoggedIn, user?.email, emailAddress])
 
   // Real estate calculation constants
   const AVG_COMMISSION = 9500
@@ -365,16 +372,28 @@ export default function GoalScreenForm() {
 
             {showEmailInput && (
               <div className="mt-6 max-w-md mx-auto">
-                <div className="flex gap-2">
-                  <Input
-                    type="email"
-                    placeholder="your@email.com"
-                    value={emailAddress}
-                    onChange={(e) => setEmailAddress(e.target.value)}
-                  />
-                  <Button onClick={handleEmailWallpaper} disabled={isEmailing || !emailAddress}>
-                    {isEmailing ? "Sending..." : "Send"}
-                  </Button>
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="flex items-center gap-2">
+                    Email Address
+                    {isLoggedIn && user?.email && emailAddress === user.email && (
+                      <div className="flex items-center gap-1 text-green-600">
+                        <CheckCircle className="h-4 w-4" />
+                        <span className="text-xs">Auto-filled</span>
+                      </div>
+                    )}
+                  </Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="your@email.com"
+                      value={emailAddress}
+                      onChange={(e) => setEmailAddress(e.target.value)}
+                    />
+                    <Button onClick={handleEmailWallpaper} disabled={isEmailing || !emailAddress}>
+                      {isEmailing ? "Sending..." : "Send"}
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}

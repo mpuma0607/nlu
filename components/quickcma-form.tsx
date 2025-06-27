@@ -2,12 +2,12 @@
 
 import type React from "react"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, Calculator, MapPin, Clock, Save } from "lucide-react"
+import { Loader2, Calculator, MapPin, Clock, Save, CheckCircle } from "lucide-react"
 import { analyzeComparables } from "./actions"
 import { QuickCMAResults } from "./quickcma-results"
 import Image from "next/image"
@@ -27,6 +27,15 @@ export default function QuickCMAForm({ onAnalysisComplete }: QuickCMAFormProps) 
   const [isSaving, setIsSaving] = useState(false)
   const resultsRef = useRef<HTMLDivElement>(null)
   const { user } = useMemberSpaceUser()
+
+  const [emailAddress, setEmailAddress] = useState("")
+
+  // Auto-populate email when user data is available
+  useEffect(() => {
+    if (user?.email && !emailAddress) {
+      setEmailAddress(user.email)
+    }
+  }, [user?.email, emailAddress])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -255,6 +264,26 @@ Generated on ${new Date().toLocaleDateString()}`
               <div className="space-y-2">
                 <Label htmlFor="zip">ZIP Code</Label>
                 <Input id="zip" name="zip" placeholder="33543" required disabled={isLoading} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email" className="flex items-center gap-2">
+                  Email Address (for sending report)
+                  {user?.email && emailAddress === user.email && (
+                    <div className="flex items-center gap-1 text-green-600">
+                      <CheckCircle className="h-4 w-4" />
+                      <span className="text-xs">Auto-filled</span>
+                    </div>
+                  )}
+                </Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={emailAddress}
+                  onChange={(e) => setEmailAddress(e.target.value)}
+                  disabled={isLoading}
+                />
               </div>
             </div>
 

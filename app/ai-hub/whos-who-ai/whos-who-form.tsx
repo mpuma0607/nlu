@@ -3,13 +3,31 @@
 import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
+import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, Search, Mail, CheckCircle, AlertCircle, Phone, MapPin, Home, Clock, ExternalLink, Shield, Target, BarChart3, Users, Building, TrendingUp } from 'lucide-react'
+import {
+  Loader2,
+  Search,
+  Mail,
+  CheckCircle,
+  AlertCircle,
+  Phone,
+  MapPin,
+  Home,
+  Clock,
+  ExternalLink,
+  Shield,
+  Target,
+  BarChart3,
+  Users,
+  Building,
+  TrendingUp,
+} from "lucide-react"
 import { skipTraceProperty } from "./actions"
 import { analyzeComparables } from "@/components/actions"
 import { QuickCMAResults } from "@/components/quickcma-results"
@@ -57,6 +75,15 @@ export function WhosWhoForm() {
   const [cmaResult, setCmaResult] = useState<CMAResult | null>(null)
   const [isCmaLoading, setIsCmaLoading] = useState(false)
   const [cmaError, setCmaError] = useState<string | null>(null)
+
+  const { user, isLoggedIn } = useMemberSpaceUser()
+
+  // Auto-populate email when user data is available
+  useEffect(() => {
+    if (isLoggedIn && user?.email && !formData.email) {
+      setFormData((prev) => ({ ...prev, email: user.email }))
+    }
+  }, [isLoggedIn, user?.email, formData.email])
 
   const resultsRef = useRef<HTMLDivElement>(null)
   const cmaRef = useRef<HTMLDivElement>(null)
@@ -256,7 +283,15 @@ export function WhosWhoForm() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="email">Your Email Address</Label>
+          <Label htmlFor="email" className="flex items-center gap-2">
+            Your Email Address
+            {isLoggedIn && user?.email && formData.email === user.email && (
+              <div className="flex items-center gap-1 text-green-600">
+                <CheckCircle className="h-4 w-4" />
+                <span className="text-xs">Auto-filled</span>
+              </div>
+            )}
+          </Label>
           <Input
             id="email"
             name="email"

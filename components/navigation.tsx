@@ -122,6 +122,11 @@ const navigationItems = [
         href: "/networking-hub",
         description: "Connect with real estate professionals",
       },
+      {
+        title: "Agent Directory",
+        href: "/networking-hub/agent-directory",
+        description: "Find and connect with other agents",
+      },
     ],
   },
   {

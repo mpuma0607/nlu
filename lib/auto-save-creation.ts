@@ -8,12 +8,12 @@ interface SaveCreationParams {
   metadata?: any
 }
 
-export async function saveUserCreation(params: SaveCreationParams): Promise<boolean> {
+export async function saveUserCreation(params: SaveCreationParams): Promise<{ success: boolean; error?: string }> {
   try {
     // Don't save RealDeal contract analyses
     if (params.toolType === "realdeal-ai") {
       console.log("Skipping save for RealDeal contract analysis (security policy)")
-      return true
+      return { success: true }
     }
 
     console.log("Saving user creation:", params)
@@ -33,10 +33,10 @@ export async function saveUserCreation(params: SaveCreationParams): Promise<bool
 
     const result = await response.json()
     console.log("Creation saved successfully:", result)
-    return true
+    return { success: true }
   } catch (error) {
     console.error("Error saving creation:", error)
-    return false
+    return { success: false, error: error instanceof Error ? error.message : "Failed to save creation" }
   }
 }
 

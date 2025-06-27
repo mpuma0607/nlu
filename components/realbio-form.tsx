@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { generateAgentBio } from "../lib/realbio-actions"
-import { Loader2, Copy, Mail, User, Download, FileText, Save, UserCheck } from "lucide-react"
+import { Loader2, Copy, Mail, User, Download, FileText, Save, UserCheck, Mic, MicOff } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
@@ -45,6 +45,9 @@ export default function RealBioForm() {
   const [isSendingEmail, setIsSendingEmail] = useState(false)
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [isListeningOrigin, setIsListeningOrigin] = useState(false)
+  const [isListeningAreas, setIsListeningAreas] = useState(false)
+  const [isListeningHobbies, setIsListeningHobbies] = useState(false)
   const [formData, setFormData] = useState<BioFormState>({
     name: "",
     brokerage: "",
@@ -75,6 +78,124 @@ export default function RealBioForm() {
 
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const startListening = (field: "origin" | "areasServed" | "hobbies") => {
+    if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition
+      const recognition = new SpeechRecognition()
+
+      // Mobile-optimized settings
+      recognition.continuous = false
+      recognition.interimResults = true
+      recognition.lang = "en-US"
+      recognition.maxAlternatives = 3
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        recognition.continuous = false
+        recognition.interimResults = true
+        recognition.speechTimeoutLength = 10000
+        recognition.speechInputPossiblyComplete = 8000
+      }
+
+      let finalTranscript = ""
+      let interimTranscript = ""
+
+      recognition.onstart = () => {
+        if (field === "origin") setIsListeningOrigin(true)
+        if (field === "areasServed") setIsListeningAreas(true)
+        if (field === "hobbies") setIsListeningHobbies(true)
+        console.log("Voice recognition started for", field)
+      }
+
+      recognition.onresult = (event: any) => {
+        finalTranscript = ""
+        interimTranscript = ""
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript
+          } else {
+            interimTranscript += transcript
+          }
+        }
+
+        const currentText = finalTranscript || interimTranscript
+        if (currentText.trim()) {
+          setFormData((prev) => ({
+            ...prev,
+            [field]: prev[field] + (prev[field] ? " " : "") + currentText,
+          }))
+        }
+
+        console.log("Voice result:", { final: finalTranscript, interim: interimTranscript })
+      }
+
+      recognition.onerror = (event: any) => {
+        console.error("Voice recognition error:", event.error)
+        setIsListeningOrigin(false)
+        setIsListeningAreas(false)
+        setIsListeningHobbies(false)
+
+        let errorMessage = "Voice recognition failed. "
+        switch (event.error) {
+          case "no-speech":
+            errorMessage += "No speech detected. Please try again."
+            break
+          case "audio-capture":
+            errorMessage += "Microphone not accessible. Please check permissions."
+            break
+          case "not-allowed":
+            errorMessage += "Microphone permission denied. Please enable microphone access."
+            break
+          case "network":
+            errorMessage += "Network error. Please check your connection."
+            break
+          default:
+            errorMessage += "Please try typing your response instead."
+        }
+
+        if (event.error !== "aborted") {
+          toast({
+            title: "Voice Recognition Error",
+            description: errorMessage,
+            variant: "destructive",
+          })
+        }
+      }
+
+      recognition.onend = () => {
+        setIsListeningOrigin(false)
+        setIsListeningAreas(false)
+        setIsListeningHobbies(false)
+        console.log("Voice recognition ended")
+      }
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        navigator.mediaDevices
+          ?.getUserMedia({ audio: true })
+          .then(() => {
+            recognition.start()
+          })
+          .catch((err) => {
+            console.error("Microphone permission error:", err)
+            toast({
+              title: "Microphone Access Required",
+              description: "Please allow microphone access to use voice input.",
+              variant: "destructive",
+            })
+          })
+      } else {
+        recognition.start()
+      }
+    } else {
+      toast({
+        title: "Voice Recognition Not Supported",
+        description: "Voice recognition is not supported in your browser. Please try Chrome or Safari.",
+        variant: "destructive",
+      })
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -299,42 +420,102 @@ export default function RealBioForm() {
 
       <div className="space-y-2">
         <Label htmlFor="origin">Your Origin Story *</Label>
-        <Textarea
-          id="origin"
-          name="origin"
-          placeholder="Tell us about your background - what led you to real estate? What's your story? (e.g., former teacher, military background, local native, etc.)"
-          value={formData.origin}
-          onChange={handleInputChange}
-          className="min-h-[100px]"
-          required
-        />
+        <div className="relative">
+          <Textarea
+            id="origin"
+            name="origin"
+            placeholder="Tell us about your background - what led you to real estate? What's your story? (e.g., former teacher, military background, local native, etc.)"
+            value={formData.origin}
+            onChange={handleInputChange}
+            className="min-h-[100px] pr-12"
+            required
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="absolute top-2 right-2"
+            onClick={() => startListening("origin")}
+            disabled={isListeningOrigin}
+          >
+            {isListeningOrigin ? <MicOff className="h-4 w-4 text-red-500" /> : <Mic className="h-4 w-4" />}
+          </Button>
+        </div>
+        {isListeningOrigin && (
+          <div className="flex items-center gap-2 text-sm text-blue-600">
+            <div className="animate-pulse w-2 h-2 bg-red-500 rounded-full"></div>
+            Listening... Tell us your story
+          </div>
+        )}
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="areasServed">Areas You Serve *</Label>
-        <Textarea
-          id="areasServed"
-          name="areasServed"
-          placeholder="List the cities, neighborhoods, or regions you serve (e.g., Downtown Miami, Coral Gables, Aventura, etc.)"
-          value={formData.areasServed}
-          onChange={handleInputChange}
-          className="min-h-[80px]"
-          required
-        />
+        <div className="relative">
+          <Textarea
+            id="areasServed"
+            name="areasServed"
+            placeholder="List the cities, neighborhoods, or regions you serve (e.g., Downtown Miami, Coral Gables, Aventura, etc.)"
+            value={formData.areasServed}
+            onChange={handleInputChange}
+            className="min-h-[80px] pr-12"
+            required
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="absolute top-2 right-2"
+            onClick={() => startListening("areasServed")}
+            disabled={isListeningAreas}
+          >
+            {isListeningAreas ? <MicOff className="h-4 w-4 text-red-500" /> : <Mic className="h-4 w-4" />}
+          </Button>
+        </div>
+        {isListeningAreas && (
+          <div className="flex items-center gap-2 text-sm text-blue-600">
+            <div className="animate-pulse w-2 h-2 bg-red-500 rounded-full"></div>
+            Listening... Tell us the areas you serve
+          </div>
+        )}
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="hobbies">Personal Interests & Hobbies *</Label>
-        <Textarea
-          id="hobbies"
-          name="hobbies"
-          placeholder="Share your hobbies, interests, and what you enjoy outside of real estate (e.g., hiking, cooking, volunteering, sports, travel, etc.)"
-          value={formData.hobbies}
-          onChange={handleInputChange}
-          className="min-h-[80px]"
-          required
-        />
+        <div className="relative">
+          <Textarea
+            id="hobbies"
+            name="hobbies"
+            placeholder="Share your hobbies, interests, and what you enjoy outside of real estate (e.g., hiking, cooking, volunteering, sports, travel, etc.)"
+            value={formData.hobbies}
+            onChange={handleInputChange}
+            className="min-h-[80px] pr-12"
+            required
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="absolute top-2 right-2"
+            onClick={() => startListening("hobbies")}
+            disabled={isListeningHobbies}
+          >
+            {isListeningHobbies ? <MicOff className="h-4 w-4 text-red-500" /> : <Mic className="h-4 w-4" />}
+          </Button>
+        </div>
+        {isListeningHobbies && (
+          <div className="flex items-center gap-2 text-sm text-blue-600">
+            <div className="animate-pulse w-2 h-2 bg-red-500 rounded-full"></div>
+            Listening... Tell us about your interests and hobbies
+          </div>
+        )}
       </div>
+
+      {/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) && (
+        <div className="text-xs text-muted-foreground mt-2 p-2 bg-blue-50 rounded">
+          <strong>Voice Input Tips:</strong> Speak clearly, hold phone close to mouth, ensure good internet connection
+        </div>
+      )}
 
       <Button
         onClick={() => setStep(2)}

@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { generateListingDescription, generateListingHTML } from "./actions"
-import { Loader2, Copy, Download, Mail, Home, FileText, Save, Check } from "lucide-react"
+import { Loader2, Copy, Download, Mail, FileText, Save, Check, Mic, MicOff } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
@@ -20,11 +20,7 @@ type FormState = {
   bedrooms: string
   bathrooms: string
   squareFootage: string
-  feature1: string
-  feature2: string
-  feature3: string
-  feature4: string
-  feature5: string
+  propertyDescription: string
   agentName: string
   agentEmail: string
 }
@@ -40,17 +36,14 @@ export default function ListingForm() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [isSendingEmail, setIsSendingEmail] = useState(false)
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
+  const [isListeningDescription, setIsListeningDescription] = useState(false)
   const [formData, setFormData] = useState<FormState>({
     propertyAddress: "",
     listingPrice: "",
     bedrooms: "",
     bathrooms: "",
     squareFootage: "",
-    feature1: "",
-    feature2: "",
-    feature3: "",
-    feature4: "",
-    feature5: "",
+    propertyDescription: "",
     agentName: "",
     agentEmail: "",
   })
@@ -86,6 +79,118 @@ export default function ListingForm() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
+  const startListening = () => {
+    if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition
+      const recognition = new SpeechRecognition()
+
+      // Mobile-optimized settings
+      recognition.continuous = false
+      recognition.interimResults = true
+      recognition.lang = "en-US"
+      recognition.maxAlternatives = 3
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        recognition.continuous = false
+        recognition.interimResults = true
+        recognition.speechTimeoutLength = 10000
+        recognition.speechInputPossiblyComplete = 8000
+      }
+
+      let finalTranscript = ""
+      let interimTranscript = ""
+
+      recognition.onstart = () => {
+        setIsListeningDescription(true)
+        console.log("Voice recognition started for property description")
+      }
+
+      recognition.onresult = (event: any) => {
+        finalTranscript = ""
+        interimTranscript = ""
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript
+          } else {
+            interimTranscript += transcript
+          }
+        }
+
+        const currentText = finalTranscript || interimTranscript
+        if (currentText.trim()) {
+          setFormData((prev) => ({
+            ...prev,
+            propertyDescription: prev.propertyDescription + (prev.propertyDescription ? " " : "") + currentText,
+          }))
+        }
+
+        console.log("Voice result:", { final: finalTranscript, interim: interimTranscript })
+      }
+
+      recognition.onerror = (event: any) => {
+        console.error("Voice recognition error:", event.error)
+        setIsListeningDescription(false)
+
+        let errorMessage = "Voice recognition failed. "
+        switch (event.error) {
+          case "no-speech":
+            errorMessage += "No speech detected. Please try again."
+            break
+          case "audio-capture":
+            errorMessage += "Microphone not accessible. Please check permissions."
+            break
+          case "not-allowed":
+            errorMessage += "Microphone permission denied. Please enable microphone access."
+            break
+          case "network":
+            errorMessage += "Network error. Please check your connection."
+            break
+          default:
+            errorMessage += "Please try typing your description instead."
+        }
+
+        if (event.error !== "aborted") {
+          toast({
+            title: "Voice Recognition Error",
+            description: errorMessage,
+            variant: "destructive",
+          })
+        }
+      }
+
+      recognition.onend = () => {
+        setIsListeningDescription(false)
+        console.log("Voice recognition ended")
+      }
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        navigator.mediaDevices
+          ?.getUserMedia({ audio: true })
+          .then(() => {
+            recognition.start()
+          })
+          .catch((err) => {
+            console.error("Microphone permission error:", err)
+            toast({
+              title: "Microphone Access Required",
+              description: "Please allow microphone access to use voice input.",
+              variant: "destructive",
+            })
+          })
+      } else {
+        recognition.start()
+      }
+    } else {
+      toast({
+        title: "Voice Recognition Not Supported",
+        description: "Voice recognition is not supported in your browser. Please try Chrome or Safari.",
+        variant: "destructive",
+      })
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsGenerating(true)
@@ -117,7 +222,7 @@ export default function ListingForm() {
       const generatedListing = await generateListingDescription(formData)
       console.log("Generated listing:", generatedListing)
       setResult(generatedListing)
-      setStep(4) // Go to step 4 (results)
+      setStep(3) // Go to step 3 (results)
       toast({
         title: "Listing Description Generated Successfully",
         description: "Your professional listing description is ready!",
@@ -267,7 +372,7 @@ export default function ListingForm() {
           bedrooms: formData.bedrooms,
           bathrooms: formData.bathrooms,
           squareFootage: formData.squareFootage,
-          features: [formData.feature1, formData.feature2, formData.feature3, formData.feature4, formData.feature5],
+          propertyDescription: formData.propertyDescription,
           agentName: formData.agentName,
           agentEmail: formData.agentEmail,
         },
@@ -371,7 +476,7 @@ export default function ListingForm() {
         }
         className="w-full bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-700 hover:to-amber-700 text-white"
       >
-        Next: Property Features
+        Next: Property Description
       </Button>
     </div>
   )
@@ -379,93 +484,50 @@ export default function ListingForm() {
   const renderStepTwo = () => (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h3 className="text-lg font-semibold text-black">Key Property Features</h3>
-        <p className="text-gray-600">List the 5 most important features that make this property special</p>
+        <h3 className="text-lg font-semibold text-black">Property Description</h3>
+        <p className="text-gray-600">Describe the property features, amenities, and highlights</p>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="feature1">Key Feature 1 *</Label>
-        <Input
-          id="feature1"
-          name="feature1"
-          placeholder="e.g. Newly renovated kitchen with granite countertops"
-          value={formData.feature1}
-          onChange={handleInputChange}
-          required
-        />
+        <Label htmlFor="propertyDescription">Property Description *</Label>
+        <div className="relative">
+          <Textarea
+            id="propertyDescription"
+            name="propertyDescription"
+            placeholder="Describe the property features, amenities, and what makes it special. For example: This house has a newly renovated kitchen with granite countertops, spacious backyard with covered patio, open floor plan with hardwood floors, master suite with walk-in closet, and is located in a prime area near schools and shopping..."
+            value={formData.propertyDescription}
+            onChange={handleInputChange}
+            className="min-h-[150px] pr-12"
+            required
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="absolute top-2 right-2"
+            onClick={startListening}
+            disabled={isListeningDescription}
+          >
+            {isListeningDescription ? <MicOff className="h-4 w-4 text-red-500" /> : <Mic className="h-4 w-4" />}
+          </Button>
+        </div>
+        {isListeningDescription && (
+          <div className="flex items-center gap-2 text-sm text-blue-600">
+            <div className="animate-pulse w-2 h-2 bg-red-500 rounded-full"></div>
+            Listening... Describe the property features and amenities
+          </div>
+        )}
+        <p className="text-xs text-gray-500">
+          💡 Tip: Use voice input to naturally describe the property. The AI will organize your description into a
+          professional listing.
+        </p>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="feature2">Key Feature 2 *</Label>
-        <Input
-          id="feature2"
-          name="feature2"
-          placeholder="e.g. Spacious backyard with covered patio"
-          value={formData.feature2}
-          onChange={handleInputChange}
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="feature3">Key Feature 3 *</Label>
-        <Input
-          id="feature3"
-          name="feature3"
-          placeholder="e.g. Open floor plan with hardwood floors"
-          value={formData.feature3}
-          onChange={handleInputChange}
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="feature4">Key Feature 4 *</Label>
-        <Input
-          id="feature4"
-          name="feature4"
-          placeholder="e.g. Master suite with walk-in closet and en-suite bathroom"
-          value={formData.feature4}
-          onChange={handleInputChange}
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="feature5">Key Feature 5 *</Label>
-        <Input
-          id="feature5"
-          name="feature5"
-          placeholder="e.g. Prime location near schools and shopping"
-          value={formData.feature5}
-          onChange={handleInputChange}
-          required
-        />
-      </div>
-
-      <div className="flex gap-4">
-        <Button variant="outline" onClick={() => setStep(1)} className="flex-1">
-          Back
-        </Button>
-        <Button
-          onClick={() => setStep(3)}
-          disabled={
-            !formData.feature1 || !formData.feature2 || !formData.feature3 || !formData.feature4 || !formData.feature5
-          }
-          className="flex-1 bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-700 hover:to-amber-700 text-white"
-        >
-          Next: Your Information
-        </Button>
-      </div>
-    </div>
-  )
-
-  const renderStepThree = () => (
-    <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h3 className="text-lg font-semibold text-black">Agent Information</h3>
-        <p className="text-gray-600">Enter your details to receive the listing description</p>
-      </div>
+      {/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) && (
+        <div className="text-xs text-muted-foreground mt-2 p-2 bg-blue-50 rounded">
+          <strong>Voice Input Tips:</strong> Speak clearly, hold phone close to mouth, ensure good internet connection
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
@@ -509,59 +571,13 @@ export default function ListingForm() {
         </div>
       </div>
 
-      {/* Property Summary */}
-      <Card className="bg-gray-50 border-0">
-        <CardContent className="p-6">
-          <h4 className="font-semibold text-black mb-4 flex items-center gap-2">
-            <Home className="h-4 w-4" />
-            Property Summary
-          </h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div>
-              <p>
-                <span className="font-medium">Address:</span> {formData.propertyAddress}
-              </p>
-              <p>
-                <span className="font-medium">Price:</span> {formData.listingPrice}
-              </p>
-              <p>
-                <span className="font-medium">Bedrooms:</span> {formData.bedrooms}
-              </p>
-              <p>
-                <span className="font-medium">Bathrooms:</span> {formData.bathrooms}
-              </p>
-              <p>
-                <span className="font-medium">Square Footage:</span> {formData.squareFootage}
-              </p>
-            </div>
-            <div>
-              <p>
-                <span className="font-medium">Feature 1:</span> {formData.feature1}
-              </p>
-              <p>
-                <span className="font-medium">Feature 2:</span> {formData.feature2}
-              </p>
-              <p>
-                <span className="font-medium">Feature 3:</span> {formData.feature3}
-              </p>
-              <p>
-                <span className="font-medium">Feature 4:</span> {formData.feature4}
-              </p>
-              <p>
-                <span className="font-medium">Feature 5:</span> {formData.feature5}
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       <div className="flex gap-4">
-        <Button variant="outline" onClick={() => setStep(2)} className="flex-1">
+        <Button variant="outline" onClick={() => setStep(1)} className="flex-1">
           Back
         </Button>
         <Button
           onClick={handleSubmit}
-          disabled={isGenerating || !formData.agentName || !formData.agentEmail}
+          disabled={isGenerating || !formData.propertyDescription || !formData.agentName || !formData.agentEmail}
           className="flex-1 bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-700 hover:to-amber-700 text-white"
         >
           {isGenerating ? (
@@ -576,7 +592,7 @@ export default function ListingForm() {
     </div>
   )
 
-  const renderStepFour = () => (
+  const renderStepThree = () => (
     <div ref={resultsRef} className="space-y-6">
       <div className="text-center mb-6">
         <h3 className="text-xl font-bold text-black">Your Listing Description is Ready!</h3>
@@ -684,11 +700,7 @@ export default function ListingForm() {
             bedrooms: "",
             bathrooms: "",
             squareFootage: "",
-            feature1: "",
-            feature2: "",
-            feature3: "",
-            feature4: "",
-            feature5: "",
+            propertyDescription: "",
             agentName: isLoggedIn && user ? user.name || `${user.firstName || ""} ${user.lastName || ""}`.trim() : "",
             agentEmail: isLoggedIn && user ? user.email : "",
           }
@@ -728,23 +740,14 @@ export default function ListingForm() {
               step >= 3 ? "bg-yellow-600 text-white" : "bg-gray-200 text-gray-600"
             }`}
           >
-            3
-          </div>
-          <div className={`h-1 w-16 ${step >= 4 ? "bg-yellow-600" : "bg-gray-200"}`}></div>
-          <div
-            className={`w-10 h-10 rounded-full flex items-center justify-center ${
-              step >= 4 ? "bg-yellow-600 text-white" : "bg-gray-200 text-gray-600"
-            }`}
-          >
             ✓
           </div>
         </div>
         <div className="text-center mt-4">
           <p className="text-sm text-gray-600">
             {step === 1 && "Property Information"}
-            {step === 2 && "Key Features"}
-            {step === 3 && "Agent Information"}
-            {step === 4 && "Generated Description"}
+            {step === 2 && "Property Description"}
+            {step === 3 && "Generated Description"}
           </p>
         </div>
       </div>
@@ -753,7 +756,6 @@ export default function ListingForm() {
         {step === 1 && renderStepOne()}
         {step === 2 && renderStepTwo()}
         {step === 3 && renderStepThree()}
-        {step === 4 && renderStepFour()}
       </form>
     </div>
   )

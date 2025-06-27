@@ -84,7 +84,7 @@ export default function ListingForm() {
       const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition
       const recognition = new SpeechRecognition()
 
-      // Mobile-optimized settings (copied exactly from PropBot)
+      // Exact same settings as PropBot
       recognition.continuous = false
       recognition.interimResults = true
       recognition.lang = "en-US"
@@ -97,19 +97,17 @@ export default function ListingForm() {
         recognition.speechInputPossiblyComplete = 8000
       }
 
-      let finalTranscript = ""
-      let interimTranscript = ""
-
       recognition.onstart = () => {
         setIsListeningDescription(true)
         console.log("Voice recognition started for property description")
       }
 
       recognition.onresult = (event: any) => {
-        finalTranscript = ""
-        interimTranscript = ""
+        let finalTranscript = ""
+        let interimTranscript = ""
 
-        for (let i = event.resultIndex; i < event.results.length; i++) {
+        // Process all results from the beginning each time (this is key!)
+        for (let i = 0; i < event.results.length; i++) {
           const transcript = event.results[i][0].transcript
           if (event.results[i].isFinal) {
             finalTranscript += transcript
@@ -118,16 +116,16 @@ export default function ListingForm() {
           }
         }
 
-        const currentText = finalTranscript || interimTranscript
+        // Use the complete transcript (final + interim)
+        const currentText = finalTranscript + interimTranscript
         if (currentText.trim()) {
-          // REPLACE the content, don't append (this is the key fix)
           setFormData((prev) => ({
             ...prev,
             propertyDescription: currentText.trim(),
           }))
         }
 
-        console.log("Voice result:", { final: finalTranscript, interim: interimTranscript })
+        console.log("Voice result:", { final: finalTranscript, interim: interimTranscript, current: currentText })
       }
 
       recognition.onerror = (event: any) => {
@@ -164,15 +162,9 @@ export default function ListingForm() {
       recognition.onend = () => {
         setIsListeningDescription(false)
         console.log("Voice recognition ended")
-
-        if (finalTranscript.trim()) {
-          setFormData((prev) => ({
-            ...prev,
-            propertyDescription: finalTranscript.trim(),
-          }))
-        }
       }
 
+      // Mobile permission handling
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         navigator.mediaDevices
           ?.getUserMedia({ audio: true })

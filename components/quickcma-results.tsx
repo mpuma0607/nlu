@@ -21,7 +21,7 @@ import {
   Save,
 } from "lucide-react"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
-import { saveUserCreation } from "@/lib/auto-save-creation"
+import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
 
 interface QuickCMAResultsProps {
   data: {
@@ -246,14 +246,16 @@ export function QuickCMAResults({ data }: QuickCMAResultsProps) {
     setEmailError(null)
 
     try {
-      const title = `CMA Report - ${data.address.split(",")[0]}`
+      const title = generateCreationTitle("quickcma-ai", { address: data.address })
       const content = `Comparative Market Analysis for ${data.address}\n\nMarket Summary:\n- Average Price: $${data.comparableData.summary.averagePrice.toLocaleString()}\n- Average Square Footage: ${data.comparableData.summary.averageSqft.toLocaleString()} sq ft\n- Total Comparables: ${data.comparableData.totalComparables}\n- Price Range: $${data.comparableData.summary.priceRange.min.toLocaleString()} - $${data.comparableData.summary.priceRange.max.toLocaleString()}`
 
-      await saveUserCreation({
+      const success = await saveUserCreation({
         userId: user.id,
+        userEmail: user.email || "",
+        toolType: "quickcma-ai",
         title,
         content,
-        contentType: "quickcma",
+        formData: { address: data.address },
         metadata: {
           address: data.address,
           comparableData: data.comparableData,
@@ -263,17 +265,21 @@ export function QuickCMAResults({ data }: QuickCMAResultsProps) {
         },
       })
 
-      setEmailError(null)
-      // Show success message using existing alert system
-      const successDiv = document.createElement("div")
-      successDiv.className = "p-4 bg-green-50 text-green-800 rounded-md flex items-center gap-2 mt-4"
-      successDiv.innerHTML =
-        '<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>CMA report saved to your profile dashboard!'
+      if (success) {
+        setEmailError(null)
+        // Show success message using existing alert system
+        const successDiv = document.createElement("div")
+        successDiv.className = "p-4 bg-green-50 text-green-800 rounded-md flex items-center gap-2 mt-4"
+        successDiv.innerHTML =
+          '<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>CMA report saved to your profile dashboard!'
 
-      const container = document.querySelector(".mt-8.space-y-6")
-      if (container) {
-        container.insertBefore(successDiv, container.firstChild)
-        setTimeout(() => successDiv.remove(), 5000)
+        const container = document.querySelector(".mt-8.space-y-6")
+        if (container) {
+          container.insertBefore(successDiv, container.firstChild)
+          setTimeout(() => successDiv.remove(), 5000)
+        }
+      } else {
+        setEmailError("Failed to save CMA report")
       }
     } catch (error) {
       console.error("Save error:", error)

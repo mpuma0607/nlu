@@ -3,8 +3,17 @@ import { neon } from "@neondatabase/serverless"
 
 const sql = neon(process.env.DATABASE_URL!)
 
+export async function GET(request: NextRequest) {
+  return NextResponse.json({
+    message: "Use POST method to run migration",
+    usage: "POST /api/run-migration",
+  })
+}
+
 export async function POST(request: NextRequest) {
   try {
+    console.log("Starting database migration...")
+
     // Create tracking tables with correct schema
     await sql`
       CREATE TABLE IF NOT EXISTS user_sessions (
@@ -16,6 +25,7 @@ export async function POST(request: NextRequest) {
           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `
+    console.log("Created user_sessions table")
 
     await sql`
       CREATE TABLE IF NOT EXISTS page_views (
@@ -27,6 +37,7 @@ export async function POST(request: NextRequest) {
           timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `
+    console.log("Created page_views table")
 
     await sql`
       CREATE TABLE IF NOT EXISTS user_events (
@@ -37,6 +48,7 @@ export async function POST(request: NextRequest) {
           timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `
+    console.log("Created user_events table")
 
     await sql`
       CREATE TABLE IF NOT EXISTS user_creations (
@@ -52,6 +64,7 @@ export async function POST(request: NextRequest) {
           expires_at TIMESTAMP NOT NULL
       )
     `
+    console.log("Created user_creations table")
 
     // Create indexes
     await sql`CREATE INDEX IF NOT EXISTS idx_user_sessions_session_id ON user_sessions(session_id)`
@@ -62,6 +75,9 @@ export async function POST(request: NextRequest) {
     await sql`CREATE INDEX IF NOT EXISTS idx_user_creations_user_id ON user_creations(user_id)`
     await sql`CREATE INDEX IF NOT EXISTS idx_user_creations_tool_type ON user_creations(tool_type)`
     await sql`CREATE INDEX IF NOT EXISTS idx_user_creations_created_at ON user_creations(created_at)`
+    console.log("Created indexes")
+
+    console.log("Database migration completed successfully")
 
     return NextResponse.json({
       success: true,

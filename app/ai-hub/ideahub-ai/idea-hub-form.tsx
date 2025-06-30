@@ -65,48 +65,52 @@ export default function IdeaHubForm() {
     {
       value: "professional-authoritative",
       label: "Professional & Authoritative",
-      description: "Expert, credible, trustworthy tone",
+      description: "Confident, knowledgeable, clear",
     },
     {
       value: "friendly-approachable",
       label: "Friendly & Approachable",
-      description: "Warm, welcoming, personable tone",
+      description: "Warm, conversational, down-to-earth",
     },
-    { value: "witty-playful", label: "Witty & Playful", description: "Humorous, clever, entertaining tone" },
+    {
+      value: "witty-playful",
+      label: "Witty & Playful",
+      description: "Lighthearted, tongue-in-cheek, surprising twists",
+    },
     {
       value: "inspirational-motivational",
       label: "Inspirational & Motivational",
-      description: "Uplifting, encouraging, empowering tone",
+      description: "Uplifting, aspirational, empowering",
     },
     {
       value: "educational-informative",
       label: "Educational & Informative",
-      description: "Clear, instructional, helpful tone",
+      description: "Clear, explanatory, step-by-step",
     },
     {
       value: "conversational-story-driven",
       label: "Conversational & Story-Driven",
-      description: "Personal, narrative, relatable tone",
+      description: "Narrative, personal anecdotes, dialogue style",
     },
     {
       value: "urgent-action-oriented",
       label: "Urgent & Action-Oriented",
-      description: "Direct, compelling, time-sensitive tone",
+      description: 'Direct, brisk, focused on "now"',
     },
     {
       value: "empathetic-supportive",
       label: "Empathetic & Supportive",
-      description: "Understanding, caring, compassionate tone",
+      description: "Compassionate, understanding, reassuring",
     },
     {
       value: "visionary-futuristic",
       label: "Visionary & Futuristic",
-      description: "Forward-thinking, innovative, progressive tone",
+      description: "Forward-looking, trend-spotting, big-picture",
     },
     {
       value: "bold-disruptive",
       label: "Bold & Disruptive",
-      description: "Confident, challenging, attention-grabbing tone",
+      description: "Challenging conventions, strong opinions, confident declarations",
     },
   ]
 
@@ -411,11 +415,11 @@ export default function IdeaHubForm() {
                   <SelectValue placeholder="Select tonality" />
                 </SelectTrigger>
                 <SelectContent>
-                  {tonalityOptions.map((tone) => (
-                    <SelectItem key={tone.value} value={tone.value}>
-                      <div>
-                        <div className="font-medium">{tone.label}</div>
-                        <div className="text-sm text-gray-500">{tone.description}</div>
+                  {tonalityOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      <div className="flex flex-col">
+                        <span className="font-medium">{option.label}</span>
+                        <span className="text-xs text-gray-500">{option.description}</span>
                       </div>
                     </SelectItem>
                   ))}

@@ -39,6 +39,23 @@ export async function generateContent(formData: FormData) {
       throw new Error("Please provide either a selected topic or custom topic")
     }
 
+    // Map tonality values to descriptive text for the prompt
+    const tonalityMap: Record<string, string> = {
+      "professional-authoritative": "professional and authoritative tone - confident, knowledgeable, clear",
+      "friendly-approachable": "friendly and approachable tone - warm, conversational, down-to-earth",
+      "witty-playful": "witty and playful tone - lighthearted, tongue-in-cheek, surprising twists",
+      "inspirational-motivational": "inspirational and motivational tone - uplifting, aspirational, empowering",
+      "educational-informative": "educational and informative tone - clear, explanatory, step-by-step",
+      "conversational-story-driven":
+        "conversational and story-driven tone - narrative, personal anecdotes, dialogue style",
+      "urgent-action-oriented": "urgent and action-oriented tone - direct, brisk, focused on 'now'",
+      "empathetic-supportive": "empathetic and supportive tone - compassionate, understanding, reassuring",
+      "visionary-futuristic": "visionary and futuristic tone - forward-looking, trend-spotting, big-picture",
+      "bold-disruptive": "bold and disruptive tone - challenging conventions, strong opinions, confident declarations",
+    }
+
+    const selectedTonality = tonalityMap[formData.tonality] || "professional and engaging tone"
+
     // Generate content type specific prompts
     let contentTypeInstructions = ""
     let characterLimit = ""
@@ -75,7 +92,7 @@ ${contentTypeInstructions}
 
 The content should be based on the topic: ${topicToUse}
 
-Tonality: Use a ${formData.tonality} tone throughout the content.
+Tonality: Use a ${selectedTonality} throughout the content.
 
 Requirements:
 - Maintain a **professional and polished tone** at all times  
@@ -84,7 +101,7 @@ Requirements:
 - Keep the content informative, relevant, and audience-focused  
 - ${characterLimit}
 - Close with a subtle but strong call to action that encourages engagement or contact
-- Use the specified tonality: ${formData.tonality}
+- Use the specified tonality: ${selectedTonality}
 
 ${formData.contentType === "Email" ? "Format as a complete email with subject line, greeting, body, and closing." : ""}
 ${formData.contentType === "Blog article" ? "Include a compelling title and structure with subheadings where appropriate." : ""}

@@ -330,6 +330,7 @@ type FormState = {
   name: string
   email: string
   contentType: string
+  tonality: string
 }
 
 type ContentResult = {
@@ -354,6 +355,7 @@ export default function IdeaHubForm() {
     name: "",
     email: "",
     contentType: "Social post",
+    tonality: "Professional & Authoritative",
   })
   const [result, setResult] = useState<ContentResult | null>(null)
 
@@ -612,6 +614,7 @@ export default function IdeaHubForm() {
           language: formData.language,
           primaryTopic: formData.primaryTopic,
           alternateTopic: formData.alternateTopic,
+          tonality: formData.tonality,
           hasImage: !!result.imageUrl,
         },
       })
@@ -695,6 +698,79 @@ export default function IdeaHubForm() {
             <SelectItem value="Email">Email</SelectItem>
             <SelectItem value="Blog article">Blog Article</SelectItem>
             <SelectItem value="Text message">Text Message</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="tonality">Tonality *</Label>
+        <Select value={formData.tonality} onValueChange={(value) => handleSelectChange("tonality", value)}>
+          <SelectTrigger id="tonality">
+            <SelectValue placeholder="Select tonality" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Professional & Authoritative">
+              <div>
+                <div className="font-medium">Professional & Authoritative</div>
+                <div className="text-sm text-gray-500">Confident, knowledgeable, clear</div>
+              </div>
+            </SelectItem>
+            <SelectItem value="Friendly & Approachable">
+              <div>
+                <div className="font-medium">Friendly & Approachable</div>
+                <div className="text-sm text-gray-500">Warm, conversational, down-to-earth</div>
+              </div>
+            </SelectItem>
+            <SelectItem value="Witty & Playful">
+              <div>
+                <div className="font-medium">Witty & Playful</div>
+                <div className="text-sm text-gray-500">Lighthearted, tongue-in-cheek, surprising twists</div>
+              </div>
+            </SelectItem>
+            <SelectItem value="Inspirational & Motivational">
+              <div>
+                <div className="font-medium">Inspirational & Motivational</div>
+                <div className="text-sm text-gray-500">Uplifting, aspirational, empowering</div>
+              </div>
+            </SelectItem>
+            <SelectItem value="Educational & Informative">
+              <div>
+                <div className="font-medium">Educational & Informative</div>
+                <div className="text-sm text-gray-500">Clear, explanatory, step-by-step</div>
+              </div>
+            </SelectItem>
+            <SelectItem value="Conversational & Story-Driven">
+              <div>
+                <div className="font-medium">Conversational & Story-Driven</div>
+                <div className="text-sm text-gray-500">Narrative, personal anecdotes, dialogue style</div>
+              </div>
+            </SelectItem>
+            <SelectItem value="Urgent & Action-Oriented">
+              <div>
+                <div className="font-medium">Urgent & Action-Oriented</div>
+                <div className="text-sm text-gray-500">Direct, brisk, focused on "now"</div>
+              </div>
+            </SelectItem>
+            <SelectItem value="Empathetic & Supportive">
+              <div>
+                <div className="font-medium">Empathetic & Supportive</div>
+                <div className="text-sm text-gray-500">Compassionate, understanding, reassuring</div>
+              </div>
+            </SelectItem>
+            <SelectItem value="Visionary & Futuristic">
+              <div>
+                <div className="font-medium">Visionary & Futuristic</div>
+                <div className="text-sm text-gray-500">Forward-looking, trend-spotting, big-picture</div>
+              </div>
+            </SelectItem>
+            <SelectItem value="Bold & Disruptive">
+              <div>
+                <div className="font-medium">Bold & Disruptive</div>
+                <div className="text-sm text-gray-500">
+                  Challenging conventions, strong opinions, confident declarations
+                </div>
+              </div>
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -862,6 +938,7 @@ export default function IdeaHubForm() {
             name: isLoggedIn && user ? user.name || `${user.firstName || ""} ${user.lastName || ""}`.trim() : "",
             email: isLoggedIn && user ? user.email : "",
             contentType: "Social post",
+            tonality: "Professional & Authoritative",
           })
         }}
         className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"

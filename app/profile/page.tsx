@@ -1,119 +1,100 @@
 "use client"
 
 import { useEffect } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { User } from "lucide-react"
 
 export default function ProfilePage() {
   useEffect(() => {
-    // Override MemberSpace widget styles after it loads
-    const overrideMemberSpaceStyles = () => {
+    // Apply styles to make the embed more scrollable and accessible
+    const applyStyles = () => {
       const style = document.createElement("style")
       style.textContent = `
-        /* Override MemberSpace widget container */
-        [data-memberspace-widget],
-        .memberspace-widget,
+        /* MemberSpace embed overrides for better scrollability */
         .ms-widget-container,
-        .ms-modal,
-        .ms-popup,
-        iframe[src*="memberspace"] {
-          width: 100% !important;
-          height: 100% !important;
-          max-width: none !important;
+        .ms-widget-container iframe,
+        #ms-widget-container,
+        #ms-widget-container iframe {
+          min-height: calc(100vh - 120px) !important;
+          height: calc(100vh - 120px) !important;
           max-height: none !important;
-          min-height: 100vh !important;
-        }
-        
-        /* Override any modal or popup constraints */
-        .ms-modal-content,
-        .ms-popup-content,
-        .memberspace-modal,
-        .memberspace-popup {
-          width: 100% !important;
-          height: 100% !important;
-          max-width: none !important;
-          max-height: none !important;
-          margin: 0 !important;
-          padding: 0 !important;
-        }
-        
-        /* Override iframe constraints */
-        .ms-widget-iframe,
-        iframe[data-memberspace] {
-          width: 100% !important;
-          height: 100vh !important;
-          max-width: none !important;
-          max-height: none !important;
+          overflow: auto !important;
           border: none !important;
         }
         
-        /* Hide any close buttons or resize handles */
-        .ms-close-btn,
-        .ms-resize-handle {
-          display: none !important;
-        }
-        
-        /* Ensure scrolling works within the widget */
-        .ms-content,
-        .memberspace-content {
-          overflow: auto !important;
-          height: 100% !important;
-        }
-        
         /* Force scrollable content */
-        .ms-widget-container,
-        [data-memberspace-widget] {
-          overflow-y: auto !important;
-          overflow-x: hidden !important;
+        .ms-widget-embed,
+        .ms-widget-embed * {
+          overflow: visible !important;
           max-height: none !important;
         }
         
-        /* Make sure forms and buttons are visible */
-        .ms-form,
-        .memberspace-form,
-        .ms-button,
-        .memberspace-button {
+        /* Ensure form elements are visible */
+        .ms-widget-container form,
+        .ms-widget-container .form-group,
+        .ms-widget-container .btn,
+        .ms-widget-container button {
           position: relative !important;
           z-index: 1 !important;
+          overflow: visible !important;
+        }
+        
+        /* Make sure save buttons are accessible */
+        .ms-widget-container .btn-primary,
+        .ms-widget-container button[type="submit"] {
+          margin-bottom: 20px !important;
+          padding: 10px 20px !important;
         }
       `
       document.head.appendChild(style)
     }
 
-    // Apply styles immediately and after a delay for dynamic content
-    overrideMemberSpaceStyles()
-    setTimeout(overrideMemberSpaceStyles, 1000)
-    setTimeout(overrideMemberSpaceStyles, 3000)
-    setTimeout(overrideMemberSpaceStyles, 5000)
+    // Apply styles immediately and after delays to catch dynamic content
+    applyStyles()
+    setTimeout(applyStyles, 1000)
+    setTimeout(applyStyles, 3000)
+    setTimeout(applyStyles, 5000)
 
-    // Watch for DOM changes and reapply styles
-    const observer = new MutationObserver(() => {
-      overrideMemberSpaceStyles()
-    })
-
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-    })
-
-    return () => observer.disconnect()
+    return () => {
+      // Cleanup styles on unmount
+      const styles = document.querySelectorAll("style")
+      styles.forEach((style) => {
+        if (style.textContent?.includes("ms-widget-container")) {
+          style.remove()
+        }
+      })
+    }
   }, [])
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Full Screen MemberSpace Widget */}
-      <div className="w-full h-screen">
-        <div className="bg-white h-full flex flex-col">
-          <div className="bg-gradient-to-r from-[#b6a888] to-[#a39577] text-white p-4 flex-shrink-0">
-            <h2 className="text-xl font-bold">Member Profile</h2>
-            <p className="text-sm text-white/80">Manage your profile, settings, and account information</p>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="container mx-auto px-4 py-8 flex-1">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <User className="h-8 w-8 text-white" />
           </div>
-          <div className="flex-1 overflow-hidden">
-            <div
-              className="w-full h-full overflow-auto"
-              style={{ minHeight: "calc(100vh - 80px)" }}
-              dangerouslySetInnerHTML={{ __html: '[ms-widget-embed path="/member/sign_in"]' }}
-            />
-          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Profile</h1>
+          <p className="text-gray-600">Manage your account settings and preferences</p>
         </div>
+
+        {/* Profile Embed */}
+        <Card className="max-w-6xl mx-auto border-0 shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-xl text-gray-900">Account Settings</CardTitle>
+            <CardDescription>Update your profile information and account preferences</CardDescription>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="h-[calc(100vh-200px)] min-h-[600px] overflow-auto">
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: '[ms-widget-embed path="/member/sign_in"]',
+                }}
+                className="w-full h-full"
+              />
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

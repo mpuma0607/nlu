@@ -16,6 +16,7 @@ type FormData = {
   name: string
   email: string
   contentType: string
+  tonality: string
 }
 
 async function addLogoToImage(imageUrl: string): Promise<string> {
@@ -68,14 +69,53 @@ export async function generateContent(formData: FormData) {
         characterLimit = "Keep the post under 280 characters."
     }
 
+    // Get tonality description
+    let tonalityDescription = ""
+    switch (formData.tonality) {
+      case "Professional & Authoritative":
+        tonalityDescription = "Use a confident, knowledgeable, and clear tone"
+        break
+      case "Friendly & Approachable":
+        tonalityDescription = "Use a warm, conversational, and down-to-earth tone"
+        break
+      case "Witty & Playful":
+        tonalityDescription = "Use a lighthearted, tongue-in-cheek tone with surprising twists"
+        break
+      case "Inspirational & Motivational":
+        tonalityDescription = "Use an uplifting, aspirational, and empowering tone"
+        break
+      case "Educational & Informative":
+        tonalityDescription = "Use a clear, explanatory, step-by-step tone"
+        break
+      case "Conversational & Story-Driven":
+        tonalityDescription = "Use a narrative tone with personal anecdotes and dialogue style"
+        break
+      case "Urgent & Action-Oriented":
+        tonalityDescription = "Use a direct, brisk tone focused on 'now'"
+        break
+      case "Empathetic & Supportive":
+        tonalityDescription = "Use a compassionate, understanding, and reassuring tone"
+        break
+      case "Visionary & Futuristic":
+        tonalityDescription = "Use a forward-looking, trend-spotting, big-picture tone"
+        break
+      case "Bold & Disruptive":
+        tonalityDescription = "Use a tone that challenges conventions with strong opinions and confident declarations"
+        break
+      default:
+        tonalityDescription = "Use a professional and engaging tone"
+    }
+
     const textPrompt = `You are a professional content creator for a Century 21 real estate brokerage. Your task is to write a unique, polished, and professional ${formData.contentType.toLowerCase()} in ${formData.language}.
 
 ${contentTypeInstructions}
 
 The content should be based on the topic: ${topicToUse}
 
+TONE REQUIREMENT: ${tonalityDescription}
+
 Requirements:
-- Maintain a **professional and polished tone** at all times  
+- Maintain the specified tone (${formData.tonality}) throughout the content
 - Ensure the content is **unique**, not generic or templated  
 - Highlight how I, as a **top local real estate agent**, can assist with this topic  
 - Keep the content informative, relevant, and audience-focused  
@@ -85,7 +125,7 @@ Requirements:
 ${formData.contentType === "Email" ? "Format as a complete email with subject line, greeting, body, and closing." : ""}
 ${formData.contentType === "Blog article" ? "Include a compelling title and structure with subheadings where appropriate." : ""}
 
-Please write the content in ${formData.language} and ensure it reads naturally and professionally for native speakers.`
+Please write the content in ${formData.language} and ensure it reads naturally and professionally for native speakers while maintaining the ${formData.tonality} tone.`
 
     const { text: generatedText } = await generateText({
       model: openai("gpt-4o"),

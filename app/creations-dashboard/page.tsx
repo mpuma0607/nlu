@@ -1,284 +1,312 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  Download,
-  Calendar,
-  FileText,
-  MessageSquare,
-  Home,
-  Calculator,
-  Target,
-  Briefcase,
-  Lightbulb,
-  ImageIcon,
-  User,
-} from "lucide-react"
+import { Loader2, Download, FileText, Calendar, Palette } from "lucide-react"
+import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 
 interface UserCreation {
-  id: number
+  id: string
   tool_type: string
   title: string
   content: string
+  created_at: string
   form_data: any
   metadata: any
-  created_at: string
-  expires_at: string
-}
-
-const toolIcons = {
-  "listit-ai": Home,
-  realbio: User,
-  "scriptit-ai": MessageSquare,
-  "quickcma-ai": Calculator,
-  "action-ai": Target,
-  "bizplan-ai": Briefcase,
-  "ideahub-ai": Lightbulb,
-  "goalscreen-ai": ImageIcon,
-  "realcoach-ai": User,
-}
-
-const toolNames = {
-  "listit-ai": "ListIT AI",
-  realbio: "RealBio",
-  "scriptit-ai": "ScriptIT AI",
-  "quickcma-ai": "QuickCMA AI",
-  "action-ai": "Action AI",
-  "bizplan-ai": "BizPlan AI",
-  "ideahub-ai": "IdeaHub AI",
-  "goalscreen-ai": "GoalScreen AI",
-  "realcoach-ai": "RealCoach AI",
 }
 
 export default function CreationsDashboardPage() {
-  const { user, isLoading } = useMemberSpaceUser()
+  const { user, isLoggedIn } = useMemberSpaceUser()
   const [creations, setCreations] = useState<UserCreation[]>([])
-  const [loadingCreations, setLoadingCreations] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  // Fetch user creations when user is loaded
   useEffect(() => {
-    if (user?.id) {
+    if (isLoggedIn && user?.email) {
       fetchUserCreations()
+    } else {
+      setIsLoading(false)
     }
-  }, [user])
+  }, [isLoggedIn, user])
 
   const fetchUserCreations = async () => {
-    if (!user?.id) return
-
-    setLoadingCreations(true)
     try {
-      const response = await fetch(`/api/user-creations?userId=${user.id}`)
-      const data = await response.json()
+      setIsLoading(true)
+      const response = await fetch(`/api/user-creations?email=${encodeURIComponent(user?.email || "")}`)
 
-      if (data.success) {
-        setCreations(data.creations)
+      if (!response.ok) {
+        throw new Error("Failed to fetch creations")
       }
+
+      const data = await response.json()
+      setCreations(data.creations || [])
     } catch (error) {
       console.error("Error fetching user creations:", error)
+      setError("Failed to load your creations. Please try again.")
     } finally {
-      setLoadingCreations(false)
+      setIsLoading(false)
     }
   }
 
   const downloadCreation = async (creation: UserCreation) => {
     try {
-      // Handle different content types
-      if (creation.tool_type === "ideahub-ai") {
-        // For IdeaHub, download both image and text content (NO PDF)
-        if (creation.metadata?.imageUrl) {
-          // Download image
-          const imageResponse = await fetch(creation.metadata.imageUrl)
-          const imageBlob = await imageResponse.blob()
-          const imageUrl = window.URL.createObjectURL(imageBlob)
-          const imageLink = document.createElement("a")
-          imageLink.href = imageUrl
-          imageLink.download = `${creation.title.replace(/\s+/g, "_")}_image.jpg`
-          document.body.appendChild(imageLink)
-          imageLink.click()
-          document.body.removeChild(imageLink)
-          window.URL.revokeObjectURL(imageUrl)
-        }
+      const response = await fetch("/api/generate-creation-pdf", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: creation.title,
+          content: creation.content,
+          toolType: creation.tool_type,
+          createdAt: creation.created_at,
+          metadata: creation.metadata,
+        }),
+      })
 
-        // Download text content as .txt file
-        const textBlob = new Blob([creation.content], { type: "text/plain" })
-        const textUrl = window.URL.createObjectURL(textBlob)
-        const textLink = document.createElement("a")
-        textLink.href = textUrl
-        textLink.download = `${creation.title.replace(/\s+/g, "_")}_content.txt`
-        document.body.appendChild(textLink)
-        textLink.click()
-        document.body.removeChild(textLink)
-        window.URL.revokeObjectURL(textUrl)
-      } else if (creation.tool_type === "goalscreen-ai") {
-        // For GoalScreen, download just the image
-        if (creation.metadata?.imageUrl) {
-          const imageResponse = await fetch(creation.metadata.imageUrl)
-          const imageBlob = await imageResponse.blob()
-          const imageUrl = window.URL.createObjectURL(imageBlob)
-          const imageLink = document.createElement("a")
-          imageLink.href = imageUrl
-          imageLink.download = `${creation.title.replace(/\s+/g, "_")}_wallpaper.jpg`
-          document.body.appendChild(imageLink)
-          imageLink.click()
-          document.body.removeChild(imageLink)
-          window.URL.revokeObjectURL(imageUrl)
-        }
-      } else {
-        // For all other tools, generate PDF
-        const response = await fetch("/api/generate-creation-pdf", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            creation: creation,
-          }),
-        })
-
-        if (!response.ok) {
-          throw new Error("Failed to generate PDF")
-        }
-
-        const blob = await response.blob()
-        const url = window.URL.createObjectURL(blob)
-        const link = document.createElement("a")
-        link.href = url
-        link.download = `${creation.title.replace(/\s+/g, "_")}.pdf`
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-        window.URL.revokeObjectURL(url)
+      if (!response.ok) {
+        throw new Error("Failed to generate PDF")
       }
+
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.style.display = "none"
+      a.href = url
+      a.download = `${creation.title.replace(/[^a-z0-9]/gi, "_").toLowerCase()}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
     } catch (error) {
       console.error("Error downloading creation:", error)
-      alert("Failed to download. Please try again.")
+      alert("Failed to download creation. Please try again.")
     }
   }
 
-  // Group creations by tool type
-  const creationsByTool = creations.reduce(
-    (acc, creation) => {
-      if (!acc[creation.tool_type]) {
-        acc[creation.tool_type] = []
-      }
-      acc[creation.tool_type].push(creation)
-      return acc
-    },
-    {} as Record<string, UserCreation[]>,
-  )
+  const getToolIcon = (toolType: string) => {
+    switch (toolType) {
+      case "ideahub-ai":
+        return <Palette className="h-4 w-4" />
+      case "scriptit-ai":
+        return <FileText className="h-4 w-4" />
+      case "listit-ai":
+        return <FileText className="h-4 w-4" />
+      case "realbio":
+        return <FileText className="h-4 w-4" />
+      case "action-ai":
+        return <FileText className="h-4 w-4" />
+      case "bizplan-ai":
+        return <FileText className="h-4 w-4" />
+      case "goalscreen-ai":
+        return <FileText className="h-4 w-4" />
+      case "quickcma-ai":
+        return <FileText className="h-4 w-4" />
+      case "whos-who-ai":
+        return <FileText className="h-4 w-4" />
+      case "propbot-ai":
+        return <FileText className="h-4 w-4" />
+      case "realcoach-ai":
+        return <FileText className="h-4 w-4" />
+      case "realdeal-ai":
+        return <FileText className="h-4 w-4" />
+      default:
+        return <FileText className="h-4 w-4" />
+    }
+  }
+
+  const getToolName = (toolType: string) => {
+    switch (toolType) {
+      case "ideahub-ai":
+        return "IdeaHub AI"
+      case "scriptit-ai":
+        return "ScriptIt AI"
+      case "listit-ai":
+        return "ListIt AI"
+      case "realbio":
+        return "RealBio"
+      case "action-ai":
+        return "Action AI"
+      case "bizplan-ai":
+        return "BizPlan AI"
+      case "goalscreen-ai":
+        return "GoalScreen AI"
+      case "quickcma-ai":
+        return "QuickCMA AI"
+      case "whos-who-ai":
+        return "WhosWho AI"
+      case "propbot-ai":
+        return "PropBot AI"
+      case "realcoach-ai":
+        return "RealCoach AI"
+      case "realdeal-ai":
+        return "RealDeal AI"
+      default:
+        return toolType.replace("-", " ").replace(/\b\w/g, (l) => l.toUpperCase())
+    }
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  }
+
+  const groupCreationsByTool = (creations: UserCreation[]) => {
+    return creations.reduce(
+      (acc, creation) => {
+        if (!acc[creation.tool_type]) {
+          acc[creation.tool_type] = []
+        }
+        acc[creation.tool_type].push(creation)
+        return acc
+      },
+      {} as Record<string, UserCreation[]>,
+    )
+  }
+
+  if (!isLoggedIn) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardHeader className="text-center">
+            <CardTitle>Login Required</CardTitle>
+            <CardDescription>Please log in to view your saved creations.</CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    )
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading your creations...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardHeader className="text-center">
+            <CardTitle className="text-red-600">Error</CardTitle>
+            <CardDescription>{error}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={fetchUserCreations} className="w-full">
+              Try Again
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  const groupedCreations = groupCreationsByTool(creations)
+  const toolTypes = Object.keys(groupedCreations)
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto p-6">
-        {/* Creations Dashboard Section */}
-        <div className="bg-white rounded-lg shadow-sm border">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 rounded-t-lg">
-            <h2 className="text-xl font-bold flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Your Creations Dashboard
-            </h2>
-            {user && <p className="text-blue-100 text-sm mt-1">Welcome back, {user.firstName || user.name}!</p>}
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FileText className="h-8 w-8 text-white" />
           </div>
-
-          <div className="p-6">
-            {isLoading || loadingCreations ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              </div>
-            ) : creations.length === 0 ? (
-              <div className="text-center py-12">
-                <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600 text-lg">No saved creations yet.</p>
-                <p className="text-sm text-gray-500 mt-2">
-                  Use the "Save to Dashboard" button in any AI tool to save your creations here.
-                </p>
-              </div>
-            ) : (
-              <Tabs defaultValue={Object.keys(creationsByTool)[0]} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-1 mb-6">
-                  {Object.keys(creationsByTool).map((toolType) => {
-                    const Icon = toolIcons[toolType as keyof typeof toolIcons] || FileText
-                    return (
-                      <TabsTrigger key={toolType} value={toolType} className="flex items-center gap-2 p-3">
-                        <Icon className="h-4 w-4" />
-                        <span className="hidden sm:inline">
-                          {toolNames[toolType as keyof typeof toolNames] || toolType}
-                        </span>
-                        <span className="sm:hidden text-xs">
-                          {(toolNames[toolType as keyof typeof toolNames] || toolType).split(" ")[0]}
-                        </span>
-                      </TabsTrigger>
-                    )
-                  })}
-                </TabsList>
-
-                {Object.entries(creationsByTool).map(([toolType, toolCreations]) => (
-                  <TabsContent key={toolType} value={toolType} className="mt-0">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {toolCreations
-                        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-                        .map((creation) => (
-                          <Card
-                            key={creation.id}
-                            className="border-l-4 border-l-blue-500 hover:shadow-md transition-shadow"
-                          >
-                            <CardHeader className="pb-3">
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1 min-w-0">
-                                  <CardTitle className="text-lg line-clamp-2">{creation.title}</CardTitle>
-                                  <div className="flex items-center gap-2 mt-2">
-                                    <Badge variant="outline" className="text-xs">
-                                      {toolNames[toolType as keyof typeof toolNames] || toolType}
-                                    </Badge>
-                                    <div className="flex items-center gap-1 text-xs text-gray-500">
-                                      <Calendar className="h-3 w-3" />
-                                      {new Date(creation.created_at).toLocaleDateString()}
-                                    </div>
-                                  </div>
-                                </div>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => downloadCreation(creation)}
-                                  className="flex items-center gap-1 ml-2 flex-shrink-0"
-                                >
-                                  <Download className="h-3 w-3" />
-                                  <span className="hidden sm:inline">Download</span>
-                                </Button>
-                              </div>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="text-sm text-gray-600 line-clamp-4 mb-3">
-                                {creation.content.substring(0, 300)}
-                                {creation.content.length > 300 && "..."}
-                              </div>
-                              <div className="flex items-center justify-between text-xs text-gray-400">
-                                <span>
-                                  {creation.tool_type === "ideahub-ai" && creation.metadata?.imageUrl && "📷 "}
-                                  {creation.tool_type === "goalscreen-ai" && creation.metadata?.imageUrl && "🖼️ "}
-                                  {creation.tool_type === "ideahub-ai"
-                                    ? "Image + Text"
-                                    : creation.tool_type === "goalscreen-ai"
-                                      ? "Image"
-                                      : "PDF"}
-                                </span>
-                                <span>Expires: {new Date(creation.expires_at).toLocaleDateString()}</span>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
-                    </div>
-                  </TabsContent>
-                ))}
-              </Tabs>
-            )}
-          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Creations</h1>
+          <p className="text-gray-600">
+            View and download all your saved AI-generated content ({creations.length} total)
+          </p>
         </div>
+
+        {creations.length === 0 ? (
+          <Card className="max-w-2xl mx-auto text-center">
+            <CardHeader>
+              <CardTitle>No Creations Yet</CardTitle>
+              <CardDescription>
+                Start using our AI tools to create content, and your saved creations will appear here.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        ) : (
+          <div className="max-w-6xl mx-auto">
+            <Tabs defaultValue={toolTypes[0]} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 mb-8">
+                {toolTypes.map((toolType) => (
+                  <TabsTrigger key={toolType} value={toolType} className="flex items-center gap-2">
+                    {getToolIcon(toolType)}
+                    <span className="hidden sm:inline">{getToolName(toolType)}</span>
+                    <Badge variant="secondary" className="ml-1">
+                      {groupedCreations[toolType].length}
+                    </Badge>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+
+              {toolTypes.map((toolType) => (
+                <TabsContent key={toolType} value={toolType}>
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {groupedCreations[toolType]
+                      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                      .map((creation) => (
+                        <Card key={creation.id} className="hover:shadow-lg transition-shadow">
+                          <CardHeader>
+                            <div className="flex items-start justify-between">
+                              <div className="flex items-center gap-2">
+                                {getToolIcon(creation.tool_type)}
+                                <Badge variant="outline">{getToolName(creation.tool_type)}</Badge>
+                              </div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => downloadCreation(creation)}
+                                className="shrink-0"
+                              >
+                                <Download className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <CardTitle className="text-lg line-clamp-2">{creation.title}</CardTitle>
+                            <div className="flex items-center gap-4 text-sm text-gray-500">
+                              <div className="flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                {formatDate(creation.created_at)}
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-gray-600 line-clamp-3 mb-4">{creation.content}</p>
+                            {creation.metadata && (
+                              <div className="flex flex-wrap gap-2">
+                                {creation.metadata.contentType && (
+                                  <Badge variant="secondary">{creation.metadata.contentType}</Badge>
+                                )}
+                                {creation.metadata.language && (
+                                  <Badge variant="secondary">{creation.metadata.language}</Badge>
+                                )}
+                                {creation.metadata.hasImage && <Badge variant="secondary">Has Image</Badge>}
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      ))}
+                  </div>
+                </TabsContent>
+              ))}
+            </Tabs>
+          </div>
+        )}
       </div>
     </div>
   )

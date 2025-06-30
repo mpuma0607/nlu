@@ -1,197 +1,120 @@
-"use client"
-
-import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Search, Brain, Target, TrendingUp, GraduationCap, Wrench, Users, ShoppingBag } from "lucide-react"
+import { Brain, Megaphone, GraduationCap, Wrench, Network, ShoppingBag, Target } from "lucide-react"
 import Link from "next/link"
+import { Button } from "@/components/ui/button"
 
 export default function PortalPage() {
-  const [searchQuery, setSearchQuery] = useState("")
-
   const hubs = [
     {
-      title: "AI Hub",
+      title: "AI Tool Hub",
+      description: "11 powerful AI tools to automate and enhance your real estate business",
       icon: Brain,
-      toolCount: 13,
-      description: "AI-powered tools for content creation, analysis, and automation",
-      color: "bg-purple-500",
-      tools: [
-        { title: "IdeaHub AI", description: "Generate content ideas and copy" },
-        { title: "ScriptIt AI", description: "Create professional scripts" },
-        { title: "RealBio", description: "Professional bio generator" },
-        { title: "ListIT", description: "Property listing descriptions" },
-        { title: "QuickCMA AI", description: "Market analysis tool" },
-        { title: "RolePlay AI", description: "Practice conversations" },
-        { title: "PropBot AI", description: "Property search assistant" },
-        { title: "Who's Who AI", description: "Property owner research" },
-        { title: "GoalScreen AI", description: "Goal wallpaper creator" },
-        { title: "Action AI", description: "Daily action plans" },
-        { title: "RealCoach AI", description: "Business coaching" },
-        { title: "BizPlan AI", description: "Business plan generator" },
-        { title: "RealDeal AI", description: "Contract analysis" },
-      ],
-    },
-    {
-      title: "Prospecting Hub",
-      icon: Target,
-      toolCount: 10,
-      description: "Tools and resources for lead generation and client prospecting",
-      color: "bg-green-500",
-      tools: [
-        { title: "Expired Listings", description: "Find expired listing opportunities" },
-        { title: "FSBO", description: "For Sale By Owner leads" },
-        { title: "Absentee Owners", description: "Target absentee property owners" },
-        { title: "Probate", description: "Probate property opportunities" },
-        { title: "SOI", description: "Sphere of influence cultivation" },
-        { title: "First Time Home Buyers", description: "First-time buyer programs" },
-        { title: "Real Estate Investors", description: "Investment property leads" },
-        { title: "Divorce", description: "Divorce-related property sales" },
-        { title: "Pre-Foreclosure", description: "Pre-foreclosure opportunities" },
-        { title: "New Construction", description: "New construction leads" },
-      ],
+      href: "/ai-hub",
+      color: "bg-gradient-to-br from-purple-600 to-blue-600",
     },
     {
       title: "Marketing Hub",
-      icon: TrendingUp,
-      toolCount: 3,
-      description: "Marketing materials, templates, and brand assets",
-      color: "bg-blue-500",
-      tools: [
-        { title: "Branded Social Content", description: "Social media templates" },
-        { title: "Brokerage Logos", description: "Logo and brand assets" },
-        { title: "Real Estate Hot Takes", description: "Industry news and trends" },
-      ],
+      description: "Branded content, social media graphics, and real estate market insights",
+      icon: Megaphone,
+      href: "/marketing-hub",
+      color: "bg-gradient-to-br from-pink-600 to-red-600",
+    },
+    {
+      title: "Prospecting Hub",
+      description: "Lead generation strategies for FSBO, expired listings, and more",
+      icon: Target,
+      href: "/prospecting-hub",
+      color: "bg-gradient-to-br from-orange-600 to-yellow-600",
     },
     {
       title: "Training Hub",
+      description: "Comprehensive training on Moxi Works, scripts, and sales processes",
       icon: GraduationCap,
-      toolCount: 5,
-      description: "Comprehensive training and educational resources",
-      color: "bg-indigo-500",
-      tools: [
-        { title: "Moxi Works Training", description: "Complete platform training" },
-        { title: "Script Mastery", description: "Master your sales scripts" },
-        { title: "Buyer Process (6P's)", description: "6-step buyer consultation" },
-        { title: "Listing Process (7P's)", description: "7-step listing process" },
-        { title: "DISC/VAK Connection", description: "Personality-based communication" },
-      ],
+      href: "/training-hub",
+      color: "bg-gradient-to-br from-blue-600 to-cyan-600",
     },
     {
       title: "Services Hub",
+      description: "Professional design services and brokerage consulting",
       icon: Wrench,
-      toolCount: 2,
-      description: "Professional services and consulting",
-      color: "bg-orange-500",
-      tools: [
-        { title: "Moxi Design Services", description: "Professional design and marketing" },
-        { title: "Brokerage Consulting", description: "Business growth consulting" },
-      ],
+      href: "/services-hub",
+      color: "bg-gradient-to-br from-green-600 to-teal-600",
     },
     {
       title: "Networking Hub",
-      icon: Users,
-      toolCount: 2,
-      description: "Connect with agents and industry professionals",
-      color: "bg-teal-500",
-      tools: [
-        { title: "Community Groups & Chats", description: "Connect with professionals" },
-        { title: "Agent Directory", description: "Find and connect with agents" },
-      ],
+      description: "Connect with agents, brokers, and industry professionals",
+      icon: Network,
+      href: "/networking-hub",
+      color: "bg-gradient-to-br from-indigo-600 to-purple-600",
     },
     {
       title: "Gear Hub",
+      description: "Exclusive merchandise and professional tools for Next Level agents",
       icon: ShoppingBag,
-      toolCount: 1,
-      description: "Exclusive merchandise and professional tools",
-      color: "bg-gray-700",
-      tools: [{ title: "Next Level Merchandise", description: "Branded gear and tools" }],
+      href: "/gear-hub",
+      color: "bg-gradient-to-br from-gray-700 to-gray-900",
     },
   ]
 
-  const filteredHubs = hubs
-    .map((hub) => ({
-      ...hub,
-      tools: hub.tools.filter(
-        (tool) =>
-          searchQuery === "" ||
-          tool.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          tool.description.toLowerCase().includes(searchQuery.toLowerCase()),
-      ),
-    }))
-    .filter((hub) => hub.tools.length > 0)
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Your comprehensive toolkit for real estate success
-            </h1>
+    <div className="min-h-screen bg-white">
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-br from-gray-900 via-black to-yellow-900 text-white py-24">
+        <div className="absolute inset-0 bg-black/20"></div>
+        <div className="relative container mx-auto px-4 text-center">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 tracking-tight">Welcome to Your Portal</h1>
+          <div className="flex items-center justify-center gap-4 mb-8">
+            <div className="h-px bg-[#b6a888] w-16"></div>
+            <p className="text-xl text-[#b6a888] font-medium tracking-wide">EMPOWER • EDUCATE • ENCOURAGE</p>
+            <div className="h-px bg-[#b6a888] w-16"></div>
+          </div>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            Access your complete suite of real estate superpowers. Choose your hub and start transforming your business
+            today.
+          </p>
+        </div>
+      </section>
 
-            {/* Search Bar */}
-            <div className="max-w-2xl mx-auto relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <Input
-                type="text"
-                placeholder="Search tools and resources..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 py-4 text-lg border-gray-200 rounded-lg"
-              />
-            </div>
+      {/* Hubs Section */}
+      <section className="py-20 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-black mb-4">Choose Your Hub</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Access specialized tools and resources designed to elevate every aspect of your real estate business
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
+            {hubs.map((hub, index) => (
+              <Card
+                key={index}
+                className="h-full bg-white hover:bg-gray-50 transition-all duration-300 border-0 shadow-lg hover:shadow-2xl group"
+              >
+                <CardContent className="p-8 h-full">
+                  <div className="flex flex-col h-full text-center">
+                    <div
+                      className={`w-20 h-20 ${hub.color} rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
+                    >
+                      <hub.icon className="h-10 w-10 text-white" />
+                    </div>
+
+                    <h3 className="text-xl font-bold text-black mb-3 group-hover:text-[#b6a888] transition-colors">
+                      {hub.title}
+                    </h3>
+
+                    <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-grow">{hub.description}</p>
+
+                    <Link href={hub.href} className="w-full mt-auto">
+                      <Button className="w-full bg-[#b6a888] hover:bg-[#a39577] text-white">Open {hub.title}</Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
-      </div>
-
-      {/* Hubs Grid */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
-          {filteredHubs.map((hub) => (
-            <Card key={hub.title} className="bg-white shadow-sm hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                {/* Hub Header */}
-                <div className="flex items-center gap-4 mb-6">
-                  <div className={`w-12 h-12 ${hub.color} rounded-lg flex items-center justify-center`}>
-                    <hub.icon className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-gray-900">{hub.title}</h2>
-                    <p className="text-sm text-gray-500">{hub.toolCount} tools</p>
-                  </div>
-                </div>
-
-                <p className="text-gray-600 mb-6">{hub.description}</p>
-
-                {/* Tools List */}
-                <div className="space-y-3">
-                  {hub.tools.slice(0, 4).map((tool) => (
-                    <Link
-                      key={tool.title}
-                      href={`/${hub.title.toLowerCase().replace(" ", "-")}/${tool.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
-                      className="block p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100"
-                    >
-                      <div className="font-medium text-gray-900">{tool.title}</div>
-                      <div className="text-sm text-gray-500">{tool.description}</div>
-                    </Link>
-                  ))}
-
-                  {hub.tools.length > 4 && (
-                    <Link
-                      href={`/${hub.title.toLowerCase().replace(" ", "-")}`}
-                      className="block p-3 text-center text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
-                    >
-                      View all {hub.toolCount} tools
-                    </Link>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
+      </section>
     </div>
   )
 }

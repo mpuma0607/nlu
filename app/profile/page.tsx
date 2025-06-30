@@ -19,7 +19,7 @@ export default function ProfilePage() {
           height: 100% !important;
           max-width: none !important;
           max-height: none !important;
-          min-height: 100% !important;
+          min-height: 100vh !important;
         }
         
         /* Override any modal or popup constraints */
@@ -57,6 +57,23 @@ export default function ProfilePage() {
           overflow: auto !important;
           height: 100% !important;
         }
+        
+        /* Force scrollable content */
+        .ms-widget-container,
+        [data-memberspace-widget] {
+          overflow-y: auto !important;
+          overflow-x: hidden !important;
+          max-height: none !important;
+        }
+        
+        /* Make sure forms and buttons are visible */
+        .ms-form,
+        .memberspace-form,
+        .ms-button,
+        .memberspace-button {
+          position: relative !important;
+          z-index: 1 !important;
+        }
       `
       document.head.appendChild(style)
     }
@@ -65,6 +82,7 @@ export default function ProfilePage() {
     overrideMemberSpaceStyles()
     setTimeout(overrideMemberSpaceStyles, 1000)
     setTimeout(overrideMemberSpaceStyles, 3000)
+    setTimeout(overrideMemberSpaceStyles, 5000)
 
     // Watch for DOM changes and reapply styles
     const observer = new MutationObserver(() => {
@@ -82,14 +100,16 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Full Screen MemberSpace Widget */}
-      <div className="max-w-6xl mx-auto p-6">
-        <div className="bg-white rounded-lg shadow-sm border">
-          <div className="bg-gradient-to-r from-[#b6a888] to-[#a39577] text-white p-4 rounded-t-lg">
+      <div className="w-full h-screen">
+        <div className="bg-white h-full flex flex-col">
+          <div className="bg-gradient-to-r from-[#b6a888] to-[#a39577] text-white p-4 flex-shrink-0">
             <h2 className="text-xl font-bold">Member Profile</h2>
+            <p className="text-sm text-white/80">Manage your profile, settings, and account information</p>
           </div>
-          <div className="p-6">
+          <div className="flex-1 overflow-hidden">
             <div
-              className="w-full h-[600px] md:h-[700px] overflow-hidden rounded-lg border"
+              className="w-full h-full overflow-auto"
+              style={{ minHeight: "calc(100vh - 80px)" }}
               dangerouslySetInnerHTML={{ __html: '[ms-widget-embed path="/member/sign_in"]' }}
             />
           </div>

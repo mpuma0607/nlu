@@ -22,6 +22,7 @@ interface FormData {
   name: string
   email: string
   contentType: string
+  tonality: string
 }
 
 export default function IdeaHubForm() {
@@ -32,6 +33,7 @@ export default function IdeaHubForm() {
     name: "",
     email: "",
     contentType: "",
+    tonality: "professional-authoritative",
   })
   const [currentStep, setCurrentStep] = useState(1)
   const [isGenerating, setIsGenerating] = useState(false)
@@ -58,6 +60,59 @@ export default function IdeaHubForm() {
   ]
 
   const contentTypes = ["Social post", "Text message", "Email", "Blog article"]
+
+  const tonalityOptions = [
+    {
+      value: "professional-authoritative",
+      label: "Professional & Authoritative",
+      description: "Confident, knowledgeable, clear",
+    },
+    {
+      value: "friendly-approachable",
+      label: "Friendly & Approachable",
+      description: "Warm, conversational, down-to-earth",
+    },
+    {
+      value: "witty-playful",
+      label: "Witty & Playful",
+      description: "Lighthearted, tongue-in-cheek, surprising twists",
+    },
+    {
+      value: "inspirational-motivational",
+      label: "Inspirational & Motivational",
+      description: "Uplifting, aspirational, empowering",
+    },
+    {
+      value: "educational-informative",
+      label: "Educational & Informative",
+      description: "Clear, explanatory, step-by-step",
+    },
+    {
+      value: "conversational-story-driven",
+      label: "Conversational & Story-Driven",
+      description: "Narrative, personal anecdotes, dialogue style",
+    },
+    {
+      value: "urgent-action-oriented",
+      label: "Urgent & Action-Oriented",
+      description: 'Direct, brisk, focused on "now"',
+    },
+    {
+      value: "empathetic-supportive",
+      label: "Empathetic & Supportive",
+      description: "Compassionate, understanding, reassuring",
+    },
+    {
+      value: "visionary-futuristic",
+      label: "Visionary & Futuristic",
+      description: "Forward-looking, trend-spotting, big-picture",
+    },
+    {
+      value: "bold-disruptive",
+      label: "Bold & Disruptive",
+      description: "Challenging conventions, strong opinions, confident declarations",
+    },
+  ]
 
   const languages = [
     "English",
@@ -161,6 +216,7 @@ export default function IdeaHubForm() {
           name: formData.name,
           email: formData.email,
           contentType: formData.contentType,
+          tonality: formData.tonality,
         },
       })
 
@@ -202,6 +258,7 @@ export default function IdeaHubForm() {
           name: formData.name,
           email: formData.email,
           contentType: formData.contentType,
+          tonality: formData.tonality,
         },
       })
 
@@ -352,6 +409,25 @@ export default function IdeaHubForm() {
             </div>
 
             <div>
+              <Label htmlFor="tonality">Tonality</Label>
+              <Select value={formData.tonality} onValueChange={(value) => handleInputChange("tonality", value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select tonality" />
+                </SelectTrigger>
+                <SelectContent>
+                  {tonalityOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      <div className="flex flex-col">
+                        <span className="font-medium">{option.label}</span>
+                        <span className="text-xs text-gray-500">{option.description}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
               <Label htmlFor="language">Language</Label>
               <Select value={formData.language} onValueChange={(value) => handleInputChange("language", value)}>
                 <SelectTrigger>
@@ -440,6 +516,9 @@ export default function IdeaHubForm() {
                   <strong>Content Type:</strong> {formData.contentType}
                 </p>
                 <p>
+                  <strong>Tonality:</strong> {formData.tonality}
+                </p>
+                <p>
                   <strong>Language:</strong> {formData.language}
                 </p>
                 <p>
@@ -495,7 +574,7 @@ export default function IdeaHubForm() {
               </Badge>
             </CardTitle>
             <CardDescription>
-              {currentStep === 1 && "Choose your topic, content type, and language"}
+              {currentStep === 1 && "Choose your topic, content type, tonality, and language"}
               {currentStep === 2 && "Enter your personal information"}
               {currentStep === 3 && "Review your selections and generate content"}
             </CardDescription>

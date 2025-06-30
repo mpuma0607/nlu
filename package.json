@@ -70,7 +70,6 @@
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "latest",
-    "web-speech-api": "latest",
     "ws": "latest",
     "zod": "latest"
   },

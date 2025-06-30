@@ -3,21 +3,16 @@
 import { generateText } from "ai"
 import { openai } from "@ai-sdk/openai"
 
-interface FormData {
+interface IdeaHubFormData {
+  topic: string
   contentType: string
   tonality: string
-  language: string
-  topic: string
-  targetAudience: string
-  keyPoints: string
-  callToAction: string
-  additionalContext: string
+  additionalInfo: string
 }
 
-export async function generateContent(formData: FormData) {
+export async function generateIdeaHubContent(formData: IdeaHubFormData) {
   try {
-    const { contentType, tonality, language, topic, targetAudience, keyPoints, callToAction, additionalContext } =
-      formData
+    const { topic, contentType, tonality, additionalInfo } = formData
 
     // Map tonality values to descriptive text for the prompt
     const tonalityMap: Record<string, string> = {
@@ -38,13 +33,7 @@ export async function generateContent(formData: FormData) {
 
     const prompt = `You are an expert real estate content creator. Generate engaging ${contentType} content about "${topic}" using a ${selectedTonality}.
 
-Target Audience: ${targetAudience}
-
-${keyPoints ? `Key Points to Include:\n${keyPoints}` : ""}
-
-${callToAction ? `Call to Action: ${callToAction}` : ""}
-
-${additionalContext ? `Additional Context: ${additionalContext}` : ""}
+${additionalInfo ? `Additional context: ${additionalInfo}` : ""}
 
 Requirements:
 - Make it specific to real estate professionals
@@ -52,7 +41,9 @@ Requirements:
 - Use industry-appropriate language
 - Make it engaging and valuable for the target audience
 - Ensure the content matches the specified tonality throughout
-- Write in ${language}
+- If it's social media content, include relevant hashtags
+- If it's a blog article, include a compelling headline and structure
+- If it's an email newsletter, include a subject line suggestion
 
 Generate high-quality, professional content that real estate agents can use immediately.`
 
@@ -62,15 +53,9 @@ Generate high-quality, professional content that real estate agents can use imme
       maxTokens: 1500,
     })
 
-    return {
-      success: true,
-      content: text,
-    }
+    return text
   } catch (error) {
     console.error("Error generating IdeaHub content:", error)
-    return {
-      success: false,
-      error: "Failed to generate content",
-    }
+    throw new Error("Failed to generate content")
   }
 }

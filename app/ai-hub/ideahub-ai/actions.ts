@@ -2,170 +2,74 @@
 
 import { generateText } from "ai"
 import { openai } from "@ai-sdk/openai"
-import OpenAI from "openai"
 
-// Initialize OpenAI client
-const openaiClient = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
-
-type FormData = {
-  primaryTopic: string
-  alternateTopic: string
-  language: string
-  name: string
-  email: string
+interface IdeaHubFormData {
+  businessName: string
+  businessType: string
+  targetAudience: string
   contentType: string
   tonality: string
+  specificTopic: string
+  keyPoints: string
+  callToAction: string
 }
 
-async function addLogoToImage(imageUrl: string): Promise<string> {
-  try {
-    // For Next.js, we'll return the original image URL since we can't process images server-side
-    // In a full Next.js environment, this would use Sharp for image processing
-    console.log("Image processing skipped in browser environment")
-    return imageUrl
-  } catch (error) {
-    console.error("Error with image processing:", error)
-    return imageUrl
+export async function generateIdeaHubContent(formData: IdeaHubFormData): Promise<string> {
+  const { businessName, businessType, targetAudience, contentType, tonality, specificTopic, keyPoints, callToAction } =
+    formData
+
+  // Map tonality values to descriptive text
+  const tonalityMap: Record<string, string> = {
+    "professional-authoritative": "Professional & Authoritative (Confident, knowledgeable, clear)",
+    "friendly-approachable": "Friendly & Approachable (Warm, conversational, down-to-earth)",
+    "witty-playful": "Witty & Playful (Lighthearted, tongue-in-cheek, surprising twists)",
+    "inspirational-motivational": "Inspirational & Motivational (Uplifting, aspirational, empowering)",
+    "educational-informative": "Educational & Informative (Clear, explanatory, step-by-step)",
+    "conversational-story-driven": "Conversational & Story-Driven (Narrative, personal anecdotes, dialogue style)",
+    "urgent-action-oriented": 'Urgent & Action-Oriented (Direct, brisk, focused on "now")',
+    "empathetic-supportive": "Empathetic & Supportive (Compassionate, understanding, reassuring)",
+    "visionary-futuristic": "Visionary & Futuristic (Forward-looking, trend-spotting, big-picture)",
+    "bold-disruptive": "Bold & Disruptive (Challenging conventions, strong opinions, confident declarations)",
   }
-}
 
-export async function generateContent(formData: FormData) {
-  try {
-    // Determine the topic to use
-    const topicToUse = formData.primaryTopic || formData.alternateTopic
-    if (!topicToUse) {
-      throw new Error("Please provide either a selected topic or custom topic")
-    }
+  const selectedTonality = tonalityMap[tonality] || tonalityMap["professional-authoritative"]
 
-    // Generate content type specific prompts
-    let contentTypeInstructions = ""
-    let characterLimit = ""
+  const prompt = `You are an expert real estate content creator and marketing specialist. Generate engaging, high-quality content for a real estate professional.
 
-    switch (formData.contentType) {
-      case "Social post":
-        contentTypeInstructions =
-          "Create a professional social media post that is engaging and shareable. Focus on being concise while still providing value."
-        characterLimit = "Keep the post under 280 characters to ensure it works well across all social platforms."
-        break
-      case "Text message":
-        contentTypeInstructions =
-          "Create a brief, friendly text message that gets straight to the point. Use a conversational tone appropriate for SMS."
-        characterLimit = "Keep the message under 160 characters to fit in a single SMS."
-        break
-      case "Email":
-        contentTypeInstructions =
-          "Create a professional email with a clear subject line, proper greeting, informative body content, and appropriate closing. Structure it with proper email formatting."
-        characterLimit = "Write a complete email with full details and explanations."
-        break
-      case "Blog article":
-        contentTypeInstructions =
-          "Create a comprehensive blog article with an engaging title, introduction, main content with subheadings, and conclusion. Make it informative and valuable for readers."
-        characterLimit = "Write a full-length article with detailed explanations and examples."
-        break
-      default:
-        contentTypeInstructions = "Create a professional social media post that is engaging and shareable."
-        characterLimit = "Keep the post under 280 characters."
-    }
-
-    // Get tonality description
-    let tonalityDescription = ""
-    switch (formData.tonality) {
-      case "Professional & Authoritative":
-        tonalityDescription = "Use a confident, knowledgeable, and clear tone"
-        break
-      case "Friendly & Approachable":
-        tonalityDescription = "Use a warm, conversational, and down-to-earth tone"
-        break
-      case "Witty & Playful":
-        tonalityDescription = "Use a lighthearted, tongue-in-cheek tone with surprising twists"
-        break
-      case "Inspirational & Motivational":
-        tonalityDescription = "Use an uplifting, aspirational, and empowering tone"
-        break
-      case "Educational & Informative":
-        tonalityDescription = "Use a clear, explanatory, step-by-step tone"
-        break
-      case "Conversational & Story-Driven":
-        tonalityDescription = "Use a narrative tone with personal anecdotes and dialogue style"
-        break
-      case "Urgent & Action-Oriented":
-        tonalityDescription = "Use a direct, brisk tone focused on 'now'"
-        break
-      case "Empathetic & Supportive":
-        tonalityDescription = "Use a compassionate, understanding, and reassuring tone"
-        break
-      case "Visionary & Futuristic":
-        tonalityDescription = "Use a forward-looking, trend-spotting, big-picture tone"
-        break
-      case "Bold & Disruptive":
-        tonalityDescription = "Use a tone that challenges conventions with strong opinions and confident declarations"
-        break
-      default:
-        tonalityDescription = "Use a professional and engaging tone"
-    }
-
-    const textPrompt = `You are a professional content creator for a Century 21 real estate brokerage. Your task is to write a unique, polished, and professional ${formData.contentType.toLowerCase()} in ${formData.language}.
-
-${contentTypeInstructions}
-
-The content should be based on the topic: ${topicToUse}
-
-TONE REQUIREMENT: ${tonalityDescription}
+Business Details:
+- Business Name: ${businessName}
+- Business Type: ${businessType || "Real estate services"}
+- Target Audience: ${targetAudience || "General real estate clients"}
+- Content Type: ${contentType}
+- Tonality: ${selectedTonality}
+- Specific Topic: ${specificTopic || "General real estate content"}
+- Key Points to Include: ${keyPoints || "None specified"}
+- Call to Action: ${callToAction || "Contact for more information"}
 
 Requirements:
-- Maintain the specified tone (${formData.tonality}) throughout the content
-- Ensure the content is **unique**, not generic or templated  
-- Highlight how I, as a **top local real estate agent**, can assist with this topic  
-- Keep the content informative, relevant, and audience-focused  
-- ${characterLimit}
-- Close with a subtle but strong call to action that encourages engagement or contact
+1. Create content that matches the specified tonality exactly
+2. Make it relevant to the target audience
+3. Include the key points naturally if provided
+4. End with the specified call to action
+5. Make it engaging and professional
+6. Ensure it's appropriate for the content type specified
+7. Keep it concise but impactful
+8. Use real estate industry best practices
+9. Make it ready to use without further editing
 
-${formData.contentType === "Email" ? "Format as a complete email with subject line, greeting, body, and closing." : ""}
-${formData.contentType === "Blog article" ? "Include a compelling title and structure with subheadings where appropriate." : ""}
+Generate the content now:`
 
-Please write the content in ${formData.language} and ensure it reads naturally and professionally for native speakers while maintaining the ${formData.tonality} tone.`
-
-    const { text: generatedText } = await generateText({
+  try {
+    const { text } = await generateText({
       model: openai("gpt-4o"),
-      prompt: textPrompt,
+      prompt,
+      maxTokens: 1000,
+      temperature: 0.7,
     })
 
-    // Generate image
-    const imagePrompt = `You are an elite graphic designer for a Century 21 real estate brokerage. Your task is to create a **realistic, photo-quality, high-definition image** to accompany the following social media post:
-
-${generatedText.substring(0, 300)}...
-
-Design requirements:
-- The image must align visually and emotionally with the message or theme of the post
-- Use **vivid color, natural lighting, professional composition, and realistic textures**
-- Ensure it's **scroll-stopping** and optimized for social platforms (Instagram, Facebook, LinkedIn)
-- **Do not include any text or captions** on the image itself
-- Leave some space in the bottom right corner for branding
-
-This image should look like it was taken by a professional photographer and should enhance the brand's credibility and aesthetic appeal.`
-
-    const imageResponse = await openaiClient.images.generate({
-      model: "dall-e-3",
-      prompt: imagePrompt,
-      n: 1,
-      size: "1024x1024",
-      quality: "standard",
-    })
-
-    const originalImageUrl = imageResponse.data[0]?.url || ""
-
-    // In browser environment, use original image URL
-    const processedImageUrl = await addLogoToImage(originalImageUrl)
-
-    return {
-      text: generatedText,
-      imageUrl: processedImageUrl,
-      imageBuffer: null, // No buffer processing in browser environment
-    }
+    return text
   } catch (error) {
     console.error("Error generating content:", error)
-    throw new Error("Failed to generate content. Please try again.")
+    throw new Error("Failed to generate content")
   }
 }

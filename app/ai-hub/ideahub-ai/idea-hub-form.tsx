@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Lightbulb, Mic, MicOff, Download, Mail, Save, Check, Loader2 } from "lucide-react"
-import { generateIdeaContent } from "./actions"
+import { generateContent } from "./actions"
 import { useToast } from "@/hooks/use-toast"
 import { CopyButton } from "@/components/copy-button"
 import { autoSaveCreation } from "@/lib/auto-save-creation"
@@ -213,7 +213,7 @@ export default function IdeaHubForm() {
     setIsGenerating(true)
     setIsSaved(false)
     try {
-      const result = await generateIdeaContent(formData)
+      const result = await generateContent(formData)
       if (result.success) {
         setGeneratedContent(result.content || "")
         toast({

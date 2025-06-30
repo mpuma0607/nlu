@@ -3,101 +3,63 @@
 import { generateText } from "ai"
 import { openai } from "@ai-sdk/openai"
 
-interface FormState {
-  success?: boolean
-  error?: string
-  content?: string
-  topic?: string
-  contentType?: string
-  tonality?: string
-  targetAudience?: string
-  keyPoints?: string
+interface FormData {
+  primaryTopic: string
+  alternateTopic: string
+  language: string
+  name: string
+  email: string
+  contentType: string
+  tonality: string
 }
 
-export async function generateIdeaHubContent(prevState: FormState, formData: FormData): Promise<FormState> {
+export async function generateContent(formData: FormData) {
   try {
-    const topic = formData.get("topic") as string
-    const contentType = formData.get("contentType") as string
-    const tonality = formData.get("tonality") as string
-    const targetAudience = formData.get("targetAudience") as string
-    const keyPoints = formData.get("keyPoints") as string
+    const topic = formData.primaryTopic || formData.alternateTopic
 
-    if (!topic || !contentType || !tonality) {
-      return {
-        error: "Please fill in all required fields (topic, content type, and tonality).",
-      }
+    if (!topic) {
+      throw new Error("Please provide a topic for content generation")
     }
 
-    // Map content type values to readable labels
-    const contentTypeLabels: { [key: string]: string } = {
-      "social-media-post": "Social Media Post",
-      "blog-article": "Blog Article",
-      "email-newsletter": "Email Newsletter",
-      "video-script": "Video Script",
-      "podcast-outline": "Podcast Outline",
-      "infographic-content": "Infographic Content",
-      "press-release": "Press Release",
-      "case-study": "Case Study",
-      "market-report": "Market Report",
-      "buyer-guide": "Buyer Guide",
-      "seller-tips": "Seller Tips",
-      "investment-analysis": "Investment Analysis",
-    }
+    const prompt = `You are a professional real estate content creator. Generate engaging ${formData.contentType.toLowerCase()} content about "${topic}" in ${formData.language}.
 
-    // Map tonality values to readable labels
-    const tonalityLabels: { [key: string]: string } = {
-      "professional-authoritative": "Professional & Authoritative (Confident, knowledgeable, clear)",
-      "friendly-approachable": "Friendly & Approachable (Warm, conversational, down-to-earth)",
-      "witty-playful": "Witty & Playful (Lighthearted, tongue-in-cheek, surprising twists)",
-      "inspirational-motivational": "Inspirational & Motivational (Uplifting, aspirational, empowering)",
-      "educational-informative": "Educational & Informative (Clear, explanatory, step-by-step)",
-      "conversational-story-driven": "Conversational & Story-Driven (Narrative, personal anecdotes, dialogue style)",
-      "urgent-action-oriented": 'Urgent & Action-Oriented (Direct, brisk, focused on "now")',
-      "empathetic-supportive": "Empathetic & Supportive (Compassionate, understanding, reassuring)",
-      "visionary-futuristic": "Visionary & Futuristic (Forward-looking, trend-spotting, big-picture)",
-      "bold-disruptive": "Bold & Disruptive (Challenging conventions, strong opinions, confident declarations)",
-    }
+Content Requirements:
+- Topic: ${topic}
+- Content Type: ${formData.contentType}
+- Tonality: ${formData.tonality}
+- Language: ${formData.language}
+- Target Audience: Real estate professionals and their clients
 
-    const contentTypeLabel = contentTypeLabels[contentType] || contentType
-    const tonalityLabel = tonalityLabels[tonality] || tonality
+Additional Context:
+${formData.alternateTopic ? `Additional details: ${formData.alternateTopic}` : ""}
 
-    const prompt = `You are an expert real estate marketing content creator. Create engaging, high-quality content for real estate professionals.
+Instructions:
+1. Write in the specified tonality: ${formData.tonality}
+2. Make it relevant for real estate professionals
+3. Include actionable insights or tips when appropriate
+4. Keep it engaging and professional
+5. Optimize for the specified content type (${formData.contentType})
+6. If it's a social media post, include relevant hashtags
+7. If it's an email, include a compelling subject line
+8. If it's a blog article, structure it with headers and sections
 
-Content Type: ${contentTypeLabel}
-Topic: ${topic}
-Tonality: ${tonalityLabel}
-${targetAudience ? `Target Audience: ${targetAudience}` : ""}
-${keyPoints ? `Key Points to Include: ${keyPoints}` : ""}
-
-Please create compelling, professional content that:
-1. Captures attention and engages the target audience
-2. Uses the specified tonality throughout
-3. Is appropriate for the content type and platform
-4. Includes relevant real estate insights and value
-5. Has a clear call-to-action when appropriate
-6. Is optimized for the intended use case
-
-Generate the content now:`
+Generate high-quality, original content that provides value to the reader.`
 
     const { text } = await generateText({
       model: openai("gpt-4o"),
       prompt,
-      maxTokens: 2000,
+      maxTokens: 1000,
     })
 
+    // Generate a simple branded image URL (placeholder for now)
+    const imageUrl = `/placeholder.svg?height=400&width=600&text=${encodeURIComponent(topic)}`
+
     return {
-      success: true,
-      content: text,
-      topic,
-      contentType,
-      tonality,
-      targetAudience,
-      keyPoints,
+      text,
+      imageUrl,
     }
   } catch (error) {
     console.error("Error generating content:", error)
-    return {
-      error: "Failed to generate content. Please try again.",
-    }
+    throw new Error("Failed to generate content. Please try again.")
   }
 }

@@ -16,6 +16,7 @@ type FormData = {
   name: string
   email: string
   contentType: string
+  tonality: string
 }
 
 async function addLogoToImage(imageUrl: string): Promise<string> {
@@ -74,6 +75,8 @@ ${contentTypeInstructions}
 
 The content should be based on the topic: ${topicToUse}
 
+TONALITY: Use a ${formData.tonality} tonality throughout the content. This should influence your word choice, sentence structure, and overall approach to the topic.
+
 Requirements:
 - Maintain a **professional and polished tone** at all times  
 - Ensure the content is **unique**, not generic or templated  
@@ -81,6 +84,7 @@ Requirements:
 - Keep the content informative, relevant, and audience-focused  
 - ${characterLimit}
 - Close with a subtle but strong call to action that encourages engagement or contact
+- Apply the ${formData.tonality} tonality consistently throughout
 
 ${formData.contentType === "Email" ? "Format as a complete email with subject line, greeting, body, and closing." : ""}
 ${formData.contentType === "Blog article" ? "Include a compelling title and structure with subheadings where appropriate." : ""}

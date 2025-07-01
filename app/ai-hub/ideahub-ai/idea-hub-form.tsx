@@ -320,6 +320,49 @@ const topicOptions = [
   "How do you make your house feel like home?",
 ]
 
+const tonalityOptions = [
+  {
+    value: "Professional & Authoritative",
+    description: "Tone: Confident, knowledgeable, clear",
+  },
+  {
+    value: "Friendly & Approachable",
+    description: "Tone: Warm, conversational, down-to-earth",
+  },
+  {
+    value: "Witty & Playful",
+    description: "Tone: Lighthearted, tongue-in-cheek, surprising twists",
+  },
+  {
+    value: "Inspirational & Motivational",
+    description: "Tone: Uplifting, aspirational, empowering",
+  },
+  {
+    value: "Educational & Informative",
+    description: "Tone: Clear, explanatory, step-by-step",
+  },
+  {
+    value: "Conversational & Story-Driven",
+    description: "Tone: Narrative, personal anecdotes, dialogue style",
+  },
+  {
+    value: "Urgent & Action-Oriented",
+    description: 'Tone: Direct, brisk, focused on "now"',
+  },
+  {
+    value: "Empathetic & Supportive",
+    description: "Tone: Compassionate, understanding, reassuring",
+  },
+  {
+    value: "Visionary & Futuristic",
+    description: "Tone: Forward-looking, trend-spotting, big-picture",
+  },
+  {
+    value: "Bold & Disruptive",
+    description: "Tone: Challenging conventions, strong opinions, confident declarations",
+  },
+]
+
 type FormState = {
   primaryTopic: string
   alternateTopic: string
@@ -327,6 +370,7 @@ type FormState = {
   name: string
   email: string
   contentType: string
+  tonality: string
 }
 
 type ContentResult = {
@@ -347,6 +391,7 @@ export default function IdeaHubForm() {
     name: "",
     email: "",
     contentType: "Social post",
+    tonality: "Professional & Authoritative",
   })
   const [result, setResult] = useState<ContentResult | null>(null)
 
@@ -488,6 +533,25 @@ export default function IdeaHubForm() {
             <SelectItem value="Email">Email</SelectItem>
             <SelectItem value="Blog article">Blog Article</SelectItem>
             <SelectItem value="Text message">Text Message</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="tonality">Tonality</Label>
+        <Select value={formData.tonality} onValueChange={(value) => handleSelectChange("tonality", value)}>
+          <SelectTrigger id="tonality">
+            <SelectValue placeholder="Select tonality" />
+          </SelectTrigger>
+          <SelectContent>
+            {tonalityOptions.map((option, index) => (
+              <SelectItem key={index} value={option.value}>
+                <div>
+                  <div className="font-medium">{option.value}</div>
+                  <div className="text-sm text-gray-500">{option.description}</div>
+                </div>
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -646,6 +710,7 @@ export default function IdeaHubForm() {
             name: "",
             email: "",
             contentType: "Social post",
+            tonality: "Professional & Authoritative",
           })
         }}
         className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"

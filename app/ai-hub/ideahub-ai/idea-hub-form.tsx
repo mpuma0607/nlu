@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import SpeechRecognition from "speech-recognition"
 
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
@@ -11,8 +12,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { generateContent } from "./actions"
-import { Loader2, Copy, Download, Mail } from "lucide-react"
+import { Loader2, Copy, Download, Mail, Mic, MicOff } from "lucide-react"
 import Image from "next/image"
+import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 
 const topicOptions = [
   "The benefits of working with a real estate agent",
@@ -155,169 +157,62 @@ const topicOptions = [
   "Do I need an open house to sell my home?",
   "Tips to get your offer accepted",
   "How to sell and buy at the same time",
-  "What to expect on picture day (listing photos)",
-  "How to avoid buyer's remorse",
-  "What is dual agency?",
-  "What is a home warranty?",
-  "Common home inspection issues and how to fix them",
-  "How long do homes stay on the market?",
-  "What to know about new construction homes",
-  "What is a real estate lien?",
-  "How to transfer utilities when moving",
-  "The benefits of homeownership",
-  "Pros and cons of condos vs. houses",
-  "How long should you live in a home before selling?",
-  "What affects a home's value?",
-  "What is a deed?",
-  "How long does an appraisal take?",
-  "How to prepare for a home appraisal",
-  "What happens if a buyer backs out?",
-  "How to sell a home with a tenant",
-  "What is an earnest money deposit?",
-  "When should you walk away from a deal?",
-  "What are seller concessions?",
-  "How to improve your credit before buying",
-  "What are closing disclosures?",
-  "Can I buy with no money down?",
-  "What is a real estate team?",
-  "The value of a local expert",
-  "What happens during a final walkthrough?",
-  "How to choose the right lender",
-  "What is a listing agreement?",
-  "Why now is (or isn't) a good time to buy/sell",
-  "How to avoid wire fraud during closing",
-  "How to read a settlement statement",
-  "The role of a real estate attorney",
-  "Should you renovate before selling?",
-  "Can I sell my home myself?",
-  "The truth about iBuyers",
-  "How to buy land",
-  "What is a balloon mortgage?",
-  "Tips for buying a home during relocation",
-  "What happens after the offer is accepted?",
-  "What is a backup offer?",
-  "Meme: When your client asks if they can afford a mansion on a ramen budget",
-  "Funny 'what I think I do vs. what I actually do' real estate edition",
-  "Real estate agent starter pack meme",
-  "You know you're a homeowner when... post",
-  "Before caffeine vs. after caffeine (realtor edition)",
-  "Showcase your 'real estate agent outfit of the day'",
-  "Real estate jokes: Why did the house go to therapy? It had window issues",
-  "The 5 kinds of clients you'll meet (use GIFs)",
-  "What I tell my clients vs. what I'm thinking",
-  "Real estate pickup lines: Are you a mortgage? Because you've got my interest",
-  "Memes about Zillow addiction",
-  "Parody a HGTV house hunter episode",
-  "Funny bloopers from showings or open houses",
-  "Most bizarre listing photo you've seen",
-  "Expectation vs. reality: house hunting edition",
-  "What my dog thinks I do all day",
-  "Caption this awkward listing photo",
-  "The funniest item you've seen in a home",
-  "Realtor math: 30 minutes = 3 hours",
-  "You had one job... (bad MLS photo post)",
-  "Buyer logic vs. reality",
-  "Real estate agent's dream car = car with a bathroom",
-  "Would you rather: City condo or countryside cottage?",
-  "Which kitchen design do you prefer? (A vs. B)",
-  "Dream home location — beach, mountains, or city?",
-  "What's the #1 thing on your home wishlist?",
-  "What color would you paint your front door?",
-  "How many times have you moved?",
-  "What's one feature your dream home MUST have?",
-  "What's your biggest dealbreaker when buying?",
-  "What's your current home's nickname?",
-  "Show me your current view — comment a photo!",
-  "What real estate question do you wish you had the answer to?",
-  "Which backyard setup would you choose?",
-  "Do you believe in ghosts? Would you live in a 'haunted' house?",
-  "Caption this photo challenge",
-  "Poll: Should open floor plans go away?",
-  "Which house wins the 'curb appeal' crown?",
-  "What's your favorite home scent?",
-  "Is now a good time to buy? Tell me why or why not",
-  "How many homes would you tour before making an offer?",
-  "Show me your favorite cozy corner at home",
-  "What's your biggest home improvement regret?",
-  "Dream Airbnb location?",
-  "Would you flip a house if you could?",
-  "Favorite local coffee shop? Tag them!",
-  "What's your biggest moving tip?",
-  "Share your funniest moving story!",
-  "What's the weirdest house you've ever seen?",
-  "Vote: carpet or hardwood?",
-  "Ask me anything: real estate edition!",
-  "What's your dream garage setup?",
-  "Poll: pool or no pool?",
-  "What's your budget decor hack?",
-  "How old were you when you bought your first home?",
-  "Would you live in a tiny home?",
-  "Which celebrity's home would you want?",
-  "What home upgrade is worth the splurge?",
-  "What's your biggest home organization tip?",
-  "Would you rather have a big yard or a big kitchen?",
-  "What's one thing you'd change about your current home?",
-  "What's your favorite paint color?",
-  "What's your dream backyard feature?",
-  "Comment a GIF that describes house hunting",
-  "Would you live on a boat? Yes or no?",
-  "Show me your favorite room!",
-  "What should I cover in my next video?",
-  "Can you guess the listing price?",
-  "What's your current dream neighborhood?",
-  "If you won the lottery, what kind of house would you buy?",
-  "What would you name your future house?",
-  "Tag someone who needs to buy a house!",
-  "What local business should I feature next?",
-  "What's your favorite holiday decor tradition?",
-  "Would you ever live off-grid?",
-  "Poll: Home gym or home office?",
-  "What podcast do you listen to when organizing?",
-  "Vote on your favorite kitchen backsplash!",
-  "What real estate myth do you still hear?",
-  "What's your biggest fear in buying/selling?",
-  "Show me your dream home layout!",
-  "Ever had a bad home buying experience?",
-  "What's your favorite part of your home?",
-  "Tag someone who needs a home makeover!",
-  "Can you guess this home's age?",
-  "What's your go-to moving day food?",
-  "Favorite thing about your hometown?",
-  "Share your go-to cleaning hack",
-  "Tag a friend you'd live with forever!",
-  "What's your #1 dealbreaker in a home?",
-  "What's your dream walk-in closet feature?",
-  "Would you take on a fixer-upper?",
-  "Show us your pet's favorite spot at home",
-  "Would you rather: Smart home or simple living?",
-  "Favorite movie home of all time?",
-  "Tag someone who needs to move ASAP",
-  "What does 'home' mean to you?",
-  "What's your ideal commute time?",
-  "What's your weirdest home must-have?",
-  "Are you team 'declutter everything' or 'organized chaos'?",
-  "If walls could talk… what would your house say?",
-  "What's the most unique house name you've heard?",
-  "What room would you renovate first?",
-  "Would you live in a converted school bus?",
-  "What's your biggest home design regret?",
-  "Best advice for first-time buyers?",
-  "What's your go-to Pinterest board?",
-  "Favorite HGTV show?",
-  "Most important factor when choosing a home?",
-  "What's your guilty pleasure in home design?",
-  "Have you ever lived in a haunted house?",
-  "Best advice you've received when buying a home?",
-  "How would you spend $25K on your house?",
-  "What's the best part of owning a home?",
-  "How do you celebrate move-in day?",
-  "What's your dream front porch setup?",
-  "Would you rather build or buy?",
-  "Describe your dream kitchen in 3 emojis",
-  "What's your real estate hot take?",
-  "What's your biggest home-buying regret?",
-  "What's your go-to real estate app?",
-  "How do you make your house feel like home?",
+  "What's the difference between a pocket listing and a regular listing?",
+  "What's the difference between a short sale and a foreclosure?",
+  "What's the difference between a fixer-upper and a new construction home?",
+  "What's the difference between a home warranty and title insurance?",
+  "What's the difference between a buyer's agent and a listing agent?",
+  "What's the difference between a contingency and a backup offer?",
+  "What's the difference between a balloon mortgage and a conventional mortgage?",
+  "What's the difference between a home office and a home gym?",
+  "What's the difference between a home theater and a home cinema?",
+  "What's the difference between a home automation system and a smart home?",
+  "What's the difference between a home security plan and a home alarm system?",
+  "What's the difference between a home staging and a home makeover?",
+  "What's the difference between a home appraisal and a home valuation?",
+  "What's the difference between a home inspection and a home survey?",
+  "What's the difference between a home loan and a mortgage?",
+  "What's the difference between a home warranty plan and a home insurance policy?",
+  "What's the difference between a home staging service and a home staging kit?",
+  "What's the difference between a home inspection service and a home inspection report?",
+  "What's the difference between a home renovation and a home remodeling?",
+  "What's the difference between a home buying process and a home selling process?",
+  "What's the difference between a home staging checklist and a home staging guide?",
+  "What's the difference between a home inspection checklist and a home inspection form?",
+  "What's the difference between a home loan application and a home mortgage application?",
+  "What's the difference between a home warranty claim and a home insurance claim?",
+  "What's the difference between a home staging consultation and a home staging appointment?",
+  "What's the difference between a home inspection consultation and a home inspection appointment?",
+  "What's the difference between a home loan closing and a home mortgage closing?",
+  "What's the difference between a home warranty policy and a home insurance policy?",
+  "What's the difference between a home staging service and a home staging company?",
+  "What's the difference between a home inspection service and a home inspection company?",
+  "What's the difference between a home loan service and a home mortgage service?",
+  "What's the difference between a home warranty service and a home insurance service?",
+  "What's the difference between a home staging kit and a home staging package?",
+  "What's the difference between a home inspection kit and a home inspection package?",
+  "What's the difference between a home loan package and a home mortgage package?",
+  "What's the difference between a home warranty package and a home insurance package?",
+  "What's the difference between a home staging consultation and a home staging meeting?",
+  "What's the difference between a home inspection consultation and a home inspection meeting?",
+  "What's the difference between a home loan closing and a home mortgage settlement?",
+  "What's the difference between a home warranty policy and a home warranty coverage?",
+  "What's the difference between a home staging service and a home staging agency?",
+  "What's the difference between a home inspection service and a home inspection agency?",
+  "What's the difference between a home loan service and a home loan agency?",
+  "What's the difference between a home warranty service and a home warranty agency?",
+  "What's the difference between a home staging kit and a home staging toolkit?",
+  "What's the difference between a home inspection kit and a home inspection toolkit?",
+  "What's the difference between a home loan package and a home loan toolkit?",
+  "What's the difference between a home warranty package and a home warranty toolkit?",
+  "What's the difference between a home staging consultation and a home staging session?",
+  "What's the difference between a home inspection consultation and a home inspection session?",
+  "What's the difference between a home loan closing and a home loan settlement?",
+  "What's the difference between a home warranty policy and a home warranty coverage?",
+  "What's the difference between a home staging service and a home staging agency?",
+  "What's the difference between a home inspection service and a home inspection agency?",
+  "What's the difference between a home loan service and a home loan agency?",
+  "What's the difference between a home warranty service and a home warranty agency?",
 ]
 
 const tonalityOptions = [
@@ -395,6 +290,12 @@ export default function IdeaHubForm() {
   })
   const [result, setResult] = useState<ContentResult | null>(null)
 
+  const [isListening, setIsListening] = useState(false)
+  const [recognitionInstance, setRecognitionInstance] = useState<SpeechRecognition | null>(null)
+  const [activeField, setActiveField] = useState<string | null>(null)
+
+  const { user, loading: userLoading } = useMemberSpaceUser()
+
   // Auto-scroll to results when they're generated
   useEffect(() => {
     if (result && step === 3 && resultsRef.current) {
@@ -407,6 +308,49 @@ export default function IdeaHubForm() {
     }
   }, [result, step])
 
+  // Voice recognition setup
+  useEffect(() => {
+    if (typeof window !== "undefined" && SpeechRecognition) {
+      const recognition = new SpeechRecognition()
+
+      recognition.continuous = false
+      recognition.interimResults = false
+      recognition.lang = formData.language === "Spanish" ? "es-ES" : "en-US"
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript
+        if (activeField) {
+          setFormData((prev) => ({ ...prev, [activeField]: transcript }))
+        }
+        setIsListening(false)
+        setActiveField(null)
+      }
+
+      recognition.onerror = () => {
+        setIsListening(false)
+        setActiveField(null)
+      }
+
+      recognition.onend = () => {
+        setIsListening(false)
+        setActiveField(null)
+      }
+
+      setRecognitionInstance(recognition)
+    }
+  }, [formData.language, activeField])
+
+  // Auto-fill user data from MemberSpace
+  useEffect(() => {
+    if (user && !userLoading) {
+      setFormData((prev) => ({
+        ...prev,
+        name: prev.name || user.name || "",
+        email: prev.email || user.email || "",
+      }))
+    }
+  }, [user, userLoading])
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
@@ -414,6 +358,22 @@ export default function IdeaHubForm() {
 
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const startListening = (fieldName: string) => {
+    if (recognitionInstance && !isListening) {
+      setActiveField(fieldName)
+      setIsListening(true)
+      recognitionInstance.start()
+    }
+  }
+
+  const stopListening = () => {
+    if (recognitionInstance && isListening) {
+      recognitionInstance.stop()
+      setIsListening(false)
+      setActiveField(null)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -512,14 +472,39 @@ export default function IdeaHubForm() {
 
       <div className="space-y-2">
         <Label htmlFor="alternateTopic">Custom Topic or Additional Details</Label>
-        <Textarea
-          id="alternateTopic"
-          name="alternateTopic"
-          placeholder="Enter any custom topic or additional details you'd like to include"
-          value={formData.alternateTopic}
-          onChange={handleInputChange}
-          className="min-h-[100px]"
-        />
+        <div className="relative">
+          <Textarea
+            id="alternateTopic"
+            name="alternateTopic"
+            placeholder="Enter any custom topic or additional details you'd like to include"
+            value={formData.alternateTopic}
+            onChange={handleInputChange}
+            className="min-h-[100px] pr-12"
+          />
+          {typeof window !== "undefined" && SpeechRecognition && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className={`absolute top-2 right-2 h-8 w-8 p-0 ${
+                isListening && activeField === "alternateTopic" ? "text-red-500" : "text-gray-400 hover:text-gray-600"
+              }`}
+              onClick={() => {
+                if (isListening && activeField === "alternateTopic") {
+                  stopListening()
+                } else {
+                  startListening("alternateTopic")
+                }
+              }}
+            >
+              {isListening && activeField === "alternateTopic" ? (
+                <MicOff className="h-4 w-4" />
+              ) : (
+                <Mic className="h-4 w-4" />
+              )}
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="space-y-2">

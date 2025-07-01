@@ -1,5 +1,5 @@
 {
-  "name": "the-next-level-u-portal",
+  "name": "my-v0-project",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -42,11 +42,12 @@
     "@radix-ui/react-toggle-group": "latest",
     "@radix-ui/react-tooltip": "latest",
     "ai": "latest",
+    "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "latest",
     "convex": "latest",
-    "date-fns": "^4.1.0",
+    "date-fns": "4.1.0",
     "embla-carousel-react": "latest",
     "fs": "latest",
     "input-otp": "latest",
@@ -75,10 +76,8 @@
   },
   "devDependencies": {
     "@types/node": "^22",
-    "@types/nodemailer": "^6.4.19",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "autoprefixer": "^10.4.20",
     "postcss": "^8.5",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"

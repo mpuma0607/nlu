@@ -384,7 +384,11 @@ export default function IdeaHubForm() {
   const [step, setStep] = useState(1)
   const [isGenerating, setIsGenerating] = useState(false)
   const [isSendingEmail, setIsSendingEmail] = useState(false)
+  const [isListening, setIsListening] = useState(false)
   const resultsRef = useRef<HTMLDivElement>(null)
+  const recognitionRef = useRef<any>(null)
+  const { user } = useMemberSpaceUser()
+
   const [formData, setFormData] = useState<FormState>({
     primaryTopic: "",
     alternateTopic: "",
@@ -396,11 +400,16 @@ export default function IdeaHubForm() {
   })
   const [result, setResult] = useState<ContentResult | null>(null)
 
-  // Voice recognition states
-  const [isListening, setIsListening] = useState(false)
-  const [activeField, setActiveField] = useState<string | null>(null)
-
-  const { user, loading: userLoading } = useMemberSpaceUser()
+  // Auto-fill user data from MemberSpace
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        name: user.name || prev.name,
+        email: user.email || prev.email,
+      }))
+    }
+  }, [user])
 
   // Auto-scroll to results when they're generated
   useEffect(() => {
@@ -414,17 +423,6 @@ export default function IdeaHubForm() {
     }
   }, [result, step])
 
-  // Auto-fill user data from MemberSpace
-  useEffect(() => {
-    if (user && !userLoading) {
-      setFormData((prev) => ({
-        ...prev,
-        name: prev.name || user.name || "",
-        email: prev.email || user.email || "",
-      }))
-    }
-  }, [user, userLoading])
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
@@ -434,43 +432,48 @@ export default function IdeaHubForm() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  // Voice recognition functions
-  const startListening = (fieldName: string) => {
-    if (typeof window !== "undefined" && "webkitSpeechRecognition" in window) {
-      const recognition = new (window as any).webkitSpeechRecognition()
-      recognition.continuous = false
-      recognition.interimResults = false
-      recognition.lang = formData.language === "Spanish" ? "es-ES" : "en-US"
-
-      recognition.onstart = () => {
-        setIsListening(true)
-        setActiveField(fieldName)
-      }
-
-      recognition.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript
-        setFormData((prev) => ({ ...prev, [fieldName]: transcript }))
-        setIsListening(false)
-        setActiveField(null)
-      }
-
-      recognition.onerror = () => {
-        setIsListening(false)
-        setActiveField(null)
-      }
-
-      recognition.onend = () => {
-        setIsListening(false)
-        setActiveField(null)
-      }
-
-      recognition.start()
+  const startListening = () => {
+    if (!("webkitSpeechRecognition" in window)) {
+      alert("Speech recognition not supported in this browser.")
+      return
     }
+
+    const recognition = new (window as any).webkitSpeechRecognition()
+    recognitionRef.current = recognition
+
+    recognition.continuous = false
+    recognition.interimResults = false
+    recognition.lang = "en-US"
+
+    recognition.onstart = () => {
+      setIsListening(true)
+    }
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript
+      setFormData((prev) => ({
+        ...prev,
+        alternateTopic: prev.alternateTopic + (prev.alternateTopic ? " " : "") + transcript,
+      }))
+    }
+
+    recognition.onerror = (event: any) => {
+      console.error("Speech recognition error:", event.error)
+      setIsListening(false)
+    }
+
+    recognition.onend = () => {
+      setIsListening(false)
+    }
+
+    recognition.start()
   }
 
   const stopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop()
+    }
     setIsListening(false)
-    setActiveField(null)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -578,30 +581,17 @@ export default function IdeaHubForm() {
             onChange={handleInputChange}
             className="min-h-[100px] pr-12"
           />
-          {typeof window !== "undefined" && "webkitSpeechRecognition" in window && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className={`absolute top-2 right-2 h-8 w-8 p-0 ${
-                isListening && activeField === "alternateTopic" ? "text-red-500" : "text-gray-400 hover:text-gray-600"
-              }`}
-              onClick={() => {
-                if (isListening && activeField === "alternateTopic") {
-                  stopListening()
-                } else {
-                  startListening("alternateTopic")
-                }
-              }}
-            >
-              {isListening && activeField === "alternateTopic" ? (
-                <MicOff className="h-4 w-4" />
-              ) : (
-                <Mic className="h-4 w-4" />
-              )}
-            </Button>
-          )}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="absolute top-2 right-2 h-8 w-8 p-0"
+            onClick={isListening ? stopListening : startListening}
+          >
+            {isListening ? <MicOff className="h-4 w-4 text-red-500" /> : <Mic className="h-4 w-4" />}
+          </Button>
         </div>
+        {isListening && <p className="text-sm text-blue-600">Listening... Speak now</p>}
       </div>
 
       <div className="space-y-2">

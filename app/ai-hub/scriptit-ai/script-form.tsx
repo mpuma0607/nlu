@@ -457,6 +457,22 @@ export default function ScriptForm() {
       )}
 
       <div className="space-y-2">
+        <Label htmlFor="scriptType">Script Type *</Label>
+        <Select value={formData.scriptType} onValueChange={(value) => handleSelectChange("scriptType", value)}>
+          <SelectTrigger id="scriptType">
+            <SelectValue placeholder="Select the type of script you need" />
+          </SelectTrigger>
+          <SelectContent>
+            {scriptTypeOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
         <Label htmlFor="topic">Script Target *</Label>
         <Select value={formData.topic} onValueChange={(value) => handleSelectChange("topic", value)}>
           <SelectTrigger id="topic">

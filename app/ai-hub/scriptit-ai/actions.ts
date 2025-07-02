@@ -11,7 +11,37 @@ type ScriptFormData = {
   customTopic: string
   additionalDetails: string
   agentEmail: string
+  scriptTypeCategory: string
+  difficultConversationType: string
+  tonality: string
 }
+
+type ScriptResult = {
+  script: string
+}
+
+const scriptTypeOptions = [
+  { value: "email", label: "Email" },
+  { value: "phone", label: "Phone Call" },
+  { value: "text", label: "Text Message" },
+  { value: "video", label: "Video Script" },
+  { value: "doorknocking", label: "Door Knocking" },
+]
+
+const topicOptions = [
+  { value: "current-client", label: "Current Client" },
+  { value: "expired-listing", label: "Expired Listing" },
+  { value: "first-time-homebuyer", label: "First Time Homebuyer" },
+  { value: "past-client", label: "Past Client" },
+  { value: "neighbor", label: "Neighbor" },
+  { value: "fsbo", label: "FSBO (For Sale By Owner)" },
+  { value: "homeowner-high-equity", label: "Homeowner with High Equity" },
+  { value: "foreclosure", label: "Foreclosure" },
+  { value: "rental", label: "Rental" },
+  { value: "divorce", label: "Divorce" },
+  { value: "just-sold", label: "Just Sold" },
+  { value: "other", label: "Other (Custom Topic)" },
+]
 
 export async function generateScript(formData: ScriptFormData) {
   try {
@@ -22,11 +52,25 @@ export async function generateScript(formData: ScriptFormData) {
     const scriptTypeDetails = getScriptTypeDetails(formData.scriptType)
 
     // Get topic-specific context
-    const topicContext = getTopicContext(topicToUse)
+    let topicContext = ""
+    let scriptPurpose = ""
 
-    const prompt = `You are an expert real estate script writer. Create ONE professional ${formData.scriptType} script for ${formData.agentName} from ${formData.brokerageName} targeting ${topicToUse}.
+    // Handle difficult conversations differently
+    if (formData.scriptTypeCategory === "Difficult conversation") {
+      topicContext = getDifficultConversationContext(formData.difficultConversationType)
+      scriptPurpose = `This is a script for you to use when having a difficult conversation with your client about: ${formData.difficultConversationType}. The script should help you navigate this sensitive situation professionally and maintain the client relationship.`
+    } else {
+      topicContext = getTopicContext(topicToUse)
+      scriptPurpose = `This is a ${formData.scriptTypeCategory.toLowerCase()} targeting ${topicToUse}.`
+    }
+
+    const prompt = `You are an expert real estate script writer. Create ONE professional ${formData.scriptType} script for ${formData.agentName} from ${formData.brokerageName}.
+
+SCRIPT PURPOSE: ${scriptPurpose}
 
 ${scriptTypeDetails.requirements}
+
+TONALITY: Use a ${formData.tonality} tonality throughout the script. This should influence your word choice, sentence structure, and overall approach.
 
 IMPORTANT LANGUAGE REQUIREMENTS:
 - Naturally incorporate Visual language: "see," "picture," "look," "view," "imagine," "envision," "clear," "bright," "focus," "show," "appear," "visualize"
@@ -36,19 +80,28 @@ IMPORTANT LANGUAGE REQUIREMENTS:
 TOPIC CONTEXT: ${topicContext}
 
 SCRIPT STRUCTURE:
-1. Opening Hook (attention-grabbing, builds rapport)
+${
+  formData.scriptTypeCategory === "Difficult conversation"
+    ? `1. Opening (acknowledge the situation with empathy)
+2. Present the facts clearly and professionally
+3. Listen and validate their concerns
+4. Offer solutions or next steps
+5. Reaffirm your commitment to their success
+6. Close with confidence and next actions`
+    : `1. Opening Hook (attention-grabbing, builds rapport)
 2. Value Proposition (clear benefit using sensory language)
 3. Proof/Credibility (establish trust)
 4. Call to Action (specific next step)
-5. Objection Handling (brief, if applicable)
+5. Objection Handling (brief, if applicable)`
+}
 
-TONE: Professional, conversational, confident but not pushy, empathetic
+TONE: ${formData.tonality}, professional, conversational, confident but not pushy, empathetic
 
 ${formData.additionalDetails ? `ADDITIONAL REQUIREMENTS: ${formData.additionalDetails}` : ""}
 
 ${scriptTypeDetails.lengthGuidance}
 
-Write this as ONE complete, flowing script that naturally weaves in visual, auditory, and kinesthetic language throughout. Make it sound conversational and natural. Do NOT create separate sections or versions. Just write one professional script.`
+Write this as ONE complete, flowing script that naturally weaves in visual, auditory, and kinesthetic language throughout while maintaining the ${formData.tonality} tonality. Make it sound conversational and natural. Do NOT create separate sections or versions. Just write one professional script.`
 
     const { text: generatedScript } = await generateText({
       model: openai("gpt-4o"),
@@ -95,6 +148,8 @@ function getScriptTypeDetails(scriptType: string) {
 
 function getTopicContext(topic: string) {
   const contexts = {
+    "current-client":
+      "Focus on maintaining the relationship, providing updates, and ensuring client satisfaction. Address any concerns and reinforce your value.",
     "expired-listing":
       "Focus on why their listing didn't sell, market expertise, and fresh marketing approach. Address frustration and offer hope.",
     "first-time-homebuyer":
@@ -114,4 +169,60 @@ function getTopicContext(topic: string) {
   }
 
   return contexts[topic as keyof typeof contexts] || "Focus on providing value and building trust with the prospect."
+}
+
+function getDifficultConversationContext(conversationType: string) {
+  const contexts = {
+    "Price Reduction Request":
+      "Help the client understand market realities while maintaining their confidence in your strategy. Present data-driven reasons and alternative solutions.",
+    "Listing Not Selling":
+      "Address concerns about marketing strategy, pricing, and market conditions. Reassure them of your commitment while suggesting adjustments.",
+    "Buyer Wants to Cancel Contract":
+      "Understand their concerns, explore solutions, and protect their interests while maintaining professionalism.",
+    "Seller Unrealistic on Price":
+      "Use market data and comparable sales to educate them on realistic pricing while preserving the relationship.",
+    "Home Inspection Issues":
+      "Guide them through the inspection results, explain significance of issues, and help negotiate repairs or credits.",
+    "Low Appraisal Conversation":
+      "Explain the appraisal process, discuss options for moving forward, and help them understand their choices.",
+    "Client Ghosting or Going Silent":
+      "Re-engage them professionally, address potential concerns, and reestablish communication.",
+    "Discussing Commission Concerns":
+      "Explain your value proposition, services provided, and justify your commission structure professionally.",
+    "Competing Agent or Friend in the Business":
+      "Differentiate your services, maintain professionalism, and focus on your unique value.",
+    "Multiple Offers – Managing Expectations":
+      "Help them understand the competitive process and set realistic expectations about outcomes.",
+    "Client Not Ready to Commit":
+      "Understand their hesitations, address concerns, and help them move forward when they're ready.",
+    "Financing Fell Through":
+      "Provide support, explore alternative financing options, and help them navigate next steps.",
+    "Delays in Closing":
+      "Communicate delays professionally, manage expectations, and provide solutions to move forward.",
+    "Expired Listing Follow-Up":
+      "Address why the listing expired, present new strategies, and rebuild confidence in your services.",
+    "Termination of Representation":
+      "Handle the conversation professionally, understand their concerns, and part ways amicably.",
+    "Telling a Buyer They're Over Bidding":
+      "Use market data to show fair value, protect their interests, and guide them to competitive offers.",
+    "Seller Won't Make Repairs":
+      "Help negotiate alternatives, explain market impact, and find mutually acceptable solutions.",
+    "Difficult Tenant in the Property": "Address tenant issues, legal considerations, and impact on the sale process.",
+    "Client Pushing for Off-Market Deals":
+      "Explain market realities, set proper expectations, and guide them to realistic opportunities.",
+    "When the Market Has Shifted": "Educate them on current market conditions and adjust strategies accordingly.",
+    "Unrealistic Home Search Criteria":
+      "Help them prioritize needs vs. wants and adjust expectations to market realities.",
+    "Client Making Emotional Decisions":
+      "Provide objective guidance, help them see the bigger picture, and make rational decisions.",
+    "Talking About Why You're the Best Agent":
+      "Confidently present your qualifications, experience, and unique value proposition.",
+    "Explaining Market Conditions They Don't Want to Hear":
+      "Present market realities with empathy while helping them understand necessary adjustments.",
+  }
+
+  return (
+    contexts[conversationType as keyof typeof contexts] ||
+    "Navigate this difficult conversation with empathy, professionalism, and focus on solutions."
+  )
 }

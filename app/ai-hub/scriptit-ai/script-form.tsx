@@ -23,6 +23,9 @@ type ScriptFormState = {
   customTopic: string
   additionalDetails: string
   agentEmail: string
+  scriptTypeCategory: string
+  difficultConversationType: string
+  tonality: string
 }
 
 type ScriptResult = {
@@ -38,6 +41,7 @@ const scriptTypeOptions = [
 ]
 
 const topicOptions = [
+  { value: "current-client", label: "Current Client" },
   { value: "expired-listing", label: "Expired Listing" },
   { value: "first-time-homebuyer", label: "First Time Homebuyer" },
   { value: "past-client", label: "Past Client" },
@@ -49,6 +53,83 @@ const topicOptions = [
   { value: "divorce", label: "Divorce" },
   { value: "just-sold", label: "Just Sold" },
   { value: "other", label: "Other (Custom Topic)" },
+]
+
+const tonalityOptions = [
+  {
+    value: "Professional & Authoritative",
+    description: "Tone: Confident, knowledgeable, clear",
+  },
+  {
+    value: "Friendly & Approachable",
+    description: "Tone: Warm, conversational, down-to-earth",
+  },
+  {
+    value: "Witty & Playful",
+    description: "Tone: Lighthearted, tongue-in-cheek, surprising twists",
+  },
+  {
+    value: "Inspirational & Motivational",
+    description: "Tone: Uplifting, aspirational, empowering",
+  },
+  {
+    value: "Educational & Informative",
+    description: "Tone: Clear, explanatory, step-by-step",
+  },
+  {
+    value: "Conversational & Story-Driven",
+    description: "Tone: Narrative, personal anecdotes, dialogue style",
+  },
+  {
+    value: "Urgent & Action-Oriented",
+    description: 'Tone: Direct, brisk, focused on "now"',
+  },
+  {
+    value: "Empathetic & Supportive",
+    description: "Tone: Compassionate, understanding, reassuring",
+  },
+  {
+    value: "Visionary & Futuristic",
+    description: "Tone: Forward-looking, trend-spotting, big-picture",
+  },
+  {
+    value: "Bold & Disruptive",
+    description: "Tone: Challenging conventions, strong opinions, confident declarations",
+  },
+]
+
+const scriptTypeCategoryOptions = [
+  { value: "Prospecting Script", label: "Prospecting Script" },
+  { value: "Follow Up Script", label: "Follow Up Script" },
+  { value: "Networking Script", label: "Networking Script" },
+  { value: "Difficult conversation", label: "Difficult conversation" },
+]
+
+const difficultConversationOptions = [
+  "Price Reduction Request",
+  "Listing Not Selling",
+  "Buyer Wants to Cancel Contract",
+  "Seller Unrealistic on Price",
+  "Home Inspection Issues",
+  "Low Appraisal Conversation",
+  "Client Ghosting or Going Silent",
+  "Discussing Commission Concerns",
+  "Competing Agent or Friend in the Business",
+  "Multiple Offers – Managing Expectations",
+  "Client Not Ready to Commit",
+  "Financing Fell Through",
+  "Delays in Closing",
+  "Expired Listing Follow-Up",
+  "Termination of Representation",
+  "Telling a Buyer They're Over Bidding",
+  "Seller Won't Make Repairs",
+  "Difficult Tenant in the Property",
+  "Client Pushing for Off-Market Deals",
+  "When the Market Has Shifted",
+  "Unrealistic Home Search Criteria",
+  "Client Making Emotional Decisions",
+  "Talking About Why You're the Best Agent",
+  "Explaining Market Conditions They Don't Want to Hear",
 ]
 
 export default function ScriptForm() {
@@ -66,6 +147,9 @@ export default function ScriptForm() {
     customTopic: "",
     additionalDetails: "",
     agentEmail: "",
+    scriptTypeCategory: "",
+    difficultConversationType: "",
+    tonality: "Professional & Authoritative",
   })
   const [result, setResult] = useState<ScriptResult | null>(null)
   const { user, isLoading: isUserLoading } = useMemberSpaceUser()
@@ -333,13 +417,53 @@ export default function ScriptForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="scriptType">Script Type *</Label>
-        <Select value={formData.scriptType} onValueChange={(value) => handleSelectChange("scriptType", value)}>
-          <SelectTrigger id="scriptType">
+        <Label htmlFor="scriptTypeCategory">Type of Script *</Label>
+        <Select
+          value={formData.scriptTypeCategory}
+          onValueChange={(value) => handleSelectChange("scriptTypeCategory", value)}
+        >
+          <SelectTrigger id="scriptTypeCategory">
             <SelectValue placeholder="Select the type of script you need" />
           </SelectTrigger>
           <SelectContent>
-            {scriptTypeOptions.map((option) => (
+            {scriptTypeCategoryOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {formData.scriptTypeCategory === "Difficult conversation" && (
+        <div className="space-y-2">
+          <Label htmlFor="difficultConversationType">Difficult Conversation Type *</Label>
+          <Select
+            value={formData.difficultConversationType}
+            onValueChange={(value) => handleSelectChange("difficultConversationType", value)}
+          >
+            <SelectTrigger id="difficultConversationType">
+              <SelectValue placeholder="Select the type of difficult conversation" />
+            </SelectTrigger>
+            <SelectContent>
+              {difficultConversationOptions.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      <div className="space-y-2">
+        <Label htmlFor="topic">Script Target *</Label>
+        <Select value={formData.topic} onValueChange={(value) => handleSelectChange("topic", value)}>
+          <SelectTrigger id="topic">
+            <SelectValue placeholder="Select the target for your script" />
+          </SelectTrigger>
+          <SelectContent>
+            {topicOptions.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {option.label}
               </SelectItem>
@@ -349,15 +473,18 @@ export default function ScriptForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="topic">Script Topic *</Label>
-        <Select value={formData.topic} onValueChange={(value) => handleSelectChange("topic", value)}>
-          <SelectTrigger id="topic">
-            <SelectValue placeholder="Select the topic for your script" />
+        <Label htmlFor="tonality">Tonality</Label>
+        <Select value={formData.tonality} onValueChange={(value) => handleSelectChange("tonality", value)}>
+          <SelectTrigger id="tonality">
+            <SelectValue placeholder="Select tonality" />
           </SelectTrigger>
           <SelectContent>
-            {topicOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
+            {tonalityOptions.map((option, index) => (
+              <SelectItem key={index} value={option.value}>
+                <div>
+                  <div className="font-medium">{option.value}</div>
+                  <div className="text-sm text-gray-500">{option.description}</div>
+                </div>
               </SelectItem>
             ))}
           </SelectContent>
@@ -396,7 +523,13 @@ export default function ScriptForm() {
         </Button>
         <Button
           onClick={() => setStep(3)}
-          disabled={!formData.scriptType || !formData.topic || (formData.topic === "other" && !formData.customTopic)}
+          disabled={
+            !formData.scriptType ||
+            !formData.scriptTypeCategory ||
+            !formData.topic ||
+            (formData.topic === "other" && !formData.customTopic) ||
+            (formData.scriptTypeCategory === "Difficult conversation" && !formData.difficultConversationType)
+          }
           className="flex-1 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white"
         >
           Next: Contact Information
@@ -448,7 +581,21 @@ export default function ScriptForm() {
               </p>
               <p>
                 <span className="font-medium">Script Type:</span>{" "}
-                {scriptTypeOptions.find((opt) => opt.value === formData.scriptType)?.label}
+                {scriptTypeCategoryOptions.find((opt) => opt.value === formData.scriptTypeCategory)?.label}
+              </p>
+              {formData.scriptTypeCategory === "Difficult conversation" && (
+                <p>
+                  <span className="font-medium">Conversation Type:</span> {formData.difficultConversationType}
+                </p>
+              )}
+              <p>
+                <span className="font-medium">Target:</span>{" "}
+                {formData.topic === "other"
+                  ? formData.customTopic
+                  : topicOptions.find((opt) => opt.value === formData.topic)?.label}
+              </p>
+              <p>
+                <span className="font-medium">Tonality:</span> {formData.tonality}
               </p>
             </div>
             <div>
@@ -623,6 +770,9 @@ export default function ScriptForm() {
             customTopic: "",
             additionalDetails: "",
             agentEmail: user?.email || "",
+            scriptTypeCategory: "",
+            difficultConversationType: "",
+            tonality: "Professional & Authoritative",
           })
         }}
         className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white"

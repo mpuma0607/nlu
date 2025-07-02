@@ -73,13 +73,17 @@ ${scriptTypeDetails.requirements}
 TONALITY: Use a ${formData.tonality} tonality throughout the script. This should influence your word choice, sentence structure, and overall approach.
 
 IMPORTANT LANGUAGE REQUIREMENTS:
+
 - Naturally incorporate Visual language: "see," "picture," "look," "view," "imagine," "envision," "clear," "bright," "focus," "show," "appear," "visualize"
+
 - Naturally incorporate Auditory language: "hear," "listen," "sounds," "tell," "discuss," "rings true," "clicks," "resonates," "speak," "talk," "mention"  
+
 - Naturally incorporate Kinesthetic language: "feel," "touch," "grasp," "handle," "solid," "smooth," "comfortable," "experience," "sense," "connect," "move"
 
 TOPIC CONTEXT: ${topicContext}
 
 SCRIPT STRUCTURE:
+
 ${
   formData.scriptTypeCategory === "Difficult conversation"
     ? `1. Opening (acknowledge the situation with empathy)

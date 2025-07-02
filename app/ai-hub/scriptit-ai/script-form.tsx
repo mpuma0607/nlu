@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -10,49 +11,99 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { generateScript } from "./actions"
-import { Loader2, Copy, Download, Mail, FileText, MessageSquare, Save, UserCheck } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
+import { Loader2, Copy, Download, Mail, Mic, MicOff } from "lucide-react"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
-import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
+import { autoSaveCreation } from "@/lib/auto-save-creation"
 
-type ScriptFormState = {
-  agentName: string
-  brokerageName: string
-  scriptType: string
-  topic: string
-  customTopic: string
-  additionalDetails: string
-  agentEmail: string
-  scriptTypeCategory: string
-  difficultConversationType: string
-  tonality: string
-}
-
-type ScriptResult = {
-  script: string
-}
-
-const scriptTypeOptions = [
-  { value: "email", label: "Email" },
-  { value: "phone", label: "Phone Call" },
-  { value: "text", label: "Text Message" },
-  { value: "video", label: "Video Script" },
-  { value: "doorknocking", label: "Door Knocking" },
+const scriptTargetOptions = [
+  "Current Client",
+  "Past Clients",
+  "Sphere of Influence (SOI)",
+  "For Sale By Owner (FSBO)",
+  "Expired Listings",
+  "First-Time Home Buyers",
+  "Luxury Home Buyers",
+  "Investors",
+  "Renters",
+  "New Residents/Move-ins",
+  "Empty Nesters",
+  "Young Professionals",
+  "Families with Children",
+  "Military/Veterans",
+  "Seniors",
+  "Divorce/Life Changes",
+  "Pre-foreclosure",
+  "Absentee Owners",
+  "High Net Worth Individuals",
+  "Small Business Owners",
+  "Realtors (for referrals)",
+  "Mortgage Brokers",
+  "Title Companies",
+  "Home Inspectors",
+  "Contractors",
+  "Interior Designers",
+  "Property Managers",
+  "Insurance Agents",
+  "Financial Advisors",
+  "CPAs/Tax Professionals",
+  "Attorneys",
+  "Local Business Owners",
+  "Chamber of Commerce Members",
+  "Networking Groups",
+  "Social Media Followers",
+  "Website Visitors",
+  "Open House Attendees",
+  "Seminar Attendees",
+  "Community Event Participants",
+  "Homeowners in Specific Neighborhoods",
+  "Recent Home Sellers",
+  "Recent Home Buyers",
+  "People Considering Selling",
+  "People Considering Buying",
+  "Relocating Employees",
+  "Corporate Relocation Departments",
+  "HR Departments",
+  "Property Developers",
+  "Wholesalers",
+  "Fix and Flip Investors",
+  "Landlords",
+  "Property Management Companies",
 ]
 
-const topicOptions = [
-  { value: "current-client", label: "Current Client" },
-  { value: "expired-listing", label: "Expired Listing" },
-  { value: "first-time-homebuyer", label: "First Time Homebuyer" },
-  { value: "past-client", label: "Past Client" },
-  { value: "neighbor", label: "Neighbor" },
-  { value: "fsbo", label: "FSBO (For Sale By Owner)" },
-  { value: "homeowner-high-equity", label: "Homeowner with High Equity" },
-  { value: "foreclosure", label: "Foreclosure" },
-  { value: "rental", label: "Rental" },
-  { value: "divorce", label: "Divorce" },
-  { value: "just-sold", label: "Just Sold" },
-  { value: "other", label: "Other (Custom Topic)" },
+const scriptTypeOptions = ["Email", "Phone Call", "Text Message", "Video Script", "Door Knocking"]
+
+const scriptTypeCategoryOptions = [
+  "Prospecting Script",
+  "Follow Up Script",
+  "Networking Script",
+  "Difficult conversation",
+]
+
+const difficultConversationTypes = [
+  "Price Reduction Request",
+  "Listing Not Selling",
+  "Buyer Wants to Cancel Contract",
+  "Seller Unrealistic on Price",
+  "Home Inspection Issues",
+  "Low Appraisal Conversation",
+  "Client Ghosting or Going Silent",
+  "Discussing Commission Concerns",
+  "Competing Agent or Friend in the Business",
+  "Multiple Offers – Managing Expectations",
+  "Client Not Ready to Commit",
+  "Financing Fell Through",
+  "Delays in Closing",
+  "Expired Listing Follow-Up",
+  "Termination of Representation",
+  "Telling a Buyer They're Over Bidding",
+  "Seller Won't Make Repairs",
+  "Difficult Tenant in the Property",
+  "Client Pushing for Off-Market Deals",
+  "When the Market Has Shifted",
+  "Unrealistic Home Search Criteria",
+  "Client Making Emotional Decisions",
+  "Talking About Why You're the Best Agent",
+  "Explaining Market Conditions They Don't Want to Hear",
 ]
 
 const tonalityOptions = [
@@ -98,79 +149,56 @@ const tonalityOptions = [
   },
 ]
 
-const scriptTypeCategoryOptions = [
-  { value: "Prospecting Script", label: "Prospecting Script" },
-  { value: "Follow Up Script", label: "Follow Up Script" },
-  { value: "Networking Script", label: "Networking Script" },
-  { value: "Difficult conversation", label: "Difficult conversation" },
-]
+type FormState = {
+  scriptTypeCategory: string
+  difficultConversationType: string
+  scriptTarget: string
+  scriptType: string
+  tonality: string
+  additionalDetails: string
+  name: string
+  email: string
+}
 
-const difficultConversationOptions = [
-  "Price Reduction Request",
-  "Listing Not Selling",
-  "Buyer Wants to Cancel Contract",
-  "Seller Unrealistic on Price",
-  "Home Inspection Issues",
-  "Low Appraisal Conversation",
-  "Client Ghosting or Going Silent",
-  "Discussing Commission Concerns",
-  "Competing Agent or Friend in the Business",
-  "Multiple Offers – Managing Expectations",
-  "Client Not Ready to Commit",
-  "Financing Fell Through",
-  "Delays in Closing",
-  "Expired Listing Follow-Up",
-  "Termination of Representation",
-  "Telling a Buyer They're Over Bidding",
-  "Seller Won't Make Repairs",
-  "Difficult Tenant in the Property",
-  "Client Pushing for Off-Market Deals",
-  "When the Market Has Shifted",
-  "Unrealistic Home Search Criteria",
-  "Client Making Emotional Decisions",
-  "Talking About Why You're the Best Agent",
-  "Explaining Market Conditions They Don't Want to Hear",
-]
+type ScriptResult = {
+  script: string
+}
 
 export default function ScriptForm() {
-  const { toast } = useToast()
   const [step, setStep] = useState(1)
   const [isGenerating, setIsGenerating] = useState(false)
   const [isSendingEmail, setIsSendingEmail] = useState(false)
-  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
-  const [formData, setFormData] = useState<ScriptFormState>({
-    agentName: "",
-    brokerageName: "",
-    scriptType: "",
-    topic: "",
-    customTopic: "",
-    additionalDetails: "",
-    agentEmail: "",
+  const [isListening, setIsListening] = useState(false)
+  const resultsRef = useRef<HTMLDivElement>(null)
+  const recognitionRef = useRef<any>(null)
+  const { user } = useMemberSpaceUser()
+
+  const [formData, setFormData] = useState<FormState>({
     scriptTypeCategory: "",
     difficultConversationType: "",
+    scriptTarget: "",
+    scriptType: "",
     tonality: "Professional & Authoritative",
+    additionalDetails: "",
+    name: "",
+    email: "",
   })
   const [result, setResult] = useState<ScriptResult | null>(null)
-  const { user, isLoading: isUserLoading } = useMemberSpaceUser()
-  const isLoggedIn = !!user && !isUserLoading
 
-  const resultsRef = useRef<HTMLDivElement>(null)
-
-  // Auto-populate user data when available
+  // Auto-fill user data from MemberSpace
   useEffect(() => {
-    if (user && !isUserLoading) {
+    if (user) {
       setFormData((prev) => ({
         ...prev,
-        agentName: prev.agentName || user.name || `${user.firstName || ""} ${user.lastName || ""}`.trim(),
-        agentEmail: prev.agentEmail || user.email || "",
+        name: user.name || prev.name,
+        email: user.email || prev.email,
       }))
     }
-  }, [user, isUserLoading])
+  }, [user])
 
   // Auto-scroll to results when they're generated
   useEffect(() => {
-    if (step === 4 && result && resultsRef.current) {
+    if (result && step === 3 && resultsRef.current) {
       setTimeout(() => {
         resultsRef.current?.scrollIntoView({
           behavior: "smooth",
@@ -178,7 +206,55 @@ export default function ScriptForm() {
         })
       }, 100)
     }
-  }, [step, result])
+  }, [result, step])
+
+  // Initialize speech recognition
+  useEffect(() => {
+    if (typeof window !== "undefined" && "webkitSpeechRecognition" in window) {
+      const SpeechRecognition = (window as any).webkitSpeechRecognition
+      recognitionRef.current = new SpeechRecognition()
+      recognitionRef.current.continuous = false
+      recognitionRef.current.interimResults = false
+      recognitionRef.current.lang = "en-US"
+
+      recognitionRef.current.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript
+        setFormData((prev) => ({
+          ...prev,
+          additionalDetails: prev.additionalDetails + " " + transcript,
+        }))
+        setIsListening(false)
+      }
+
+      recognitionRef.current.onerror = () => {
+        setIsListening(false)
+      }
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false)
+      }
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop()
+      }
+    }
+  }, [])
+
+  const startListening = () => {
+    if (recognitionRef.current && !isListening) {
+      setIsListening(true)
+      recognitionRef.current.start()
+    }
+  }
+
+  const stopListening = () => {
+    if (recognitionRef.current && isListening) {
+      recognitionRef.current.stop()
+      setIsListening(false)
+    }
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -194,22 +270,29 @@ export default function ScriptForm() {
     setIsGenerating(true)
 
     try {
-      console.log("Generating script with data:", formData)
       const generatedScript = await generateScript(formData)
-      console.log("Generated script:", generatedScript)
       setResult(generatedScript)
-      setStep(4) // Go to step 4 (results)
-      toast({
-        title: "Script Generated Successfully",
-        description: "Your professional script is ready!",
-      })
+      setStep(3)
+
+      // Auto-save the creation
+      if (user?.id) {
+        await autoSaveCreation({
+          userId: user.id,
+          toolName: "ScriptIT AI",
+          content: generatedScript.script,
+          metadata: {
+            scriptTypeCategory: formData.scriptTypeCategory,
+            difficultConversationType: formData.difficultConversationType,
+            scriptTarget: formData.scriptTarget,
+            scriptType: formData.scriptType,
+            tonality: formData.tonality,
+            additionalDetails: formData.additionalDetails,
+          },
+        })
+      }
     } catch (error) {
       console.error("Error generating script:", error)
-      toast({
-        title: "Error Generating Script",
-        description: "Failed to generate script. Please try again.",
-        variant: "destructive",
-      })
+      alert("Failed to generate script. Please try again.")
     } finally {
       setIsGenerating(false)
     }
@@ -218,56 +301,19 @@ export default function ScriptForm() {
   const copyToClipboard = () => {
     if (result?.script) {
       navigator.clipboard.writeText(result.script)
-      toast({
-        title: "Copied to Clipboard",
-        description: "Your script has been copied to clipboard.",
-      })
+      alert("Script copied to clipboard!")
     }
   }
 
-  const downloadPDF = async () => {
+  const downloadScript = () => {
     if (result?.script) {
-      setIsGeneratingPDF(true)
-      try {
-        const response = await fetch("/api/generate-script-pdf", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            formData,
-            script: result.script,
-          }),
-        })
-
-        if (!response.ok) {
-          throw new Error("Failed to generate PDF")
-        }
-
-        const blob = await response.blob()
-        const url = window.URL.createObjectURL(blob)
-        const link = document.createElement("a")
-        link.href = url
-        link.download = `${formData.agentName.replace(/\s+/g, "_")}_${formData.scriptType}_Script.pdf`
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-        window.URL.revokeObjectURL(url)
-
-        toast({
-          title: "PDF Downloaded",
-          description: "Your script PDF has been downloaded successfully.",
-        })
-      } catch (error) {
-        console.error("Error generating PDF:", error)
-        toast({
-          title: "PDF Generation Failed",
-          description: error instanceof Error ? error.message : "Failed to generate PDF. Please try again.",
-          variant: "destructive",
-        })
-      } finally {
-        setIsGeneratingPDF(false)
-      }
+      const element = document.createElement("a")
+      const file = new Blob([result.script], { type: "text/plain" })
+      element.href = URL.createObjectURL(file)
+      element.download = "script.txt"
+      document.body.appendChild(element)
+      element.click()
+      document.body.removeChild(element)
     }
   }
 
@@ -281,141 +327,37 @@ export default function ScriptForm() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            to: formData.agentEmail,
-            name: formData.agentName,
+            to: formData.email,
+            name: formData.name,
             script: result.script,
-            formData,
+            scriptDetails: {
+              scriptTypeCategory: formData.scriptTypeCategory,
+              difficultConversationType: formData.difficultConversationType,
+              scriptTarget: formData.scriptTarget,
+              scriptType: formData.scriptType,
+              tonality: formData.tonality,
+            },
           }),
         })
 
         const data = await response.json()
 
         if (data.success) {
-          toast({
-            title: "Email Sent Successfully",
-            description: "Check your inbox for your professional script!",
-          })
+          alert("Email sent successfully! Check your inbox.")
         } else {
           throw new Error(data.error || "Failed to send email")
         }
       } catch (error) {
         console.error("Error sending email:", error)
-        toast({
-          title: "Email Sending Failed",
-          description: error instanceof Error ? error.message : "Failed to send email. Please try again.",
-          variant: "destructive",
-        })
+        alert(`Failed to send email: ${error instanceof Error ? error.message : "Unknown error"}`)
       } finally {
         setIsSendingEmail(false)
       }
     }
   }
 
-  const saveToProfile = async () => {
-    if (!result?.script || !user) {
-      toast({
-        title: "Save Failed",
-        description: "Please log in to save your script.",
-        variant: "destructive",
-      })
-      return
-    }
-
-    setIsSaving(true)
-    try {
-      const title = generateCreationTitle("scriptit-ai", formData)
-      const success = await saveUserCreation({
-        userId: user.id.toString(),
-        userEmail: user.email,
-        toolType: "scriptit-ai",
-        title,
-        content: result.script,
-        formData,
-        metadata: {
-          agentName: formData.agentName,
-          brokerageName: formData.brokerageName,
-          scriptType: formData.scriptType,
-          topic: formData.topic,
-          customTopic: formData.customTopic,
-          additionalDetails: formData.additionalDetails,
-        },
-      })
-
-      if (success.success) {
-        toast({
-          title: "Script Saved",
-          description: "Your script has been saved to your profile dashboard.",
-        })
-      } else {
-        throw new Error("Failed to save script")
-      }
-    } catch (error) {
-      console.error("Error saving script:", error)
-      toast({
-        title: "Save Failed",
-        description: "Failed to save script. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsSaving(false)
-    }
-  }
-
   const renderStepOne = () => (
     <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h3 className="text-lg font-semibold text-black">Agent Information</h3>
-        <p className="text-gray-600">Tell us about yourself and your brokerage</p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <Label htmlFor="agentName" className="flex items-center gap-2">
-            Your Name *{user && <UserCheck className="h-4 w-4 text-green-600" title="Auto-filled from your profile" />}
-          </Label>
-          <Input
-            id="agentName"
-            name="agentName"
-            placeholder="Enter your full name"
-            value={formData.agentName}
-            onChange={handleInputChange}
-            required
-          />
-          {user && formData.agentName === (user.name || `${user.firstName || ""} ${user.lastName || ""}`.trim()) && (
-            <p className="text-xs text-green-600">✓ Auto-filled from your profile</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="brokerageName">Brokerage Name *</Label>
-          <Input
-            id="brokerageName"
-            name="brokerageName"
-            placeholder="Enter your brokerage name"
-            value={formData.brokerageName}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-      </div>
-
-      <Button
-        onClick={() => setStep(2)}
-        disabled={!formData.agentName || !formData.brokerageName}
-        className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white"
-      >
-        Next: Script Details
-      </Button>
-    </div>
-  )
-
-  const renderStepTwo = () => (
-    <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h3 className="text-lg font-semibold text-black">Script Configuration</h3>
-        <p className="text-gray-600">Choose the type and topic for your script</p>
-      </div>
-
       <div className="space-y-2">
         <Label htmlFor="scriptTypeCategory">Type of Script *</Label>
         <Select
@@ -423,12 +365,12 @@ export default function ScriptForm() {
           onValueChange={(value) => handleSelectChange("scriptTypeCategory", value)}
         >
           <SelectTrigger id="scriptTypeCategory">
-            <SelectValue placeholder="Select the type of script you need" />
+            <SelectValue placeholder="Select script type category" />
           </SelectTrigger>
           <SelectContent>
-            {scriptTypeCategoryOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
+            {scriptTypeCategoryOptions.map((option, index) => (
+              <SelectItem key={index} value={option}>
+                {option}
               </SelectItem>
             ))}
           </SelectContent>
@@ -443,12 +385,12 @@ export default function ScriptForm() {
             onValueChange={(value) => handleSelectChange("difficultConversationType", value)}
           >
             <SelectTrigger id="difficultConversationType">
-              <SelectValue placeholder="Select the type of difficult conversation" />
+              <SelectValue placeholder="Select conversation type" />
             </SelectTrigger>
-            <SelectContent>
-              {difficultConversationOptions.map((option) => (
-                <SelectItem key={option} value={option}>
-                  {option}
+            <SelectContent className="max-h-[300px]">
+              {difficultConversationTypes.map((type, index) => (
+                <SelectItem key={index} value={type}>
+                  {type}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -457,31 +399,15 @@ export default function ScriptForm() {
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="scriptType">Script Type *</Label>
-        <Select value={formData.scriptType} onValueChange={(value) => handleSelectChange("scriptType", value)}>
-          <SelectTrigger id="scriptType">
-            <SelectValue placeholder="Select the type of script you need" />
+        <Label htmlFor="scriptTarget">Script Target *</Label>
+        <Select value={formData.scriptTarget} onValueChange={(value) => handleSelectChange("scriptTarget", value)}>
+          <SelectTrigger id="scriptTarget">
+            <SelectValue placeholder="Select your target audience" />
           </SelectTrigger>
-          <SelectContent>
-            {scriptTypeOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="topic">Script Target *</Label>
-        <Select value={formData.topic} onValueChange={(value) => handleSelectChange("topic", value)}>
-          <SelectTrigger id="topic">
-            <SelectValue placeholder="Select the target for your script" />
-          </SelectTrigger>
-          <SelectContent>
-            {topicOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
+          <SelectContent className="max-h-[300px]">
+            {scriptTargetOptions.map((target, index) => (
+              <SelectItem key={index} value={target}>
+                {target}
               </SelectItem>
             ))}
           </SelectContent>
@@ -507,30 +433,62 @@ export default function ScriptForm() {
         </Select>
       </div>
 
-      {formData.topic === "other" && (
-        <div className="space-y-2">
-          <Label htmlFor="customTopic">Custom Topic *</Label>
-          <Input
-            id="customTopic"
-            name="customTopic"
-            placeholder="Enter your custom topic"
-            value={formData.customTopic}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-      )}
+      <Button
+        onClick={() => setStep(2)}
+        disabled={
+          !formData.scriptTypeCategory ||
+          !formData.scriptTarget ||
+          (formData.scriptTypeCategory === "Difficult conversation" && !formData.difficultConversationType)
+        }
+        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+      >
+        Next: Script Details
+      </Button>
+    </div>
+  )
+
+  const renderStepTwo = () => (
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <Label htmlFor="scriptType">Script Type *</Label>
+        <Select value={formData.scriptType} onValueChange={(value) => handleSelectChange("scriptType", value)}>
+          <SelectTrigger id="scriptType">
+            <SelectValue placeholder="Select script format" />
+          </SelectTrigger>
+          <SelectContent>
+            {scriptTypeOptions.map((type, index) => (
+              <SelectItem key={index} value={type}>
+                {type}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
       <div className="space-y-2">
         <Label htmlFor="additionalDetails">Additional Details (Optional)</Label>
-        <Textarea
-          id="additionalDetails"
-          name="additionalDetails"
-          placeholder="Any specific details, context, or requirements for your script..."
-          value={formData.additionalDetails}
-          onChange={handleInputChange}
-          className="min-h-[100px]"
-        />
+        <div className="relative">
+          <Textarea
+            id="additionalDetails"
+            name="additionalDetails"
+            placeholder="Any specific details, context, or requirements for your script..."
+            value={formData.additionalDetails}
+            onChange={handleInputChange}
+            className="min-h-[120px] pr-12"
+          />
+          {typeof window !== "undefined" && "webkitSpeechRecognition" in window && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="absolute top-2 right-2 h-8 w-8 p-0"
+              onClick={isListening ? stopListening : startListening}
+            >
+              {isListening ? <MicOff className="h-4 w-4 text-red-500" /> : <Mic className="h-4 w-4 text-gray-500" />}
+            </Button>
+          )}
+        </div>
+        {isListening && <p className="text-sm text-blue-600">Listening... Speak now</p>}
       </div>
 
       <div className="flex gap-4">
@@ -539,14 +497,8 @@ export default function ScriptForm() {
         </Button>
         <Button
           onClick={() => setStep(3)}
-          disabled={
-            !formData.scriptType ||
-            !formData.scriptTypeCategory ||
-            !formData.topic ||
-            (formData.topic === "other" && !formData.customTopic) ||
-            (formData.scriptTypeCategory === "Difficult conversation" && !formData.difficultConversationType)
-          }
-          className="flex-1 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white"
+          disabled={!formData.scriptType}
+          className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
         >
           Next: Contact Information
         </Button>
@@ -556,81 +508,30 @@ export default function ScriptForm() {
 
   const renderStepThree = () => (
     <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h3 className="text-lg font-semibold text-black">Contact Information</h3>
-        <p className="text-gray-600">Enter your email to receive the script</p>
-      </div>
-
       <div className="space-y-2">
-        <Label htmlFor="agentEmail" className="flex items-center gap-2">
-          Your Email Address *
-          {user && <UserCheck className="h-4 w-4 text-green-600" title="Auto-filled from your profile" />}
-        </Label>
+        <Label htmlFor="name">Your Name *</Label>
         <Input
-          id="agentEmail"
-          name="agentEmail"
-          type="email"
-          placeholder="Enter your email address"
-          value={formData.agentEmail}
+          id="name"
+          name="name"
+          placeholder="Enter your name"
+          value={formData.name}
           onChange={handleInputChange}
           required
         />
-        {user && formData.agentEmail === user.email && (
-          <p className="text-xs text-green-600">✓ Auto-filled from your profile</p>
-        )}
       </div>
 
-      {/* Script Summary */}
-      <Card className="bg-gray-50 border-0">
-        <CardContent className="p-6">
-          <h4 className="font-semibold text-black mb-4 flex items-center gap-2">
-            <MessageSquare className="h-4 w-4" />
-            Script Summary
-          </h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div>
-              <p>
-                <span className="font-medium">Agent:</span> {formData.agentName}
-              </p>
-              <p>
-                <span className="font-medium">Brokerage:</span> {formData.brokerageName}
-              </p>
-              <p>
-                <span className="font-medium">Script Type:</span>{" "}
-                {scriptTypeCategoryOptions.find((opt) => opt.value === formData.scriptTypeCategory)?.label}
-              </p>
-              {formData.scriptTypeCategory === "Difficult conversation" && (
-                <p>
-                  <span className="font-medium">Conversation Type:</span> {formData.difficultConversationType}
-                </p>
-              )}
-              <p>
-                <span className="font-medium">Target:</span>{" "}
-                {formData.topic === "other"
-                  ? formData.customTopic
-                  : topicOptions.find((opt) => opt.value === formData.topic)?.label}
-              </p>
-              <p>
-                <span className="font-medium">Tonality:</span> {formData.tonality}
-              </p>
-            </div>
-            <div>
-              <p>
-                <span className="font-medium">Topic:</span>{" "}
-                {formData.topic === "other"
-                  ? formData.customTopic
-                  : topicOptions.find((opt) => opt.value === formData.topic)?.label}
-              </p>
-              {formData.additionalDetails && (
-                <p>
-                  <span className="font-medium">Details:</span> {formData.additionalDetails.substring(0, 100)}
-                  {formData.additionalDetails.length > 100 && "..."}
-                </p>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="space-y-2">
+        <Label htmlFor="email">Your Email *</Label>
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          placeholder="Enter your email"
+          value={formData.email}
+          onChange={handleInputChange}
+          required
+        />
+      </div>
 
       <div className="flex gap-4">
         <Button variant="outline" onClick={() => setStep(2)} className="flex-1">
@@ -638,15 +539,15 @@ export default function ScriptForm() {
         </Button>
         <Button
           onClick={handleSubmit}
-          disabled={isGenerating || !formData.agentEmail}
-          className="flex-1 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white"
+          disabled={isGenerating || !formData.name || !formData.email}
+          className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
         >
           {isGenerating ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating Script...
             </>
           ) : (
-            "Generate My Script"
+            "Generate Script"
           )}
         </Button>
       </div>
@@ -654,14 +555,10 @@ export default function ScriptForm() {
   )
 
   const renderStepFour = () => (
-    <div className="space-y-6" ref={resultsRef}>
+    <div ref={resultsRef} className="space-y-6">
       <div className="text-center mb-6">
         <h3 className="text-xl font-bold text-black">Your Script is Ready!</h3>
-        <p className="text-gray-600">
-          Here's your professionally crafted{" "}
-          {scriptTypeOptions.find((opt) => opt.value === formData.scriptType)?.label.toLowerCase()} script with DISC &
-          VAK integration
-        </p>
+        <p className="text-gray-600">Here's your professionally generated script</p>
       </div>
 
       <Tabs defaultValue="preview" className="w-full">
@@ -670,37 +567,10 @@ export default function ScriptForm() {
           <TabsTrigger value="text">Text Only</TabsTrigger>
         </TabsList>
         <TabsContent value="preview" className="space-y-4">
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-red-50">
-            <CardContent className="p-8">
-              <div className="mb-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-orange-600 to-red-600 rounded-xl flex items-center justify-center">
-                    <MessageSquare className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-bold text-gray-900">Your Professional Script</h3>
-                    <p className="text-gray-600">
-                      {scriptTypeOptions.find((opt) => opt.value === formData.scriptType)?.label} •{" "}
-                      {formData.topic === "other"
-                        ? formData.customTopic
-                        : topicOptions.find((opt) => opt.value === formData.topic)?.label}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 mb-6">
-                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                    VAK Enhanced
-                  </span>
-                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                    Conversion Optimized
-                  </span>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-xl p-6 shadow-sm border border-orange-100">
-                <div className="prose prose-gray max-w-none">
-                  <div className="whitespace-pre-wrap text-gray-800 leading-relaxed font-medium">{result?.script}</div>
-                </div>
+          <Card className="border-0 shadow-md">
+            <CardContent className="p-6">
+              <div className="prose max-w-none">
+                <pre className="whitespace-pre-wrap font-sans text-gray-800 leading-relaxed">{result?.script}</pre>
               </div>
             </CardContent>
           </Card>
@@ -714,22 +584,20 @@ export default function ScriptForm() {
         </TabsContent>
       </Tabs>
 
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Button
           variant="outline"
           onClick={copyToClipboard}
           className="flex items-center justify-center gap-2 bg-transparent"
         >
-          <Copy className="h-4 w-4" /> <span className="whitespace-nowrap">Copy</span>
+          <Copy className="h-4 w-4" /> Copy
         </Button>
         <Button
           variant="outline"
-          onClick={downloadPDF}
-          disabled={isGeneratingPDF}
+          onClick={downloadScript}
           className="flex items-center justify-center gap-2 bg-transparent"
         >
-          {isGeneratingPDF ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-          <span className="whitespace-nowrap">Download</span>
+          <Download className="h-4 w-4" /> Download
         </Button>
         <Button
           variant="outline"
@@ -738,40 +606,8 @@ export default function ScriptForm() {
           className="flex items-center justify-center gap-2 bg-transparent"
         >
           {isSendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-          <span className="whitespace-nowrap">Email</span>
+          Email
         </Button>
-        <Button
-          variant="outline"
-          onClick={saveToProfile}
-          disabled={isSaving || !isLoggedIn}
-          className="flex items-center justify-center gap-2 bg-transparent"
-        >
-          {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          <span className="whitespace-nowrap">{!isLoggedIn ? "Login to Save" : "Save"}</span>
-        </Button>
-      </div>
-
-      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-        <h5 className="font-medium text-blue-900 mb-2 flex items-center gap-2">
-          <FileText className="h-4 w-4" />💡 How to Use Your Script:
-        </h5>
-        <ul className="text-sm text-blue-800 space-y-1">
-          <li>• Practice the script until it feels natural</li>
-          <li>• Customize it with specific details for each prospect</li>
-          <li>• The script integrates DISC and VAK principles automatically</li>
-          <li>• Focus on the call-to-action at the end</li>
-          <li>• Track your results and refine as needed</li>
-          <li>• Print the PDF for easy reference during calls</li>
-        </ul>
-      </div>
-
-      <div className="bg-gradient-to-r from-orange-50 to-red-50 p-4 rounded-lg border border-orange-200">
-        <h5 className="font-medium text-orange-900 mb-2">🎯 DISC & VAK Integration:</h5>
-        <p className="text-sm text-orange-800">
-          This script incorporates language patterns that appeal to all DISC personality types (Dominant, Influential,
-          Steady, Compliant) and includes VAK sensory language (Visual, Auditory, Kinesthetic) for maximum effectiveness
-          with any prospect.
-        </p>
       </div>
 
       <Button
@@ -779,21 +615,19 @@ export default function ScriptForm() {
           setStep(1)
           setResult(null)
           setFormData({
-            agentName: user?.name || `${user?.firstName || ""} ${user?.lastName || ""}`.trim() || "",
-            brokerageName: "",
-            scriptType: "",
-            topic: "",
-            customTopic: "",
-            additionalDetails: "",
-            agentEmail: user?.email || "",
             scriptTypeCategory: "",
             difficultConversationType: "",
+            scriptTarget: "",
+            scriptType: "",
             tonality: "Professional & Authoritative",
+            additionalDetails: "",
+            name: user?.name || "",
+            email: user?.email || "",
           })
         }}
-        className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white"
+        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
       >
-        Create Another Script
+        Create New Script
       </Button>
     </div>
   )
@@ -804,43 +638,35 @@ export default function ScriptForm() {
         <div className="flex items-center justify-center space-x-2">
           <div
             className={`w-10 h-10 rounded-full flex items-center justify-center ${
-              step >= 1 ? "bg-orange-600 text-white" : "bg-gray-200 text-gray-600"
+              step >= 1 ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"
             }`}
           >
             1
           </div>
-          <div className={`h-1 w-16 ${step >= 2 ? "bg-orange-600" : "bg-gray-200"}`}></div>
+          <div className={`h-1 w-16 ${step >= 2 ? "bg-blue-600" : "bg-gray-200"}`}></div>
           <div
             className={`w-10 h-10 rounded-full flex items-center justify-center ${
-              step >= 2 ? "bg-orange-600 text-white" : "bg-gray-200 text-gray-600"
+              step >= 2 ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"
             }`}
           >
             2
           </div>
-          <div className={`h-1 w-16 ${step >= 3 ? "bg-orange-600" : "bg-gray-200"}`}></div>
+          <div className={`h-1 w-16 ${step >= 3 ? "bg-blue-600" : "bg-gray-200"}`}></div>
           <div
             className={`w-10 h-10 rounded-full flex items-center justify-center ${
-              step >= 3 ? "bg-orange-600 text-white" : "bg-gray-200 text-gray-600"
+              step >= 3 ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"
             }`}
           >
             3
           </div>
-          <div className={`h-1 w-16 ${step >= 4 ? "bg-orange-600" : "bg-gray-200"}`}></div>
+          <div className={`h-1 w-16 ${step >= 4 ? "bg-blue-600" : "bg-gray-200"}`}></div>
           <div
             className={`w-10 h-10 rounded-full flex items-center justify-center ${
-              step >= 4 ? "bg-orange-600 text-white" : "bg-gray-200 text-gray-600"
+              step >= 4 ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"
             }`}
           >
-            ✓
+            4
           </div>
-        </div>
-        <div className="text-center mt-4">
-          <p className="text-sm text-gray-600">
-            {step === 1 && "Agent Information"}
-            {step === 2 && "Script Configuration"}
-            {step === 3 && "Contact Information"}
-            {step === 4 && "Generated Script"}
-          </p>
         </div>
       </div>
 

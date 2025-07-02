@@ -272,7 +272,7 @@ export default function ScriptForm() {
     try {
       const generatedScript = await generateScript(formData)
       setResult(generatedScript)
-      setStep(3)
+      setStep(4)
 
       // Auto-save the creation
       if (user?.id) {

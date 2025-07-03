@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Menu, X, ChevronDown, ChevronRight } from "lucide-react"
 import { useTenantConfig, useTranslation } from "@/contexts/tenant-context"
 import { isFeatureHidden } from "@/lib/tenant-config"
-import LanguageSelector from "./language-selector"
+import LanguageSelector from "@/components/language-selector"
 
 const navigationItems = [
   {
@@ -268,6 +268,7 @@ export default function Navigation() {
             <Link href="/support" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
               Get Support
             </Link>
+
             {/* Language Selector - only show for brokerage-private tenant */}
             {tenantConfig.id === "brokerage-private" && <LanguageSelector />}
           </div>
@@ -356,6 +357,7 @@ export default function Navigation() {
               >
                 Get Support
               </Link>
+
               {/* Mobile Language Selector - only show for brokerage-private tenant */}
               {tenantConfig.id === "brokerage-private" && (
                 <div className="py-2">

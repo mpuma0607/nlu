@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Brain, Megaphone, GraduationCap, Wrench, Network, ShoppingBag, Target } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { TenantSwitcher } from "@/components/tenant-switcher"
+import TenantSwitcher from "@/components/tenant-switcher"
 
 export default function PortalPage() {
   const hubs = [
@@ -59,13 +59,12 @@ export default function PortalPage() {
 
   return (
     <div className="min-h-screen bg-white">
+      <TenantSwitcher />
+
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-gray-900 via-black to-yellow-900 text-white py-24">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative container mx-auto px-4 text-center">
-          <div className="absolute top-4 right-4">
-            <TenantSwitcher />
-          </div>
           <h1 className="text-5xl md:text-6xl font-bold mb-6 tracking-tight">Welcome to Your Portal</h1>
           <div className="flex items-center justify-center gap-4 mb-8">
             <div className="h-px bg-[#b6a888] w-16"></div>

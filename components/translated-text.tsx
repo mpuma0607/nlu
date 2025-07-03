@@ -11,7 +11,6 @@ interface TranslatedTextProps {
 export default function TranslatedText({ text, className }: TranslatedTextProps) {
   const { currentLanguage, translate } = useTranslation()
   const [translatedText, setTranslatedText] = useState(text)
-  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     if (currentLanguage === "en") {
@@ -19,15 +18,18 @@ export default function TranslatedText({ text, className }: TranslatedTextProps)
       return
     }
 
-    setIsLoading(true)
-    translate(text)
-      .then(setTranslatedText)
-      .finally(() => setIsLoading(false))
-  }, [text, currentLanguage, translate])
+    const translateText = async () => {
+      try {
+        const translated = await translate(text)
+        setTranslatedText(translated)
+      } catch (error) {
+        console.error("Translation error:", error)
+        setTranslatedText(text)
+      }
+    }
 
-  if (isLoading) {
-    return <span className={className}>{text}</span>
-  }
+    translateText()
+  }, [text, currentLanguage, translate])
 
   return <span className={className}>{translatedText}</span>
 }

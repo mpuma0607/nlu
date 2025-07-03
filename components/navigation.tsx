@@ -5,8 +5,11 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Menu, X, ChevronDown, ChevronRight } from "lucide-react"
-import { useTenantConfig, useTranslation } from "@/contexts/tenant-context"
+import { useTenantConfig } from "@/contexts/tenant-context"
+import { useTranslation } from "@/contexts/translation-context"
 import { isFeatureHidden } from "@/lib/tenant-config"
+import TranslatedText from "@/components/translated-text"
+import LanguageSelector from "@/components/language-selector"
 
 const navigationItems = [
   {
@@ -156,11 +159,14 @@ export default function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null)
   const tenantConfig = useTenantConfig()
-  const t = useTranslation()
+  const { currentLanguage } = useTranslation()
 
   const toggleSubmenu = (title: string) => {
     setActiveSubmenu(activeSubmenu === title ? null : title)
   }
+
+  // Check if this is Century 21 Canada tenant
+  const isCentury21Canada = tenantConfig.id === "brokerage-private"
 
   // Filter navigation items based on tenant config
   const filteredNavigationItems = navigationItems
@@ -182,14 +188,8 @@ export default function Navigation() {
         filteredSubmenu = [...filteredSubmenu, ...customTrainingSections]
       }
 
-      // Get translated title, fallback to original if no translation
-      const translationKey = `${hubKey}.title`
-      const translatedTitle = t(translationKey)
-      const displayTitle = translatedTitle !== translationKey ? translatedTitle : item.title
-
       return {
         ...item,
-        title: displayTitle,
         submenu: filteredSubmenu,
       }
     })
@@ -221,7 +221,7 @@ export default function Navigation() {
                         href={item.href}
                         className="text-gray-700 hover:text-green-600 font-medium transition-colors"
                       >
-                        {item.title}
+                        <TranslatedText text={item.title} />
                       </Link>
                       {item.submenu && item.submenu.length > 0 && (
                         <ChevronDown className="h-4 w-4 text-gray-500 group-hover:text-green-600 transition-colors" />
@@ -242,7 +242,7 @@ export default function Navigation() {
                                 key={subItem.title}
                                 className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100"
                               >
-                                {subItem.title.replace(/──/g, "").trim()}
+                                <TranslatedText text={subItem.title.replace(/──/g, "").trim()} />
                               </div>
                             ) : (
                               <Link
@@ -250,9 +250,13 @@ export default function Navigation() {
                                 href={subItem.href}
                                 className="block px-4 py-3 text-sm hover:bg-gray-50 hover:text-green-600 border-b border-gray-50 last:border-b-0"
                               >
-                                <div className="font-medium text-gray-900">{subItem.title}</div>
+                                <div className="font-medium text-gray-900">
+                                  <TranslatedText text={subItem.title} />
+                                </div>
                                 {subItem.description && (
-                                  <div className="text-xs text-gray-500 mt-1">{subItem.description}</div>
+                                  <div className="text-xs text-gray-500 mt-1">
+                                    <TranslatedText text={subItem.description} />
+                                  </div>
                                 )}
                               </Link>
                             ),
@@ -263,9 +267,13 @@ export default function Navigation() {
                   </div>
                 ),
             )}
+
+            {/* Language Selector - Only for Century 21 Canada */}
+            {isCentury21Canada && <LanguageSelector />}
+
             {/* Get Support Link */}
             <Link href="/support" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
-              Get Support
+              <TranslatedText text="Get Support" />
             </Link>
           </div>
 
@@ -300,7 +308,7 @@ export default function Navigation() {
                             }
                           }}
                         >
-                          {item.title}
+                          <TranslatedText text={item.title} />
                         </Link>
                         {item.submenu && item.submenu.length > 0 && (
                           <Button variant="ghost" size="sm" className="p-1">
@@ -324,7 +332,7 @@ export default function Navigation() {
                                 key={subItem.title}
                                 className="py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider"
                               >
-                                {subItem.title.replace(/──/g, "").trim()}
+                                <TranslatedText text={subItem.title.replace(/──/g, "").trim()} />
                               </div>
                             ) : (
                               <Link
@@ -333,9 +341,13 @@ export default function Navigation() {
                                 className="block py-2 text-sm hover:text-green-600"
                                 onClick={() => setMobileMenuOpen(false)}
                               >
-                                <div className="font-medium text-gray-700">{subItem.title}</div>
+                                <div className="font-medium text-gray-700">
+                                  <TranslatedText text={subItem.title} />
+                                </div>
                                 {subItem.description && (
-                                  <div className="text-xs text-gray-500 mt-1">{subItem.description}</div>
+                                  <div className="text-xs text-gray-500 mt-1">
+                                    <TranslatedText text={subItem.description} />
+                                  </div>
                                 )}
                               </Link>
                             ),
@@ -345,13 +357,21 @@ export default function Navigation() {
                     </div>
                   ),
               )}
+
+              {/* Mobile Language Selector - Only for Century 21 Canada */}
+              {isCentury21Canada && (
+                <div className="py-2 border-b border-gray-100">
+                  <LanguageSelector />
+                </div>
+              )}
+
               {/* Mobile Get Support Link */}
               <Link
                 href="/support"
                 className="flex items-center gap-2 py-2 text-gray-700 hover:text-green-600 font-medium"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Get Support
+                <TranslatedText text="Get Support" />
               </Link>
             </div>
           </div>

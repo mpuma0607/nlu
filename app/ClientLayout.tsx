@@ -1,37 +1,22 @@
-"use client"
-
 import type React from "react"
-import { usePathname } from "next/navigation"
 import { TenantProvider } from "@/contexts/tenant-context"
-import Navigation from "@/components/navigation"
+import { TranslationProvider } from "@/contexts/translation-context"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
-import TenantSwitcher from "@/components/tenant-switcher"
-import { useTracking } from "@/hooks/use-tracking"
+import Navigation from "@/components/navigation"
 
-function TrackingWrapper({ children }: { children: React.ReactNode }) {
-  useTracking() // This will automatically track page views
-  return <>{children}</>
-}
-
-export default function ClientLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  const pathname = usePathname()
-  const isHomePage = pathname === "/"
-
+export default function ClientLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-      <TenantProvider>
-        <TrackingWrapper>
-          {!isHomePage && <Navigation />}
-          {children}
-          <TenantSwitcher />
-          <Toaster />
-        </TrackingWrapper>
-      </TenantProvider>
-    </ThemeProvider>
+    <TenantProvider>
+      <TranslationProvider>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+          <div className="min-h-screen bg-background">
+            <Navigation />
+            <main>{children}</main>
+            <Toaster />
+          </div>
+        </ThemeProvider>
+      </TranslationProvider>
+    </TenantProvider>
   )
 }

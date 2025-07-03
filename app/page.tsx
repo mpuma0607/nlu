@@ -12,6 +12,7 @@ import { Brain, Users, TrendingUp, FileText, Zap, Target, Star, CheckCircle, Arr
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import TenantSwitcher from "@/components/tenant-switcher"
 
 export default function HomePage() {
   const [showVideoModal, setShowVideoModal] = useState(false)
@@ -83,6 +84,8 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-yellow-900">
+      <TenantSwitcher />
+
       {/* Consumer Header */}
       <header className="border-b border-gray-800 bg-black/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">

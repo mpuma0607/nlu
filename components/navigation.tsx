@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Menu, X, ChevronDown, ChevronRight } from "lucide-react"
+import { Menu, X, ChevronDown } from "lucide-react"
 import { useTenantConfig, useTranslation } from "@/contexts/tenant-context"
 import { isFeatureHidden } from "@/lib/tenant-config"
 import LanguageSelector from "@/components/language-selector"
@@ -268,9 +268,11 @@ export default function Navigation() {
             <Link href="/support" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
               Get Support
             </Link>
-
-            {/* Language Selector - only show for brokerage-private tenant */}
-            {tenantConfig.id === "brokerage-private" && <LanguageSelector />}
+            
+            {/* Language Selector - Only show for brokerage-private tenant */}
+            {tenantConfig.id === 'brokerage-private' && (
+              <LanguageSelector />
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -308,66 +310,4 @@ export default function Navigation() {
                         </Link>
                         {item.submenu && item.submenu.length > 0 && (
                           <Button variant="ghost" size="sm" className="p-1">
-                            {activeSubmenu === item.title ? (
-                              <ChevronDown className="h-4 w-4" />
-                            ) : (
-                              <ChevronRight className="h-4 w-4" />
-                            )}
-                          </Button>
-                        )}
-                      </div>
-
-                      {/* Mobile Submenu */}
-                      {activeSubmenu === item.title && item.submenu && item.submenu.length > 0 && (
-                        <div
-                          className={`pl-4 space-y-1 mt-1 ${item.submenu.length > 8 ? "max-h-80 overflow-y-auto" : ""}`}
-                        >
-                          {item.submenu.map((subItem) =>
-                            subItem.isHeader ? (
-                              <div
-                                key={subItem.title}
-                                className="py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                              >
-                                {subItem.title.replace(/──/g, "").trim()}
-                              </div>
-                            ) : (
-                              <Link
-                                key={subItem.href}
-                                href={subItem.href}
-                                className="block py-2 text-sm hover:text-green-600"
-                                onClick={() => setMobileMenuOpen(false)}
-                              >
-                                <div className="font-medium text-gray-700">{subItem.title}</div>
-                                {subItem.description && (
-                                  <div className="text-xs text-gray-500 mt-1">{subItem.description}</div>
-                                )}
-                              </Link>
-                            ),
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ),
-              )}
-              {/* Mobile Get Support Link */}
-              <Link
-                href="/support"
-                className="flex items-center gap-2 py-2 text-gray-700 hover:text-green-600 font-medium"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Get Support
-              </Link>
-
-              {/* Mobile Language Selector - only show for brokerage-private tenant */}
-              {tenantConfig.id === "brokerage-private" && (
-                <div className="py-2">
-                  <LanguageSelector />
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-    </nav>
-  )
-}
+                            {activeSubmenu === item

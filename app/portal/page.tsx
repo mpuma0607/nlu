@@ -2,7 +2,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Brain, Megaphone, GraduationCap, Wrench, Network, ShoppingBag, Target } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import TenantSwitcher from "@/components/tenant-switcher"
 
 export default function PortalPage() {
   const hubs = [
@@ -59,8 +58,6 @@ export default function PortalPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <TenantSwitcher />
-
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-gray-900 via-black to-yellow-900 text-white py-24">
         <div className="absolute inset-0 bg-black/20"></div>

@@ -2,34 +2,40 @@
 
 import { useEffect, useState } from "react"
 import { useTranslation } from "@/contexts/translation-context"
+import type { JSX } from "react/jsx-runtime"
 
 interface TranslatedTextProps {
-  text: string
+  children: string
   className?: string
+  as?: keyof JSX.IntrinsicElements
 }
 
-export default function TranslatedText({ text, className }: TranslatedTextProps) {
+export default function TranslatedText({ children, className, as: Component = "span" }: TranslatedTextProps) {
   const { currentLanguage, translate } = useTranslation()
-  const [translatedText, setTranslatedText] = useState(text)
+  const [translatedText, setTranslatedText] = useState(children)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     if (currentLanguage === "en") {
-      setTranslatedText(text)
+      setTranslatedText(children)
       return
     }
 
     const translateText = async () => {
+      setIsLoading(true)
       try {
-        const translated = await translate(text)
+        const translated = await translate(children)
         setTranslatedText(translated)
       } catch (error) {
         console.error("Translation error:", error)
-        setTranslatedText(text)
+        setTranslatedText(children)
+      } finally {
+        setIsLoading(false)
       }
     }
 
     translateText()
-  }, [text, currentLanguage, translate])
+  }, [children, currentLanguage, translate])
 
-  return <span className={className}>{translatedText}</span>
+  return <Component className={className}>{isLoading ? children : translatedText}</Component>
 }

@@ -5,26 +5,13 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Globe } from "lucide-react"
 import { useTranslation } from "@/contexts/translation-context"
-
-const languages = [
-  { code: "en", name: "English", flag: "🇺🇸" },
-  { code: "fr", name: "Français", flag: "🇫🇷" },
-  { code: "es", name: "Español", flag: "🇪🇸" },
-  { code: "pt", name: "Português", flag: "🇵🇹" },
-  { code: "de", name: "Deutsch", flag: "🇩🇪" },
-  { code: "it", name: "Italiano", flag: "🇮🇹" },
-  { code: "ja", name: "日本語", flag: "🇯🇵" },
-  { code: "ko", name: "한국어", flag: "🇰🇷" },
-  { code: "zh", name: "中文", flag: "🇨🇳" },
-  { code: "ru", name: "Русский", flag: "🇷🇺" },
-  { code: "ar", name: "العربية", flag: "🇸🇦" },
-  { code: "hi", name: "हिन्दी", flag: "🇮🇳" },
-]
+import { translationService } from "@/lib/translation-service"
 
 export default function LanguageSelector() {
   const { currentLanguage, setLanguage } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
 
+  const languages = translationService.getSupportedLanguages()
   const currentLang = languages.find((lang) => lang.code === currentLanguage) || languages[0]
 
   const handleLanguageChange = (languageCode: string) => {

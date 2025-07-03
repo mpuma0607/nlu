@@ -2,11 +2,11 @@ import type { TenantConfig } from "../types"
 
 export const brokeragePrivateConfig: TenantConfig = {
   id: "brokerage-private",
-  name: "Brokerage Pro Platform",
+  name: "Century 21 Canada",
   domain: ["brokerage1.thenextlevelu.com", "brokerage-pro.com"],
   branding: {
-    name: "Brokerage Pro Platform",
-    logo: "/images/tenants/brokerage-logo.png",
+    name: "Century 21 Canada",
+    logo: "/images/tenants/century21-canada-logo.png",
     colors: {
       primary: "#1e40af", // blue-700
       secondary: "#1d4ed8", // blue-700

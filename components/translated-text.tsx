@@ -2,17 +2,16 @@
 
 import { useEffect, useState } from "react"
 import { useTranslation } from "@/contexts/translation-context"
-import type { JSX } from "react/jsx-runtime" // Import JSX to declare it
 
 interface TranslatedTextProps {
   text: string
   className?: string
-  as?: keyof JSX.IntrinsicElements
 }
 
-export default function TranslatedText({ text, className, as: Component = "span" }: TranslatedTextProps) {
-  const { translate, currentLanguage } = useTranslation()
+export default function TranslatedText({ text, className }: TranslatedTextProps) {
+  const { currentLanguage, translate } = useTranslation()
   const [translatedText, setTranslatedText] = useState(text)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     if (currentLanguage === "en") {
@@ -20,8 +19,15 @@ export default function TranslatedText({ text, className, as: Component = "span"
       return
     }
 
-    translate(text).then(setTranslatedText)
+    setIsLoading(true)
+    translate(text)
+      .then(setTranslatedText)
+      .finally(() => setIsLoading(false))
   }, [text, currentLanguage, translate])
 
-  return <Component className={className}>{translatedText}</Component>
+  if (isLoading) {
+    return <span className={className}>{text}</span>
+  }
+
+  return <span className={className}>{translatedText}</span>
 }

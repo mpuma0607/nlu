@@ -4,27 +4,40 @@ import { useState } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { Globe } from "lucide-react"
 import { useTranslation } from "@/contexts/translation-context"
-import { translationService } from "@/lib/translation-service"
+
+const languages = [
+  { code: "en", name: "English", flag: "🇺🇸" },
+  { code: "fr", name: "Français", flag: "🇫🇷" },
+  { code: "es", name: "Español", flag: "🇪🇸" },
+  { code: "pt", name: "Português", flag: "🇵🇹" },
+  { code: "de", name: "Deutsch", flag: "🇩🇪" },
+  { code: "it", name: "Italiano", flag: "🇮🇹" },
+  { code: "ja", name: "日本語", flag: "🇯🇵" },
+  { code: "ko", name: "한국어", flag: "🇰🇷" },
+  { code: "zh", name: "中文", flag: "🇨🇳" },
+  { code: "ru", name: "Русский", flag: "🇷🇺" },
+  { code: "ar", name: "العربية", flag: "🇸🇦" },
+  { code: "hi", name: "हिन्दी", flag: "🇮🇳" },
+]
 
 export default function LanguageSelector() {
   const { currentLanguage, setLanguage } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
 
-  const supportedLanguages = translationService.getSupportedLanguages()
-  const currentLang = supportedLanguages.find((lang) => lang.code === currentLanguage)
+  const currentLang = languages.find((lang) => lang.code === currentLanguage) || languages[0]
 
   return (
     <Select value={currentLanguage} onValueChange={setLanguage}>
-      <SelectTrigger className="w-auto min-w-[120px] bg-transparent border-0 hover:bg-gray-100">
+      <SelectTrigger className="w-auto min-w-[120px] border-0 bg-transparent hover:bg-gray-50">
         <div className="flex items-center gap-2">
           <Globe className="h-4 w-4" />
           <span className="text-sm">
-            {currentLang?.flag} {currentLang?.name}
+            {currentLang.flag} {currentLang.name}
           </span>
         </div>
       </SelectTrigger>
       <SelectContent>
-        {supportedLanguages.map((language) => (
+        {languages.map((language) => (
           <SelectItem key={language.code} value={language.code}>
             <div className="flex items-center gap-2">
               <span>{language.flag}</span>

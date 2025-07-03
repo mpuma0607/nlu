@@ -164,7 +164,7 @@ export default function HomePage() {
               size="lg"
               variant="outline"
               onClick={handleMainDemo}
-              className="border-[#b6a888] text-[#b6a888] hover:bg-[#b6a888] hover:text-black text-lg px-8 py-4"
+              className="border-[#b6a888] text-[#b6a888] hover:bg-[#b6a888] hover:text-black text-lg px-8 py-4 bg-transparent"
             >
               <Play className="mr-2 h-5 w-5" />
               Watch Demo
@@ -758,7 +758,7 @@ export default function HomePage() {
             <Button
               size="lg"
               variant="outline"
-              className="border-[#b6a888] text-[#b6a888] hover:bg-[#b6a888] hover:text-black text-lg px-8 py-4"
+              className="border-[#b6a888] text-[#b6a888] hover:bg-[#b6a888] hover:text-black text-lg px-8 py-4 bg-transparent"
             >
               Schedule a Demo
             </Button>

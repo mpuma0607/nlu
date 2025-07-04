@@ -16,17 +16,20 @@ export function getTenantConfig(): TenantConfig {
     return defaultTenantConfig
   }
 
+  // Check for preview tenant override
   const previewTenant = localStorage.getItem("preview-tenant")
   if (previewTenant && tenantConfigs[previewTenant]) {
     return tenantConfigs[previewTenant]
   }
 
+  // Check URL parameter
   const urlParams = new URLSearchParams(window.location.search)
   const tenantParam = urlParams.get("tenant")
   if (tenantParam && tenantConfigs[tenantParam]) {
     return tenantConfigs[tenantParam]
   }
 
+  // Detect by domain
   const hostname = window.location.hostname
 
   if (hostname.includes("beggins") || hostname.includes("century21-beggins")) {
@@ -57,6 +60,7 @@ export function getTenantById(id: string): TenantConfig | undefined {
   return tenantConfigs[id]
 }
 
+// Utility functions for feature checking
 export function isToolEnabled(toolId: string, config: TenantConfig): boolean {
   return config.features.enabledTools?.includes(toolId) || false
 }

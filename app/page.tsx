@@ -12,20 +12,20 @@ import Image from "next/image"
 import { Brain, Users, TrendingUp, FileText, Zap, Target, Star, CheckCircle, ArrowRight, Play, X } from "lucide-react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
 import TenantSwitcher from "@/components/tenant-switcher"
 import TranslatedText from "@/components/translated-text"
 
 export default function HomePage() {
-  const [showVideoModal, setShowVideoModal] = useState(false)
-  const [selectedDemo, setSelectedDemo] = useState<string | null>(null)
   const tenantConfig = useTenantConfig()
   const router = useRouter()
   const { trackEvent } = useTracking()
+  const translation = useTranslation() // Moved useTranslation hook to the top level
+
+  const [showVideoModal, setShowVideoModal] = useState(false)
+  const [selectedDemo, setSelectedDemo] = useState<string | null>(null)
 
   // Only use translation for Century 21 Canada tenant
   const isC21Canada = tenantConfig.id === "century21-canada"
-  const translation = isC21Canada ? useTranslation() : null
 
   // Redirect to custom home page if tenant has one
   useEffect(() => {
@@ -768,34 +768,31 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Final CTA Section */}
+      {/* CTA Section */}
       <section className="py-20 px-4">
         <div className="container mx-auto text-center">
-          <div className="bg-gradient-to-r from-[#b6a888]/10 via-[#b6a888]/5 to-[#b6a888]/10 p-12 rounded-lg border border-[#b6a888]/20">
-            <h2 className="text-4xl font-bold text-white mb-4">{renderText("Ready to Transform Your Business?")}</h2>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-8">
-              {renderText(
-                "Join thousands of successful real estate professionals who have taken their business to the next level.",
-              )}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                size="lg"
-                onClick={handleSignup}
-                className="bg-[#b6a888] hover:bg-[#a39577] text-black font-semibold text-lg px-8 py-4"
-              >
-                {renderText("Start Your Free Trial")}
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={handleMainDemo}
-                className="border-[#b6a888] text-[#b6a888] hover:bg-[#b6a888] hover:text-black text-lg px-8 py-4 bg-transparent"
-              >
-                {renderText("Schedule a Demo")}
-              </Button>
-            </div>
+          <h2 className="text-4xl font-bold text-white mb-6">{renderText("Ready to Transform Your Business?")}</h2>
+          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+            {renderText(
+              "Join thousands of successful real estate professionals who have taken their business to the next level.",
+            )}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button
+              size="lg"
+              onClick={handleSignup}
+              className="bg-[#b6a888] hover:bg-[#a39577] text-black font-semibold text-lg px-8 py-4"
+            >
+              {renderText("Start Your Free Trial")}
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-[#b6a888] text-[#b6a888] hover:bg-[#b6a888] hover:text-black text-lg px-8 py-4 bg-transparent"
+            >
+              {renderText("Schedule a Demo")}
+            </Button>
           </div>
         </div>
       </section>
@@ -804,24 +801,22 @@ export default function HomePage() {
       <footer className="border-t border-gray-800 bg-black/50 py-12 px-4">
         <div className="container mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="col-span-1 md:col-span-2">
+            <div>
               <div className="flex items-center mb-4">
                 <Image
                   src="/images/nlu-logo-light.png"
                   alt="The Next Level U"
-                  width={50}
-                  height={50}
-                  className="object-contain mr-3"
+                  width={40}
+                  height={40}
+                  className="object-contain"
                 />
-                <span className="text-xl font-bold text-white">{renderText("The Next Level U")}</span>
               </div>
-              <p className="text-gray-400 max-w-md">
+              <p className="text-gray-400">
                 {renderText("Empowering real estate professionals with AI-powered tools and comprehensive training.")}
               </p>
             </div>
-
             <div>
-              <h3 className="text-white font-semibold mb-4">{renderText("Platform")}</h3>
+              <h4 className="text-white font-semibold mb-4">{renderText("Platform")}</h4>
               <ul className="space-y-2 text-gray-400">
                 <li>
                   <a href="#features" className="hover:text-[#b6a888] transition-colors">
@@ -834,50 +829,60 @@ export default function HomePage() {
                   </a>
                 </li>
                 <li>
-                  <a href="#about" className="hover:text-[#b6a888] transition-colors">
-                    {renderText("About")}
+                  <a href="#testimonials" className="hover:text-[#b6a888] transition-colors">
+                    {renderText("Testimonials")}
                   </a>
                 </li>
               </ul>
             </div>
-
             <div>
-              <h3 className="text-white font-semibold mb-4">{renderText("Support")}</h3>
+              <h4 className="text-white font-semibold mb-4">{renderText("Support")}</h4>
               <ul className="space-y-2 text-gray-400">
                 <li>
-                  <Link href="/support" className="hover:text-[#b6a888] transition-colors">
+                  <a href="#" className="hover:text-[#b6a888] transition-colors">
                     {renderText("Help Center")}
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link href="/support" className="hover:text-[#b6a888] transition-colors">
+                  <a href="#" className="hover:text-[#b6a888] transition-colors">
                     {renderText("Contact Us")}
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <a href="https://community.thenextlevelu.com" className="hover:text-[#b6a888] transition-colors">
+                  <a href="#" className="hover:text-[#b6a888] transition-colors">
                     {renderText("Community")}
                   </a>
                 </li>
                 <li>
-                  <a href="https://status.thenextlevelu.com" className="hover:text-[#b6a888] transition-colors">
+                  <a href="#" className="hover:text-[#b6a888] transition-colors">
                     {renderText("Status")}
                   </a>
                 </li>
               </ul>
             </div>
-          </div>
-
-          <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <div className="text-gray-400 text-sm">© 2024 The Next Level U. All rights reserved.</div>
-            <div className="flex space-x-6 mt-4 md:mt-0">
-              <a href="/privacy" className="text-gray-400 hover:text-[#b6a888] text-sm transition-colors">
-                {renderText("Privacy Policy")}
-              </a>
-              <a href="/terms" className="text-gray-400 hover:text-[#b6a888] text-sm transition-colors">
-                {renderText("Terms of Service")}
-              </a>
+            <div>
+              <h4 className="text-white font-semibold mb-4">{renderText("Legal")}</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li>
+                  <a href="#" className="hover:text-[#b6a888] transition-colors">
+                    {renderText("About")}
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-[#b6a888] transition-colors">
+                    {renderText("Privacy Policy")}
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-[#b6a888] transition-colors">
+                    {renderText("Terms of Service")}
+                  </a>
+                </li>
+              </ul>
             </div>
+          </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; 2024 The Next Level U. All rights reserved.</p>
           </div>
         </div>
       </footer>

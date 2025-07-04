@@ -53,6 +53,7 @@ class TranslationService {
     const mockTranslations: { [key: string]: { [key: string]: string } } = {
       fr: {
         "AI Hub": "Hub IA",
+        "AI Tool Hub": "Hub d'outils IA",
         "Marketing Hub": "Hub Marketing",
         "Prospecting Hub": "Hub Prospection",
         "Training Hub": "Hub Formation",
@@ -67,27 +68,21 @@ class TranslationService {
         "Choose Your Hub": "Choisissez votre Hub",
         "Access specialized tools and resources designed to elevate every aspect of your real estate business":
           "Accédez à des outils et ressources spécialisés conçus pour élever tous les aspects de votre entreprise immobilière",
-        "AI Tool Hub": "Hub d'outils IA",
         "11 powerful AI tools to automate and enhance your real estate business":
           "11 outils IA puissants pour automatiser et améliorer votre entreprise immobilière",
-        "Marketing Hub": "Hub Marketing",
         "Branded content, social media graphics, and real estate market insights":
           "Contenu de marque, graphiques de médias sociaux et informations sur le marché immobilier",
-        "Prospecting Hub": "Hub Prospection",
         "Lead generation strategies for FSBO, expired listings, and more":
           "Stratégies de génération de prospects pour FSBO, annonces expirées, et plus",
-        "Training Hub": "Hub Formation",
         "Comprehensive training on Moxi Works, scripts, and sales processes":
           "Formation complète sur Moxi Works, scripts et processus de vente",
-        "Services Hub": "Hub Services",
         "Professional design services and brokerage consulting":
           "Services de design professionnel et conseil en courtage",
-        "Networking Hub": "Hub Réseautage",
         "Connect with agents, brokers, and industry professionals":
           "Connectez-vous avec des agents, courtiers et professionnels de l'industrie",
-        "Gear Hub": "Hub Équipement",
         "Exclusive merchandise and professional tools for Next Level agents":
           "Marchandise exclusive et outils professionnels pour les agents Next Level",
+        tools: "outils",
       },
       es: {
         "AI Hub": "Hub IA",

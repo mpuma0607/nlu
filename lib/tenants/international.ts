@@ -6,7 +6,8 @@ export const internationalConfig: TenantConfig = {
   domain: ["international.thenextlevelu.com"],
   branding: {
     name: "International Platform",
-    logo: "/images/international-logo.png",
+    logo: "/images/nlu-logo-light.png",
+    logoDark: "/images/nlu-logo-dark.png",
     colors: {
       primary: "#16a34a",
       secondary: "#059669",
@@ -39,13 +40,21 @@ export const internationalConfig: TenantConfig = {
     language: "en",
     currency: "USD",
     dateFormat: "MM/DD/YYYY",
-    translations: {},
+    translations: {
+      "ai-hub.title": "AI Hub",
+      "marketing-hub.title": "Marketing Hub",
+      "prospecting-hub.title": "Prospecting Hub",
+      "training-hub.title": "Training Hub",
+      "services-hub.title": "Services Hub",
+      "networking-hub.title": "Networking Hub",
+      "gear-hub.title": "Gear Hub",
+    },
   },
   auth: {
     provider: "memberspace",
     settings: {
       memberspace: {
-        subdomain: "international",
+        subdomain: "thenextlevelu",
         planUrls: {
           monthly: "/plans/monthly",
           annual: "/plans/annual",
@@ -55,7 +64,22 @@ export const internationalConfig: TenantConfig = {
     billing: {
       model: "subscription",
       currency: "USD",
-      plans: [],
+      plans: [
+        {
+          id: "monthly",
+          name: "Monthly Plan",
+          price: 29.99,
+          interval: "month",
+          features: ["All AI Tools", "Training Hub", "Community Access"],
+        },
+        {
+          id: "annual",
+          name: "Annual Plan",
+          price: 252,
+          interval: "year",
+          features: ["All AI Tools", "Training Hub", "Community Access", "30% Savings"],
+        },
+      ],
     },
   },
   content: {

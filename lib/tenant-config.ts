@@ -1,118 +1,42 @@
-// lib/tenant-config.ts
+import { defaultTenantConfig } from "./tenants/default"
+import { century21BegginsConfig } from "./tenants/century21-beggins"
+import { brokeragePrivateConfig } from "./tenants/brokerage-private"
+import { internationalConfig } from "./tenants/international"
+import type { TenantConfig } from "./types"
 
-interface TenantConfig {
-  tenantId: string
-  name: string
-  logo: string
-  primaryColor: string
-  secondaryColor: string
-  domain: string
-  googleAnalyticsId?: string
-  gtmId?: string
-  crispWebsiteId?: string
-  enableChat?: boolean
-  enableRequestDemo?: boolean
-  enableContactUs?: boolean
-  enableListings?: boolean
-  enableBlog?: boolean
-  enableCareers?: boolean
-  enableTestimonials?: boolean
-  enableFeaturedAgents?: boolean
-  enableFeaturedListings?: boolean
-  enablePropertySearch?: boolean
-  enableCalculators?: boolean
-  enableClientLogin?: boolean
-  enableClientSignup?: boolean
-  enableAgentLogin?: boolean
-  enableAgentSignup?: boolean
-  enableAdminLogin?: boolean
-  enableAdminSignup?: boolean
-  enableSocialSharing?: boolean
-  enablePrintListing?: boolean
-  enableSaveListing?: boolean
-  enableScheduleShowing?: boolean
-  enableMortgageCalculator?: boolean
-  enableWalkScore?: boolean
-  enableSchoolInfo?: boolean
-  enableLocalInfo?: boolean
-  enableReviews?: boolean
-  enableVirtualTour?: boolean
-  enableVideoTour?: boolean
-  enableMapSearch?: boolean
-  enableAdvancedSearch?: boolean
-  enableOpenHouseSearch?: boolean
-  enableForeclosureSearch?: boolean
-  enableNewConstructionSearch?: boolean
-  enableSoldSearch?: boolean
-  enableRentalSearch?: boolean
-  enableCommercialSearch?: boolean
-  enableLandSearch?: boolean
-  enableFarmSearch?: boolean
-  enableMultiFamilySearch?: boolean
-  enableLuxurySearch?: boolean
-  enableWaterfrontSearch?: boolean
-  enableCondoSearch?: boolean
-  enableTownhouseSearch?: boolean
-  enableMobileHomesSearch?: boolean
-  enableApartmentsSearch?: boolean
-  enableLotsAndLandSearch?: boolean
-  enableRanchesSearch?: boolean
-  enableSingleFamilyHomesSearch?: boolean
-  enableCustomSearch1?: boolean
-  customSearch1Label?: string
-  customSearch1Url?: string
-  customSearch1Icon?: string
-  customSearch1Target?: string
-  customSearch1Enabled?: boolean
-  customSearch2Label?: string
-  customSearch2Url?: string
-  customSearch2Icon?: string
-  customSearch2Target?: string
-  customSearch2Enabled?: boolean
-  customSearch3Label?: string
-  customSearch3Url?: string
-  customSearch3Icon?: string
-  customSearch3Target?: string
-  customSearch3Enabled?: boolean
-  customSearch4Label?: string
-  customSearch4Url?: string
-  customSearch4Icon?: string
-  customSearch4Target?: string
-  customSearch4Enabled?: boolean
-  customSearch5Label?: string
-  customSearch5Url?: string
-  customSearch5Icon?: string
-  customSearch5Target?: string
-  customSearch5Enabled?: boolean
-  customSearch6Label?: string
-  customSearch6Url?: string
-  customSearch6Icon?: string
-  customSearch6Target?: string
-  customSearch6Enabled?: boolean
-  customSearch7Label?: string
-  customSearch7Url?: string
-  customSearch7Icon?: string
-  customSearch7Target?: string
-  customSearch7Enabled?: boolean
-  customSearch8Label?: string
-  customSearch8Url?: string
-  customSearch8Icon?: string
-  customSearch8Target?: string
-  customSearch8Enabled?: boolean
-  customSearch9Label?: string
-  customSearch9Url?: string
-  customSearch9Icon?: string
-  customSearch9Target?: string
-  customSearch9Enabled?: boolean
-  customSearch10Label?: string
-  customSearch10Url?: string
-  customSearch10Icon?: string
-  customSearch10Target?: string
-  customSearch10Enabled?: boolean
+const tenantConfigs: Record<string, TenantConfig> = {
+  default: defaultTenantConfig,
+  "century21-beggins": century21BegginsConfig,
+  "brokerage-private": brokeragePrivateConfig,
+  international: internationalConfig,
 }
 
-const tenantConfigurations: TenantConfig[] = [
-  // Add tenant configurations here
-]
+export function getTenantConfig(hostname?: string): TenantConfig {
+  // In browser environment
+  if (typeof window !== "undefined") {
+    // Check for preview tenant override
+    const previewTenant = localStorage.getItem("preview-tenant")
+    if (previewTenant && tenantConfigs[previewTenant]) {
+      return tenantConfigs[previewTenant]
+    }
 
-export default tenantConfigurations
+    hostname = window.location.hostname
+  }
+
+  if (!hostname) {
+    return defaultTenantConfig
+  }
+
+  // Find tenant by domain
+  for (const config of Object.values(tenantConfigs)) {
+    if (config.domain && config.domain.includes(hostname)) {
+      return config
+    }
+  }
+
+  return defaultTenantConfig
+}
+
+export function getAllTenants(): TenantConfig[] {
+  return Object.values(tenantConfigs)
+}

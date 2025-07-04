@@ -11,10 +11,7 @@ export const metadata: Metadata = {
   title: "The Next Level U - Real Estate Platform",
   description: "AI-powered tools and training for real estate professionals",
   icons: {
-    icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/favicon.ico", type: "image/x-icon" },
-    ],
+    icon: "/favicon.ico",
     shortcut: "/favicon.ico",
     apple: "/favicon.ico",
   },
@@ -34,7 +31,6 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" type="image/x-icon" />
         <link rel="shortcut icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/favicon.ico" />
-        <meta name="msapplication-TileImage" content="/favicon.ico" />
 
         {/* MemberSpace Script */}
         <Script

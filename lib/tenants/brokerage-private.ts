@@ -38,7 +38,6 @@ export const brokeragePrivateConfig: TenantConfig = {
     language: "en",
     currency: "USD",
     dateFormat: "MM/DD/YYYY",
-    translations: {},
   },
   auth: {
     provider: "internal",

@@ -6,7 +6,7 @@ export const internationalConfig: TenantConfig = {
   domain: ["international.thenextlevelu.com"],
   branding: {
     name: "International Platform",
-    logo: "/images/nlu-logo-light.png",
+    logo: "/images/international-logo.png",
     logoDark: "/images/nlu-logo-dark.png",
     colors: {
       primary: "#16a34a",

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useTenant } from "@/contexts/tenant-context"
 import { useTranslation } from "@/contexts/translation-context"
-import { TranslatedText } from "@/components/translated-text"
+import TranslatedText from "@/components/translated-text"
 import Link from "next/link"
 import {
   Brain,
@@ -180,13 +180,13 @@ export default function PortalPage() {
           <Link href="/profile">
             <Button variant="outline" className="flex items-center gap-2 bg-transparent">
               <User className="h-4 w-4" />
-              <TranslatedText text="Profile" />
+              <TranslatedText>Profile</TranslatedText>
             </Button>
           </Link>
           <Link href="/support">
             <Button variant="outline" className="flex items-center gap-2 bg-transparent">
               <HelpCircle className="h-4 w-4" />
-              <TranslatedText text="Get Support" />
+              <TranslatedText>Get Support</TranslatedText>
             </Button>
           </Link>
         </div>

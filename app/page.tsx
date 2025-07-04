@@ -16,15 +16,16 @@ import TenantSwitcher from "@/components/tenant-switcher"
 import TranslatedText from "@/components/translated-text"
 
 export default function HomePage() {
-  const [showVideoModal, setShowVideoModal] = useState(false)
-  const [selectedDemo, setSelectedDemo] = useState<string | null>(null)
   const tenantConfig = useTenantConfig()
   const router = useRouter()
   const { trackEvent } = useTracking()
-  
+  const translation = useTranslation() // Moved useTranslation hook to the top level
+
+  const [showVideoModal, setShowVideoModal] = useState(false)
+  const [selectedDemo, setSelectedDemo] = useState<string | null>(null)
+
   // Only use translation for Century 21 Canada tenant
   const isC21Canada = tenantConfig.id === "century21-canada"
-  const translation = isC21Canada ? useTranslation() : null
 
   // Redirect to custom home page if tenant has one
   useEffect(() => {
@@ -162,7 +163,9 @@ export default function HomePage() {
             <span className="block text-[#b6a888]">{renderText("Real Estate Platform")}</span>
           </h1>
           <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
-            {renderText("Unlock your potential with our AI-powered tools, comprehensive training, marketing resources, and a thriving community of real estate professionals.")}
+            {renderText(
+              "Unlock your potential with our AI-powered tools, comprehensive training, marketing resources, and a thriving community of real estate professionals.",
+            )}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
@@ -229,7 +232,9 @@ export default function HomePage() {
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">{renderText("Everything You Need to Succeed")}</h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              {renderText("Our comprehensive platform provides all the tools, training, and resources you need to take your real estate business to the next level.")}
+              {renderText(
+                "Our comprehensive platform provides all the tools, training, and resources you need to take your real estate business to the next level.",
+              )}
             </p>
           </div>
 
@@ -455,7 +460,9 @@ export default function HomePage() {
               <CardHeader>
                 <Zap className="h-12 w-12 text-[#b6a888] mb-4" />
                 <CardTitle className="text-white">{renderText("Services Hub")}</CardTitle>
-                <CardDescription className="text-gray-300">{renderText("Professional design and consulting services")}</CardDescription>
+                <CardDescription className="text-gray-300">
+                  {renderText("Professional design and consulting services")}
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-sm text-gray-400">
@@ -488,7 +495,9 @@ export default function HomePage() {
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">{renderText("We're Not Just Another Tech Company")}</h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              {renderText("We live and breathe real estate. Our platform was born from real-world success in the trenches of the industry.")}
+              {renderText(
+                "We live and breathe real estate. Our platform was born from real-world success in the trenches of the industry.",
+              )}
             </p>
           </div>
 
@@ -498,14 +507,18 @@ export default function HomePage() {
               <div className="bg-gradient-to-r from-[#b6a888]/20 to-transparent p-6 rounded-lg border border-[#b6a888]/30">
                 <h3 className="text-2xl font-bold text-white mb-4">{renderText("Real Estate Is Our DNA")}</h3>
                 <p className="text-gray-300 leading-relaxed">
-                  {renderText("We own and operate one of the largest Century 21 brokerages in the system, with hundreds of agents and over 33 years of proven success in the industry. This isn't theoretical knowledge—it's battle-tested experience from the front lines of real estate.")}
+                  {renderText(
+                    "We own and operate one of the largest Century 21 brokerages in the system, with hundreds of agents and over 33 years of proven success in the industry. This isn't theoretical knowledge—it's battle-tested experience from the front lines of real estate.",
+                  )}
                 </p>
               </div>
 
               <div className="bg-gradient-to-r from-[#b6a888]/10 to-transparent p-6 rounded-lg border border-[#b6a888]/20">
                 <h3 className="text-xl font-bold text-white mb-3">{renderText("Built by Agents, for Agents")}</h3>
                 <p className="text-gray-300">
-                  {renderText("Our platform exists because our own agents were achieving incredible results using these tools, training methods, and scripts. We saw the transformation firsthand and knew we had to share these game-changing resources with the entire real estate community.")}
+                  {renderText(
+                    "Our platform exists because our own agents were achieving incredible results using these tools, training methods, and scripts. We saw the transformation firsthand and knew we had to share these game-changing resources with the entire real estate community.",
+                  )}
                 </p>
               </div>
             </div>
@@ -543,7 +556,9 @@ export default function HomePage() {
             <div className="bg-gradient-to-r from-[#b6a888]/10 via-[#b6a888]/5 to-[#b6a888]/10 p-8 rounded-lg border border-[#b6a888]/20">
               <h3 className="text-2xl font-bold text-white mb-4">{renderText("Experience Meets Innovation")}</h3>
               <p className="text-gray-300 max-w-2xl mx-auto mb-6">
-                {renderText("When you join The Next Level U, you're not just getting software—you're getting decades of real estate wisdom, proven strategies, and tools that have generated over a billion dollars in sales.")}
+                {renderText(
+                  "When you join The Next Level U, you're not just getting software—you're getting decades of real estate wisdom, proven strategies, and tools that have generated over a billion dollars in sales.",
+                )}
               </p>
               <Badge className="bg-[#b6a888]/20 text-[#b6a888] border-[#b6a888]/30 px-4 py-2">
                 {renderText("🏆 Proven by Real Results")}
@@ -559,7 +574,9 @@ export default function HomePage() {
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">{renderText("Simple, Transparent Pricing")}</h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              {renderText("Choose the plan that works best for you. All plans include access to every tool and resource.")}
+              {renderText(
+                "Choose the plan that works best for you. All plans include access to every tool and resource.",
+              )}
             </p>
           </div>
 
@@ -619,7 +636,9 @@ export default function HomePage() {
                   <span className="text-lg text-gray-400 font-normal">{renderText("/year")}</span>
                 </div>
                 <div className="text-green-400 font-medium">{renderText("Only $21/month - Save $108!")}</div>
-                <CardDescription className="text-gray-300">{renderText("Best value for serious agents")}</CardDescription>
+                <CardDescription className="text-gray-300">
+                  {renderText("Best value for serious agents")}
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <ul className="space-y-3">
@@ -667,7 +686,9 @@ export default function HomePage() {
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">{renderText("What Our Members Say")}</h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              {renderText("Join thousands of real estate professionals who have transformed their business with The Next Level U.")}
+              {renderText(
+                "Join thousands of real estate professionals who have transformed their business with The Next Level U.",
+              )}
             </p>
           </div>
 
@@ -680,7 +701,9 @@ export default function HomePage() {
                   ))}
                 </div>
                 <p className="text-gray-300 mb-4">
-                  {renderText("The AI tools have completely transformed how I create listings. What used to take hours now takes minutes, and the quality is incredible.")}
+                  {renderText(
+                    "The AI tools have completely transformed how I create listings. What used to take hours now takes minutes, and the quality is incredible.",
+                  )}
                 </p>
                 <div className="flex items-center">
                   <div className="w-10 h-10 bg-[#b6a888] rounded-full flex items-center justify-center text-black font-bold mr-3">
@@ -702,7 +725,9 @@ export default function HomePage() {
                   ))}
                 </div>
                 <p className="text-gray-300 mb-4">
-                  {renderText("The prospecting strategies and scripts have helped me close 40% more deals this year. The training is world-class.")}
+                  {renderText(
+                    "The prospecting strategies and scripts have helped me close 40% more deals this year. The training is world-class.",
+                  )}
                 </p>
                 <div className="flex items-center">
                   <div className="w-10 h-10 bg-[#b6a888] rounded-full flex items-center justify-center text-black font-bold mr-3">
@@ -724,7 +749,9 @@ export default function HomePage() {
                   ))}
                 </div>
                 <p className="text-gray-300 mb-4">
-                  {renderText("This platform has everything I need in one place. The community support and resources are unmatched.")}
+                  {renderText(
+                    "This platform has everything I need in one place. The community support and resources are unmatched.",
+                  )}
                 </p>
                 <div className="flex items-center">
                   <div className="w-10 h-10 bg-[#b6a888] rounded-full flex items-center justify-center text-black font-bold mr-3">
@@ -732,4 +759,133 @@ export default function HomePage() {
                   </div>
                   <div>
                     <p className="text-white font-semibold">{renderText("Lisa Chen")}</p>
-                    <p className="text-gray-400 text-sm">{renderText
+                    <p className="text-gray-400 text-sm">{renderText("Broker Owner")}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 px-4">
+        <div className="container mx-auto text-center">
+          <h2 className="text-4xl font-bold text-white mb-6">{renderText("Ready to Transform Your Business?")}</h2>
+          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+            {renderText(
+              "Join thousands of successful real estate professionals who have taken their business to the next level.",
+            )}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button
+              size="lg"
+              onClick={handleSignup}
+              className="bg-[#b6a888] hover:bg-[#a39577] text-black font-semibold text-lg px-8 py-4"
+            >
+              {renderText("Start Your Free Trial")}
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-[#b6a888] text-[#b6a888] hover:bg-[#b6a888] hover:text-black text-lg px-8 py-4 bg-transparent"
+            >
+              {renderText("Schedule a Demo")}
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-gray-800 bg-black/50 py-12 px-4">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <div className="flex items-center mb-4">
+                <Image
+                  src="/images/nlu-logo.png"
+                  alt="The Next Level U"
+                  width={40}
+                  height={40}
+                  className="object-contain"
+                />
+              </div>
+              <p className="text-gray-400">
+                {renderText("Empowering real estate professionals with AI-powered tools and comprehensive training.")}
+              </p>
+            </div>
+            <div>
+              <h4 className="text-white font-semibold mb-4">{renderText("Platform")}</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li>
+                  <a href="#features" className="hover:text-[#b6a888] transition-colors">
+                    {renderText("Features")}
+                  </a>
+                </li>
+                <li>
+                  <a href="#pricing" className="hover:text-[#b6a888] transition-colors">
+                    {renderText("Pricing")}
+                  </a>
+                </li>
+                <li>
+                  <a href="#testimonials" className="hover:text-[#b6a888] transition-colors">
+                    {renderText("Testimonials")}
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-semibold mb-4">{renderText("Support")}</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li>
+                  <a href="#" className="hover:text-[#b6a888] transition-colors">
+                    {renderText("Help Center")}
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-[#b6a888] transition-colors">
+                    {renderText("Contact Us")}
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-[#b6a888] transition-colors">
+                    {renderText("Community")}
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-[#b6a888] transition-colors">
+                    {renderText("Status")}
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-semibold mb-4">{renderText("Legal")}</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li>
+                  <a href="#" className="hover:text-[#b6a888] transition-colors">
+                    {renderText("About")}
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-[#b6a888] transition-colors">
+                    {renderText("Privacy Policy")}
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-[#b6a888] transition-colors">
+                    {renderText("Terms of Service")}
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; 2024 The Next Level U. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
+}

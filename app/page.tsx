@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useTenantConfig } from "@/contexts/tenant-context"
 import { useTracking } from "@/hooks/use-tracking"
 import { Button } from "@/components/ui/button"
@@ -9,16 +9,16 @@ import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import Image from "next/image"
 import { Brain, Users, TrendingUp, FileText, Zap, Target, Star, CheckCircle, ArrowRight, Play, X } from "lucide-react"
-import { useState } from "react"
 import { useRouter } from "next/navigation"
 import TenantSwitcher from "@/components/tenant-switcher"
 
 export default function HomePage() {
-  const [showVideoModal, setShowVideoModal] = useState(false)
-  const [selectedDemo, setSelectedDemo] = useState<string | null>(null)
   const tenantConfig = useTenantConfig()
   const router = useRouter()
   const { trackEvent } = useTracking()
+
+  const [showVideoModal, setShowVideoModal] = useState(false)
+  const [selectedDemo, setSelectedDemo] = useState<string | null>(null)
 
   // Redirect to custom home page if tenant has one
   useEffect(() => {
@@ -61,7 +61,6 @@ export default function HomePage() {
     setShowVideoModal(true)
   }
 
-  // Add this function to get the YouTube embed URL for each tool
   const getVideoUrl = (toolName: string) => {
     const videoMap: { [key: string]: string } = {
       "Who's Who AI": "https://www.youtube.com/embed/aWj4jl0rwpY?autoplay=0&rel=0&modestbranding=1",
@@ -224,7 +223,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* AI Hub - MODIFIED SECTION */}
+            {/* AI Hub */}
             <Card className="bg-gray-900/50 border-gray-700 hover:border-[#b6a888]/50 transition-all duration-300">
               <CardHeader>
                 <Brain className="h-12 w-12 text-[#b6a888] mb-4" />
@@ -484,7 +483,6 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Left side - Story */}
             <div className="space-y-6">
               <div className="bg-gradient-to-r from-[#b6a888]/20 to-transparent p-6 rounded-lg border border-[#b6a888]/30">
                 <h3 className="text-2xl font-bold text-white mb-4">Real Estate Is Our DNA</h3>
@@ -505,7 +503,6 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Right side - Stats */}
             <div className="grid grid-cols-2 gap-6">
               <Card className="bg-gray-900/50 border-[#b6a888]/30 text-center p-6">
                 <div className="text-3xl font-bold text-[#b6a888] mb-2">33+</div>
@@ -533,7 +530,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Bottom CTA */}
           <div className="text-center mt-12">
             <div className="bg-gradient-to-r from-[#b6a888]/10 via-[#b6a888]/5 to-[#b6a888]/10 p-8 rounded-lg border border-[#b6a888]/20">
               <h3 className="text-2xl font-bold text-white mb-4">Experience Meets Innovation</h3>
@@ -560,7 +556,6 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Monthly Plan */}
             <Card className="bg-gray-900/50 border-gray-700 hover:border-[#b6a888]/50 transition-all duration-300">
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl text-white">Monthly</CardTitle>
@@ -603,7 +598,6 @@ export default function HomePage() {
               </CardContent>
             </Card>
 
-            {/* Annual Plan */}
             <Card className="bg-gray-900/50 border-[#b6a888] hover:border-[#b6a888] transition-all duration-300 relative">
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                 <Badge className="bg-[#b6a888] text-black font-semibold px-4 py-1">BEST VALUE</Badge>

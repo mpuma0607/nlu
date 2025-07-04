@@ -1,19 +1,19 @@
 import type { TenantConfig } from "../types"
 
-export const defaultTenantConfig: TenantConfig = {
+export const defaultConfig: TenantConfig = {
   id: "default",
   name: "The Next Level U",
-  domain: ["localhost", "thenextlevelu.com", "www.thenextlevelu.com"],
+  domain: ["thenextlevelu.com", "localhost", "vusercontent.net"],
   branding: {
     name: "The Next Level U",
-    logo: "/images/nlu-logo-light.png", // Light version with beige text for light backgrounds
-    logoDark: "/images/nlu-logo-dark.png", // Dark version with black text for dark backgrounds
+    logo: "/images/nlu-logo-light.png",
+    logoDark: "/images/nlu-logo-dark.png",
     colors: {
-      primary: "#16a34a", // green-600
-      secondary: "#059669", // emerald-600
-      accent: "#0d9488", // teal-600
+      primary: "#b6a888",
+      secondary: "#a39577",
+      accent: "#d4c5a0",
       background: "#ffffff",
-      text: "#1f2937", // gray-800
+      text: "#000000",
     },
   },
   features: {
@@ -35,56 +35,29 @@ export const defaultTenantConfig: TenantConfig = {
     customSections: [],
     hiddenFeatures: [],
     customNavigation: false,
+    customHomePage: null,
+    enableTranslation: false,
   },
   localization: {
     language: "en",
     currency: "USD",
     dateFormat: "MM/DD/YYYY",
-    translations: {
-      "ai-hub.title": "AI Hub",
-      "marketing-hub.title": "Marketing Hub",
-      "prospecting-hub.title": "Prospecting Hub",
-      "training-hub.title": "Training Hub",
-      "services-hub.title": "Services Hub",
-      "networking-hub.title": "Networking Hub",
-      "gear-hub.title": "Gear Hub",
-    },
+    supportedLanguages: ["en"],
+    translations: {},
   },
   auth: {
     provider: "memberspace",
-    settings: {
-      memberspace: {
-        subdomain: "thenextlevelu",
-        planUrls: {
-          monthly: "/plans/monthly",
-          annual: "/plans/annual",
-        },
-      },
-    },
+    settings: {},
     billing: {
       model: "subscription",
       currency: "USD",
-      plans: [
-        {
-          id: "monthly",
-          name: "Monthly Plan",
-          price: 29.99,
-          interval: "month",
-          features: ["All AI Tools", "Training Hub", "Community Access"],
-        },
-        {
-          id: "annual",
-          name: "Annual Plan",
-          price: 252,
-          interval: "year",
-          features: ["All AI Tools", "Training Hub", "Community Access", "30% Savings"],
-        },
-      ],
+      plans: [],
     },
   },
   content: {
     customTraining: false,
     onboardingFlow: false,
     privateResources: false,
+    customAbout: "The Next Level U's comprehensive real estate platform with AI-powered tools and training.",
   },
 }

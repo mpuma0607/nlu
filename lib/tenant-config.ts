@@ -2,6 +2,7 @@ import { defaultTenantConfig } from "@/lib/tenants/default"
 import { brokeragePrivateConfig } from "@/lib/tenants/brokerage-private"
 import { internationalConfig } from "@/lib/tenants/international"
 import { century21BegginsConfig } from "@/lib/tenants/century21-beggins"
+import { century21CanadaConfig } from "@/lib/tenants/century21-canada"
 import type { TenantConfig } from "@/lib/types"
 
 const tenantConfigs: Record<string, TenantConfig> = {
@@ -9,6 +10,7 @@ const tenantConfigs: Record<string, TenantConfig> = {
   "brokerage-private": brokeragePrivateConfig,
   international: internationalConfig,
   "century21-beggins": century21BegginsConfig,
+  "century21-canada": century21CanadaConfig,
 }
 
 export function getTenantConfig(): TenantConfig {
@@ -32,6 +34,10 @@ export function getTenantConfig(): TenantConfig {
   // Detect by domain
   const hostname = window.location.hostname
 
+  if (hostname.includes("c21canada") || hostname.includes("century21-canada")) {
+    return century21CanadaConfig
+  }
+
   if (hostname.includes("beggins") || hostname.includes("century21-beggins")) {
     return century21BegginsConfig
   }
@@ -51,6 +57,7 @@ export function getAllTenants() {
   return [
     { id: "default", name: "The Next Level U" },
     { id: "century21-beggins", name: "Beggins University" },
+    { id: "century21-canada", name: "Century 21 Canada" },
     { id: "brokerage-private", name: "Private Brokerage" },
     { id: "international", name: "International Platform" },
   ]

@@ -82,41 +82,6 @@ class TranslationService {
           "Connectez-vous avec des agents, courtiers et professionnels de l'industrie",
         "Exclusive merchandise and professional tools for Next Level agents":
           "Marchandise exclusive et outils professionnels pour les agents Next Level",
-        tools: "outils",
-      },
-      es: {
-        "AI Hub": "Hub IA",
-        "Marketing Hub": "Hub Marketing",
-        "Prospecting Hub": "Hub Prospección",
-        "Training Hub": "Hub Entrenamiento",
-        "Services Hub": "Hub Servicios",
-        "Networking Hub": "Hub Networking",
-        "Gear Hub": "Hub Equipo",
-        Profile: "Perfil",
-        "Get Support": "Obtener Soporte",
-        "Welcome to Your Portal": "Bienvenido a tu Portal",
-        "Access your complete suite of real estate superpowers. Choose your hub and start transforming your business today.":
-          "Accede a tu suite completa de superpoderes inmobiliarios. Elige tu hub y comienza a transformar tu negocio hoy.",
-        "Choose Your Hub": "Elige tu Hub",
-        "Access specialized tools and resources designed to elevate every aspect of your real estate business":
-          "Accede a herramientas y recursos especializados diseñados para elevar todos los aspectos de tu negocio inmobiliario",
-      },
-      pt: {
-        "AI Hub": "Hub IA",
-        "Marketing Hub": "Hub Marketing",
-        "Prospecting Hub": "Hub Prospecção",
-        "Training Hub": "Hub Treinamento",
-        "Services Hub": "Hub Serviços",
-        "Networking Hub": "Hub Networking",
-        "Gear Hub": "Hub Equipamentos",
-        Profile: "Perfil",
-        "Get Support": "Obter Suporte",
-        "Welcome to Your Portal": "Bem-vindo ao seu Portal",
-        "Access your complete suite of real estate superpowers. Choose your hub and start transforming your business today.":
-          "Acesse seu conjunto completo de superpoderes imobiliários. Escolha seu hub e comece a transformar seu negócio hoje.",
-        "Choose Your Hub": "Escolha seu Hub",
-        "Access specialized tools and resources designed to elevate every aspect of your real estate business":
-          "Acesse ferramentas e recursos especializados projetados para elevar todos os aspectos do seu negócio imobiliário",
       },
     }
 

@@ -44,7 +44,15 @@ export const century21CanadaConfig: TenantConfig = {
   },
   auth: {
     provider: "memberspace",
-    settings: {},
+    settings: {
+      memberspace: {
+        subdomain: "century21canada",
+        planUrls: {
+          monthly: "/plans/monthly",
+          annual: "/plans/annual",
+        },
+      },
+    },
     billing: {
       model: "subscription",
       currency: "CAD",

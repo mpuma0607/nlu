@@ -23,6 +23,7 @@ export interface FeatureConfig {
   customSections: CustomSection[]
   hiddenFeatures: string[]
   customNavigation: boolean
+  customHomePage?: string
 }
 
 export interface LocalizationConfig {
@@ -34,7 +35,7 @@ export interface LocalizationConfig {
 
 export interface AuthSettings {
   memberspace?: {
-    widgetPath: string
+    subdomain: string
     planUrls: Record<string, string>
   }
   stripe?: {
@@ -50,6 +51,10 @@ export interface AuthSettings {
     adminEmails: string[]
     requireApproval: boolean
   }
+  googleWorkspace?: {
+    allowedDomains: string[]
+    clientId: string
+  }
 }
 
 export interface BillingPlan {
@@ -61,7 +66,7 @@ export interface BillingPlan {
 }
 
 export interface AuthConfig {
-  provider: "memberspace" | "custom" | "stripe" | "internal" | "sso"
+  provider: "memberspace" | "custom" | "stripe" | "internal" | "sso" | "google-workspace"
   settings: AuthSettings
   billing: {
     model: "subscription" | "one-time" | "free" | "enterprise"

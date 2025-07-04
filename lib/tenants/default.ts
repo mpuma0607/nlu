@@ -6,14 +6,14 @@ export const defaultTenantConfig: TenantConfig = {
   domain: ["localhost", "thenextlevelu.com", "www.thenextlevelu.com"],
   branding: {
     name: "The Next Level U",
-    logo: "/images/nlu-logo-light.png",
-    logoDark: "/images/nlu-logo-dark.png",
+    logo: "/images/nlu-logo-light.png", // Light version with beige text for light backgrounds
+    logoDark: "/images/nlu-logo-dark.png", // Dark version with black text for dark backgrounds
     colors: {
-      primary: "#16a34a",
-      secondary: "#059669",
-      accent: "#0d9488",
+      primary: "#16a34a", // green-600
+      secondary: "#059669", // emerald-600
+      accent: "#0d9488", // teal-600
       background: "#ffffff",
-      text: "#1f2937",
+      text: "#1f2937", // gray-800
     },
   },
   features: {

@@ -35,14 +35,11 @@ export const century21CanadaConfig: TenantConfig = {
     customSections: [],
     hiddenFeatures: [],
     customNavigation: false,
-    customHomePage: null,
-    enableTranslation: true,
   },
   localization: {
     language: "en",
     currency: "CAD",
     dateFormat: "DD/MM/YYYY",
-    supportedLanguages: ["en", "fr", "es", "pt"],
     translations: {},
   },
   auth: {

@@ -11,9 +11,12 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { generateContent } from "./actions"
-import { Loader2, Copy, Download, Mail, Mic, MicOff } from "lucide-react"
+import { Loader2, Copy, Mic, MicOff } from "lucide-react"
 import Image from "next/image"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
+import { useTenantConfig } from "@/contexts/tenant-context"
+import { useTranslation } from "@/contexts/translation-context"
+import TranslatedText from "@/components/translated-text"
 
 const topicOptions = [
   "The benefits of working with a real estate agent",
@@ -388,11 +391,14 @@ export default function IdeaHubForm() {
   const resultsRef = useRef<HTMLDivElement>(null)
   const recognitionRef = useRef<any>(null)
   const { user } = useMemberSpaceUser()
+  const tenantConfig = useTenantConfig()
+  const { currentLanguage } = useTranslation()
+  const isC21Canada = tenantConfig.id === "century21-canada"
 
   const [formData, setFormData] = useState<FormState>({
     primaryTopic: "",
     alternateTopic: "",
-    language: "English",
+    language: isC21Canada ? currentLanguage : "English",
     name: "",
     email: "",
     contentType: "Social post",
@@ -410,6 +416,16 @@ export default function IdeaHubForm() {
       }))
     }
   }, [user])
+
+  // Update language when site language changes for C21 Canada
+  useEffect(() => {
+    if (isC21Canada) {
+      setFormData((prev) => ({
+        ...prev,
+        language: currentLanguage,
+      }))
+    }
+  }, [currentLanguage, isC21Canada])
 
   // Auto-scroll to results when they're generated
   useEffect(() => {
@@ -555,10 +571,20 @@ export default function IdeaHubForm() {
   const renderStepOne = () => (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="primaryTopic">Choose a Topic (Optional)</Label>
+        <Label htmlFor="primaryTopic">
+          {isC21Canada ? <TranslatedText>Choose a Topic (Optional)</TranslatedText> : "Choose a Topic (Optional)"}
+        </Label>
         <Select value={formData.primaryTopic} onValueChange={(value) => handleSelectChange("primaryTopic", value)}>
           <SelectTrigger id="primaryTopic">
-            <SelectValue placeholder="Select a topic from our library" />
+            <SelectValue
+              placeholder={
+                isC21Canada ? (
+                  <TranslatedText>Select a topic from our library</TranslatedText>
+                ) : (
+                  "Select a topic from our library"
+                )
+              }
+            />
           </SelectTrigger>
           <SelectContent className="max-h-[300px]">
             {topicOptions.map((topic, index) => (
@@ -571,12 +597,22 @@ export default function IdeaHubForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="alternateTopic">Custom Topic or Additional Details</Label>
+        <Label htmlFor="alternateTopic">
+          {isC21Canada ? (
+            <TranslatedText>Custom Topic or Additional Details</TranslatedText>
+          ) : (
+            "Custom Topic or Additional Details"
+          )}
+        </Label>
         <div className="relative">
           <Textarea
             id="alternateTopic"
             name="alternateTopic"
-            placeholder="Enter any custom topic or additional details you'd like to include"
+            placeholder={
+              isC21Canada
+                ? "Enter any custom topic or additional details you'd like to include"
+                : "Enter any custom topic or additional details you'd like to include"
+            }
             value={formData.alternateTopic}
             onChange={handleInputChange}
             className="min-h-[100px] pr-12"
@@ -591,36 +627,58 @@ export default function IdeaHubForm() {
             {isListening ? <MicOff className="h-4 w-4 text-red-500" /> : <Mic className="h-4 w-4" />}
           </Button>
         </div>
-        {isListening && <p className="text-sm text-blue-600">Listening... Speak now</p>}
+        {isListening && (
+          <p className="text-sm text-blue-600">
+            {isC21Canada ? <TranslatedText>Listening... Speak now</TranslatedText> : "Listening... Speak now"}
+          </p>
+        )}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="contentType">Content Type *</Label>
+        <Label htmlFor="contentType">
+          {isC21Canada ? <TranslatedText>Content Type *</TranslatedText> : "Content Type *"}
+        </Label>
         <Select value={formData.contentType} onValueChange={(value) => handleSelectChange("contentType", value)}>
           <SelectTrigger id="contentType">
-            <SelectValue placeholder="Select content type" />
+            <SelectValue
+              placeholder={
+                isC21Canada ? <TranslatedText>Select content type</TranslatedText> : "Select content type"
+              }
+            />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Social post">Social Post</SelectItem>
-            <SelectItem value="Email">Email</SelectItem>
-            <SelectItem value="Blog article">Blog Article</SelectItem>
-            <SelectItem value="Text message">Text Message</SelectItem>
+            <SelectItem value="Social post">
+              {isC21Canada ? <TranslatedText>Social Post</TranslatedText> : "Social Post"}
+            </SelectItem>
+            <SelectItem value="Email">{isC21Canada ? <TranslatedText>Email</TranslatedText> : "Email"}</SelectItem>
+            <SelectItem value="Blog article">
+              {isC21Canada ? <TranslatedText>Blog Article</TranslatedText> : "Blog Article"}
+            </SelectItem>
+            <SelectItem value="Text message">
+              {isC21Canada ? <TranslatedText>Text Message</TranslatedText> : "Text Message"}
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="tonality">Tonality</Label>
+        <Label htmlFor="tonality">{isC21Canada ? <TranslatedText>Tonality</TranslatedText> : "Tonality"}</Label>
         <Select value={formData.tonality} onValueChange={(value) => handleSelectChange("tonality", value)}>
           <SelectTrigger id="tonality">
-            <SelectValue placeholder="Select tonality" />
+            <SelectValue
+              placeholder={isC21Canada ? <TranslatedText>Select tonality</TranslatedText> : "Select tonality"}
+            />
           </SelectTrigger>
           <SelectContent>
             {tonalityOptions.map((option, index) => (
               <SelectItem key={index} value={option.value}>
                 <div>
-                  <div className="font-medium">{option.value}</div>
-                  <div className="text-sm text-gray-500">{option.description}</div>
+                  <div className="font-medium">
+                    {isC21Canada ? <TranslatedText>{option.value}</TranslatedText> : option.value}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {isC21Canada ? <TranslatedText>{option.description}</TranslatedText> : option.description}
+                  </div>
                 </div>
               </SelectItem>
             ))}
@@ -629,18 +687,22 @@ export default function IdeaHubForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="language">Language</Label>
+        <Label htmlFor="language">{isC21Canada ? <TranslatedText>Language</TranslatedText> : "Language"}</Label>
         <Select value={formData.language} onValueChange={(value) => handleSelectChange("language", value)}>
           <SelectTrigger id="language">
-            <SelectValue placeholder="Select language" />
+            <SelectValue
+              placeholder={isC21Canada ? <TranslatedText>Select language</TranslatedText> : "Select language"}
+            />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="English">English</SelectItem>
-            <SelectItem value="Spanish">Spanish</SelectItem>
-            <SelectItem value="French">French</SelectItem>
-            <SelectItem value="German">German</SelectItem>
-            <SelectItem value="Italian">Italian</SelectItem>
-            <SelectItem value="Portuguese">Portuguese</SelectItem>
+            <SelectItem value="English">{isC21Canada ? <TranslatedText>English</TranslatedText> : "English"}</SelectItem>
+            <SelectItem value="Spanish">{isC21Canada ? <TranslatedText>Spanish</TranslatedText> : "Spanish"}</SelectItem>
+            <SelectItem value="French">{isC21Canada ? <TranslatedText>French</TranslatedText> : "French"}</SelectItem>
+            <SelectItem value="German">{isC21Canada ? <TranslatedText>German</TranslatedText> : "German"}</SelectItem>
+            <SelectItem value="Italian">{isC21Canada ? <TranslatedText>Italian</TranslatedText> : "Italian"}</SelectItem>
+            <SelectItem value="Portuguese">
+              {isC21Canada ? <TranslatedText>Portuguese</TranslatedText> : "Portuguese"}
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -650,7 +712,7 @@ export default function IdeaHubForm() {
         disabled={!formData.primaryTopic && !formData.alternateTopic}
         className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
       >
-        Next
+        {isC21Canada ? <TranslatedText>Next</TranslatedText> : "Next"}
       </Button>
     </div>
   )
@@ -658,11 +720,13 @@ export default function IdeaHubForm() {
   const renderStepTwo = () => (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="name">Your Name *</Label>
+        <Label htmlFor="name">
+          {isC21Canada ? <TranslatedText>Your Name *</TranslatedText> : "Your Name *"}
+        </Label>
         <Input
           id="name"
           name="name"
-          placeholder="Enter your name"
+          placeholder={isC21Canada ? "Enter your name" : "Enter your name"}
           value={formData.name}
           onChange={handleInputChange}
           required
@@ -670,12 +734,14 @@ export default function IdeaHubForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="email">Your Email *</Label>
+        <Label htmlFor="email">
+          {isC21Canada ? <TranslatedText>Your Email *</TranslatedText> : "Your Email *"}
+        </Label>
         <Input
           id="email"
           name="email"
           type="email"
-          placeholder="Enter your email"
+          placeholder={isC21Canada ? "Enter your email" : "Enter your email"}
           value={formData.email}
           onChange={handleInputChange}
           required
@@ -684,7 +750,7 @@ export default function IdeaHubForm() {
 
       <div className="flex gap-4">
         <Button variant="outline" onClick={() => setStep(1)} className="flex-1">
-          Back
+          {isC21Canada ? <TranslatedText>Back</TranslatedText> : "Back"}
         </Button>
         <Button
           onClick={handleSubmit}
@@ -693,8 +759,11 @@ export default function IdeaHubForm() {
         >
           {isGenerating ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
+              {isC21Canada ? <TranslatedText>Generating...</TranslatedText> : "Generating..."}
             </>
+          ) : isC21Canada ? (
+            <TranslatedText>Generate Content</TranslatedText>
           ) : (
             "Generate Content"
           )}
@@ -706,16 +775,28 @@ export default function IdeaHubForm() {
   const renderStepThree = () => (
     <div ref={resultsRef} className="space-y-6">
       <div className="text-center mb-6">
-        <h3 className="text-xl font-bold text-black">Your Content is Ready!</h3>
+        <h3 className="text-xl font-bold text-black">
+          {isC21Canada ? <TranslatedText>Your Content is Ready!</TranslatedText> : "Your Content is Ready!"}
+        </h3>
         <p className="text-gray-600">
-          Here's your professionally generated social media content with Century 21 branding
+          {isC21Canada ? (
+            <TranslatedText>
+              Here's your professionally generated social media content with Century 21 branding
+            </TranslatedText>
+          ) : (
+            "Here's your professionally generated social media content with Century 21 branding"
+          )}
         </p>
       </div>
 
       <Tabs defaultValue="preview" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="preview">Preview</TabsTrigger>
-          <TabsTrigger value="text">Text Only</TabsTrigger>
+          <TabsTrigger value="preview">
+            {isC21Canada ? <TranslatedText>Preview</TranslatedText> : "Preview"}
+          </TabsTrigger>
+          <TabsTrigger value="text">
+            {isC21Canada ? <TranslatedText>Text Only</TranslatedText> : "Text Only"}
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="preview" className="space-y-4">
           <Card className="border-0 shadow-md overflow-hidden">
@@ -751,82 +832,4 @@ export default function IdeaHubForm() {
           onClick={copyToClipboard}
           className="flex items-center justify-center gap-2 bg-transparent"
         >
-          <Copy className="h-4 w-4" /> <span className="whitespace-nowrap">Copy</span>
-        </Button>
-        <Button
-          variant="outline"
-          onClick={downloadImage}
-          className="flex items-center justify-center gap-2 bg-transparent"
-        >
-          <Download className="h-4 w-4" /> <span className="whitespace-nowrap">Download</span>
-        </Button>
-        <Button
-          variant="outline"
-          onClick={sendEmail}
-          disabled={isSendingEmail}
-          className="flex items-center justify-center gap-2 bg-transparent"
-        >
-          {isSendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-          <span className="whitespace-nowrap">Email</span>
-        </Button>
-      </div>
-
-      <Button
-        onClick={() => {
-          setStep(1)
-          setResult(null)
-          setFormData({
-            primaryTopic: "",
-            alternateTopic: "",
-            language: "English",
-            name: "",
-            email: "",
-            contentType: "Social post",
-            tonality: "Professional & Authoritative",
-          })
-        }}
-        className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
-      >
-        Create New Content
-      </Button>
-    </div>
-  )
-
-  return (
-    <div className="bg-white rounded-lg p-6">
-      <div className="mb-8">
-        <div className="flex items-center justify-center space-x-2">
-          <div
-            className={`w-10 h-10 rounded-full flex items-center justify-center ${
-              step >= 1 ? "bg-purple-600 text-white" : "bg-gray-200 text-gray-600"
-            }`}
-          >
-            1
-          </div>
-          <div className={`h-1 w-16 ${step >= 2 ? "bg-purple-600" : "bg-gray-200"}`}></div>
-          <div
-            className={`w-10 h-10 rounded-full flex items-center justify-center ${
-              step >= 2 ? "bg-purple-600 text-white" : "bg-gray-200 text-gray-600"
-            }`}
-          >
-            2
-          </div>
-          <div className={`h-1 w-16 ${step >= 3 ? "bg-purple-600" : "bg-gray-200"}`}></div>
-          <div
-            className={`w-10 h-10 rounded-full flex items-center justify-center ${
-              step >= 3 ? "bg-purple-600 text-white" : "bg-gray-200 text-gray-600"
-            }`}
-          >
-            3
-          </div>
-        </div>
-      </div>
-
-      <form onSubmit={(e) => e.preventDefault()}>
-        {step === 1 && renderStepOne()}
-        {step === 2 && renderStepTwo()}
-        {step === 3 && renderStepThree()}
-      </form>
-    </div>
-  )
-}
+          <Copy className="h-4 w-4"\

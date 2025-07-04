@@ -1,9 +1,16 @@
+"use client"
+
 import { Card, CardContent } from "@/components/ui/card"
 import { Brain, Megaphone, GraduationCap, Wrench, Network, ShoppingBag, Target } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { useTenantConfig } from "@/contexts/tenant-context"
+import TranslatedText from "@/components/translated-text"
 
 export default function PortalPage() {
+  const tenantConfig = useTenantConfig()
+  const isC21Canada = tenantConfig.id === "century21-canada"
+
   const hubs = [
     {
       title: "AI Tool Hub",
@@ -62,15 +69,23 @@ export default function PortalPage() {
       <section className="relative bg-gradient-to-br from-gray-900 via-black to-yellow-900 text-white py-24">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative container mx-auto px-4 text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 tracking-tight">Welcome to Your Portal</h1>
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 tracking-tight">
+            {isC21Canada ? <TranslatedText>Welcome to Your Portal</TranslatedText> : "Welcome to Your Portal"}
+          </h1>
           <div className="flex items-center justify-center gap-4 mb-8">
             <div className="h-px bg-[#b6a888] w-16"></div>
             <p className="text-xl text-[#b6a888] font-medium tracking-wide">EMPOWER • EDUCATE • ENCOURAGE</p>
             <div className="h-px bg-[#b6a888] w-16"></div>
           </div>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Access your complete suite of real estate superpowers. Choose your hub and start transforming your business
-            today.
+            {isC21Canada ? (
+              <TranslatedText>
+                Access your complete suite of real estate superpowers. Choose your hub and start transforming your
+                business today.
+              </TranslatedText>
+            ) : (
+              "Access your complete suite of real estate superpowers. Choose your hub and start transforming your business today."
+            )}
           </p>
         </div>
       </section>
@@ -79,9 +94,17 @@ export default function PortalPage() {
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-black mb-4">Choose Your Hub</h2>
+            <h2 className="text-4xl font-bold text-black mb-4">
+              {isC21Canada ? <TranslatedText>Choose Your Hub</TranslatedText> : "Choose Your Hub"}
+            </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Access specialized tools and resources designed to elevate every aspect of your real estate business
+              {isC21Canada ? (
+                <TranslatedText>
+                  Access specialized tools and resources designed to elevate every aspect of your real estate business
+                </TranslatedText>
+              ) : (
+                "Access specialized tools and resources designed to elevate every aspect of your real estate business"
+              )}
             </p>
           </div>
 
@@ -100,13 +123,23 @@ export default function PortalPage() {
                     </div>
 
                     <h3 className="text-xl font-bold text-black mb-3 group-hover:text-[#b6a888] transition-colors">
-                      {hub.title}
+                      {isC21Canada ? <TranslatedText>{hub.title}</TranslatedText> : hub.title}
                     </h3>
 
-                    <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-grow">{hub.description}</p>
+                    <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-grow">
+                      {isC21Canada ? <TranslatedText>{hub.description}</TranslatedText> : hub.description}
+                    </p>
 
                     <Link href={hub.href} className="w-full mt-auto">
-                      <Button className="w-full bg-[#b6a888] hover:bg-[#a39577] text-white">Open {hub.title}</Button>
+                      <Button className="w-full bg-[#b6a888] hover:bg-[#a39577] text-white">
+                        {isC21Canada ? (
+                          <>
+                            <TranslatedText>Open</TranslatedText> <TranslatedText>{hub.title}</TranslatedText>
+                          </>
+                        ) : (
+                          `Open ${hub.title}`
+                        )}
+                      </Button>
                     </Link>
                   </div>
                 </CardContent>

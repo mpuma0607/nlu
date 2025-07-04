@@ -155,21 +155,6 @@ export function WhosWhoForm() {
           type="button"
           variant="outline"
           onClick={() => {
-            // Save functionality - you can implement this to save to localStorage or database
-            console.log("Saving WhosWho data:", {
-              /* form data here */
-            })
-          }}
-          className="w-full"
-        >
-          <Save className="mr-2 h-4 w-4" />
-          Save
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => {
-            // Save functionality - you can implement this to save to localStorage or database
             const saveData = {
               contactName,
               contactInfo,

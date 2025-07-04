@@ -12,9 +12,11 @@ export default function LanguageSelector() {
   const [isOpen, setIsOpen] = useState(false)
 
   const languages = translationService.getSupportedLanguages()
+  console.log("Available languages:", languages)
   const currentLang = languages.find((lang) => lang.code === currentLanguage) || languages[0]
 
   const handleLanguageChange = (languageCode: string) => {
+    console.log("Language changed to:", languageCode)
     setLanguage(languageCode)
     setIsOpen(false)
   }

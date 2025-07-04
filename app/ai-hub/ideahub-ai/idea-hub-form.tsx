@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { generateContent } from "./actions"
-import { Loader2, Copy, Mic, MicOff } from "lucide-react"
+import { Loader2, Copy, Download, Mail, Mic, MicOff } from "lucide-react"
 import Image from "next/image"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 import { useTenantConfig } from "@/contexts/tenant-context"
@@ -641,9 +641,7 @@ export default function IdeaHubForm() {
         <Select value={formData.contentType} onValueChange={(value) => handleSelectChange("contentType", value)}>
           <SelectTrigger id="contentType">
             <SelectValue
-              placeholder={
-                isC21Canada ? <TranslatedText>Select content type</TranslatedText> : "Select content type"
-              }
+              placeholder={isC21Canada ? <TranslatedText>Select content type</TranslatedText> : "Select content type"}
             />
           </SelectTrigger>
           <SelectContent>
@@ -695,11 +693,17 @@ export default function IdeaHubForm() {
             />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="English">{isC21Canada ? <TranslatedText>English</TranslatedText> : "English"}</SelectItem>
-            <SelectItem value="Spanish">{isC21Canada ? <TranslatedText>Spanish</TranslatedText> : "Spanish"}</SelectItem>
+            <SelectItem value="English">
+              {isC21Canada ? <TranslatedText>English</TranslatedText> : "English"}
+            </SelectItem>
+            <SelectItem value="Spanish">
+              {isC21Canada ? <TranslatedText>Spanish</TranslatedText> : "Spanish"}
+            </SelectItem>
             <SelectItem value="French">{isC21Canada ? <TranslatedText>French</TranslatedText> : "French"}</SelectItem>
             <SelectItem value="German">{isC21Canada ? <TranslatedText>German</TranslatedText> : "German"}</SelectItem>
-            <SelectItem value="Italian">{isC21Canada ? <TranslatedText>Italian</TranslatedText> : "Italian"}</SelectItem>
+            <SelectItem value="Italian">
+              {isC21Canada ? <TranslatedText>Italian</TranslatedText> : "Italian"}
+            </SelectItem>
             <SelectItem value="Portuguese">
               {isC21Canada ? <TranslatedText>Portuguese</TranslatedText> : "Portuguese"}
             </SelectItem>
@@ -720,9 +724,7 @@ export default function IdeaHubForm() {
   const renderStepTwo = () => (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="name">
-          {isC21Canada ? <TranslatedText>Your Name *</TranslatedText> : "Your Name *"}
-        </Label>
+        <Label htmlFor="name">{isC21Canada ? <TranslatedText>Your Name *</TranslatedText> : "Your Name *"}</Label>
         <Input
           id="name"
           name="name"
@@ -734,9 +736,7 @@ export default function IdeaHubForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="email">
-          {isC21Canada ? <TranslatedText>Your Email *</TranslatedText> : "Your Email *"}
-        </Label>
+        <Label htmlFor="email">{isC21Canada ? <TranslatedText>Your Email *</TranslatedText> : "Your Email *"}</Label>
         <Input
           id="email"
           name="email"
@@ -832,4 +832,75 @@ export default function IdeaHubForm() {
           onClick={copyToClipboard}
           className="flex items-center justify-center gap-2 bg-transparent"
         >
-          <Copy className="h-4 w-4"\
+          <Copy className="h-4 w-4" />
+          {isC21Canada ? <TranslatedText>Copy Text</TranslatedText> : "Copy Text"}
+        </Button>
+        <Button
+          variant="outline"
+          onClick={downloadImage}
+          className="flex items-center justify-center gap-2 bg-transparent"
+        >
+          <Download className="h-4 w-4" />
+          {isC21Canada ? <TranslatedText>Download Image</TranslatedText> : "Download Image"}
+        </Button>
+        <Button
+          variant="outline"
+          onClick={sendEmail}
+          disabled={isSendingEmail}
+          className="flex items-center justify-center gap-2 bg-transparent"
+        >
+          {isSendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+          {isSendingEmail ? (
+            isC21Canada ? (
+              <TranslatedText>Sending...</TranslatedText>
+            ) : (
+              "Sending..."
+            )
+          ) : isC21Canada ? (
+            <TranslatedText>Email Me</TranslatedText>
+          ) : (
+            "Email Me"
+          )}
+        </Button>
+      </div>
+
+      <Button
+        onClick={() => {
+          setStep(1)
+          setResult(null)
+          setFormData((prev) => ({
+            ...prev,
+            primaryTopic: "",
+            alternateTopic: "",
+          }))
+        }}
+        className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+      >
+        {isC21Canada ? <TranslatedText>Create Another</TranslatedText> : "Create Another"}
+      </Button>
+    </div>
+  )
+
+  return (
+    <Card className="w-full max-w-2xl mx-auto border-0 shadow-lg">
+      <CardContent className="p-8">
+        <div className="mb-8 text-center">
+          <h2 className="text-2xl font-bold text-black mb-2">
+            {isC21Canada ? <TranslatedText>IdeaHub AI</TranslatedText> : "IdeaHub AI"}
+          </h2>
+          <p className="text-gray-600">
+            {isC21Canada ? (
+              <TranslatedText>Generate professional social media content with Century 21 branding</TranslatedText>
+            ) : (
+              "Generate professional social media content with Century 21 branding"
+            )}
+          </p>
+        </div>
+
+        {step === 1 && renderStepOne()}
+        {step === 2 && renderStepTwo()}
+        {step === 3 && renderStepThree()}
+      </CardContent>
+    </Card>
+  )
+}

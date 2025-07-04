@@ -13,12 +13,9 @@ export default function TenantSwitcher() {
 
   useEffect(() => {
     const hostname = window.location.hostname
-
-    // Show on v0 preview URLs and development
     const isV0Preview = hostname.includes("vusercontent.net")
     const isLocalhost = hostname.includes("localhost")
     const isDev = process.env.NODE_ENV === "development"
-
     setShouldShow(isV0Preview || isLocalhost || isDev)
   }, [])
 

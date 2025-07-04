@@ -9,8 +9,8 @@ export const century21CanadaConfig: TenantConfig = {
     logo: "/images/tenants/century21-canada-logo.png",
     logoDark: "/images/tenants/century21-canada-logo.png",
     colors: {
-      primary: "#C8102E", // Century 21 Red
-      secondary: "#FFD100", // Century 21 Gold
+      primary: "#C8102E",
+      secondary: "#FFD100",
       accent: "#FFD100",
       background: "#ffffff",
       text: "#000000",
@@ -35,14 +35,11 @@ export const century21CanadaConfig: TenantConfig = {
     customSections: [],
     hiddenFeatures: [],
     customNavigation: false,
-    customHomePage: null,
-    enableTranslation: false,
   },
   localization: {
     language: "en",
     currency: "CAD",
     dateFormat: "DD/MM/YYYY",
-    supportedLanguages: ["en"],
     translations: {},
   },
   auth: {

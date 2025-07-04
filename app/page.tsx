@@ -1,8 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useTenantConfig } from "@/contexts/tenant-context"
-import { useTranslation } from "@/contexts/translation-context"
 import { useTracking } from "@/hooks/use-tracking"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,21 +9,16 @@ import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import Image from "next/image"
 import { Brain, Users, TrendingUp, FileText, Zap, Target, Star, CheckCircle, ArrowRight, Play, X } from "lucide-react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import TenantSwitcher from "@/components/tenant-switcher"
-import TranslatedText from "@/components/translated-text"
 
 export default function HomePage() {
+  const [showVideoModal, setShowVideoModal] = useState(false)
+  const [selectedDemo, setSelectedDemo] = useState<string | null>(null)
   const tenantConfig = useTenantConfig()
   const router = useRouter()
   const { trackEvent } = useTracking()
-  const translation = useTranslation() // Moved useTranslation hook to the top level
-
-  const [showVideoModal, setShowVideoModal] = useState(false)
-  const [selectedDemo, setSelectedDemo] = useState<string | null>(null)
-
-  // Only use translation for Century 21 Canada tenant
-  const isC21Canada = tenantConfig.id === "century21-canada"
 
   // Redirect to custom home page if tenant has one
   useEffect(() => {
@@ -67,6 +61,7 @@ export default function HomePage() {
     setShowVideoModal(true)
   }
 
+  // Add this function to get the YouTube embed URL for each tool
   const getVideoUrl = (toolName: string) => {
     const videoMap: { [key: string]: string } = {
       "Who's Who AI": "https://www.youtube.com/embed/aWj4jl0rwpY?autoplay=0&rel=0&modestbranding=1",
@@ -84,11 +79,6 @@ export default function HomePage() {
     }
 
     return videoMap[toolName] || "https://www.youtube.com/embed/qF050toaVYU?autoplay=0&rel=0&modestbranding=1"
-  }
-
-  // Helper function to render text with translation support
-  const renderText = (text: string) => {
-    return isC21Canada ? <TranslatedText>{text}</TranslatedText> : text
   }
 
   return (
@@ -109,16 +99,16 @@ export default function HomePage() {
           </div>
           <nav className="hidden md:flex items-center space-x-8">
             <a href="#features" className="text-gray-300 hover:text-[#b6a888] transition-colors">
-              {renderText("Features")}
+              Features
             </a>
             <a href="#about" className="text-gray-300 hover:text-[#b6a888] transition-colors">
-              {renderText("About")}
+              About
             </a>
             <a href="#pricing" className="text-gray-300 hover:text-[#b6a888] transition-colors">
-              {renderText("Pricing")}
+              Pricing
             </a>
             <a href="#testimonials" className="text-gray-300 hover:text-[#b6a888] transition-colors">
-              {renderText("Testimonials")}
+              Testimonials
             </a>
             <div className="flex items-center space-x-4">
               <button
@@ -126,10 +116,10 @@ export default function HomePage() {
                 type="button"
                 className="text-gray-300 hover:text-[#b6a888] transition-colors font-medium cursor-pointer"
               >
-                {renderText("Sign In")}
+                Sign In
               </button>
               <Button onClick={handleSignup} className="bg-[#b6a888] hover:bg-[#a39577] text-black font-semibold">
-                {renderText("Get Started")}
+                Get Started
               </Button>
             </div>
           </nav>
@@ -141,10 +131,10 @@ export default function HomePage() {
               type="button"
               className="text-gray-300 hover:text-[#b6a888] transition-colors font-medium text-sm cursor-pointer"
             >
-              {renderText("Sign In")}
+              Sign In
             </button>
             <Button onClick={handleSignup} className="bg-[#b6a888] hover:bg-[#a39577] text-black font-semibold">
-              {renderText("Get Started")}
+              Get Started
             </Button>
           </div>
         </div>
@@ -154,16 +144,14 @@ export default function HomePage() {
       <section className="py-20 px-4">
         <div className="container mx-auto text-center">
           <Badge className="mb-6 bg-[#b6a888]/20 text-[#b6a888] border-[#b6a888]/30">
-            {renderText("🚀 Transform Your Real Estate Business")}
+            🚀 Transform Your Real Estate Business
           </Badge>
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
-            {renderText("The Next Level U")}
-            <span className="block text-[#b6a888]">{renderText("Real Estate Platform")}</span>
+            The Next Level U<span className="block text-[#b6a888]">Real Estate Platform</span>
           </h1>
           <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
-            {renderText(
-              "Unlock your potential with our AI-powered tools, comprehensive training, marketing resources, and a thriving community of real estate professionals.",
-            )}
+            Unlock your potential with our AI-powered tools, comprehensive training, marketing resources, and a thriving
+            community of real estate professionals.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
@@ -171,7 +159,7 @@ export default function HomePage() {
               onClick={handleSignup}
               className="bg-[#b6a888] hover:bg-[#a39577] text-black font-semibold text-lg px-8 py-4"
             >
-              {renderText("Start Your Journey")}
+              Start Your Journey
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <Button
@@ -181,7 +169,7 @@ export default function HomePage() {
               className="border-[#b6a888] text-[#b6a888] hover:bg-[#b6a888] hover:text-black text-lg px-8 py-4 bg-transparent"
             >
               <Play className="mr-2 h-5 w-5" />
-              {renderText("Watch Demo")}
+              Watch Demo
             </Button>
           </div>
         </div>
@@ -193,7 +181,7 @@ export default function HomePage() {
           <DialogHeader className="p-6 pb-0">
             <div className="flex items-center justify-between">
               <DialogTitle className="text-white text-xl">
-                {selectedDemo ? `${selectedDemo} Demo` : renderText("Platform Demo")}
+                {selectedDemo ? `${selectedDemo} Demo` : "Platform Demo"}
               </DialogTitle>
               <Button
                 variant="ghost"
@@ -228,63 +216,62 @@ export default function HomePage() {
       <section id="features" className="py-20 px-4 bg-black/30">
         <div className="container mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">{renderText("Everything You Need to Succeed")}</h2>
+            <h2 className="text-4xl font-bold text-white mb-4">Everything You Need to Succeed</h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              {renderText(
-                "Our comprehensive platform provides all the tools, training, and resources you need to take your real estate business to the next level.",
-              )}
+              Our comprehensive platform provides all the tools, training, and resources you need to take your real
+              estate business to the next level.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* AI Hub */}
+            {/* AI Hub - MODIFIED SECTION */}
             <Card className="bg-gray-900/50 border-gray-700 hover:border-[#b6a888]/50 transition-all duration-300">
               <CardHeader>
                 <Brain className="h-12 w-12 text-[#b6a888] mb-4" />
-                <CardTitle className="text-white">{renderText("AI Hub")}</CardTitle>
+                <CardTitle className="text-white">AI Hub</CardTitle>
                 <CardDescription className="text-gray-300">
-                  {renderText("12 powerful AI tools including ListIt, ScriptIt, RealBio, ActionAI, and more")}
+                  12 powerful AI tools including ListIt, ScriptIt, RealBio, ActionAI, and more
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-300 mb-4">{renderText("For a demo of each tool, click it below:")}</p>
+                <p className="text-sm text-gray-300 mb-4">For a demo of each tool, click it below:</p>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="space-y-1">
                     <button
                       onClick={() => handleWatchDemo("IdeaHub AI")}
                       className="text-[#b6a888] hover:text-[#a39577] text-left block"
                     >
-                      {renderText("IdeaHub AI Demo")}
+                      IdeaHub AI Demo
                     </button>
                     <button
                       onClick={() => handleWatchDemo("ListIT AI")}
                       className="text-[#b6a888] hover:text-[#a39577] text-left block"
                     >
-                      {renderText("ListIT AI Demo")}
+                      ListIT AI Demo
                     </button>
                     <button
                       onClick={() => handleWatchDemo("ScriptIT AI")}
                       className="text-[#b6a888] hover:text-[#a39577] text-left block"
                     >
-                      {renderText("ScriptIT AI Demo")}
+                      ScriptIT AI Demo
                     </button>
                     <button
                       onClick={() => handleWatchDemo("RealBio AI")}
                       className="text-[#b6a888] hover:text-[#a39577] text-left block"
                     >
-                      {renderText("RealBio AI Demo")}
+                      RealBio AI Demo
                     </button>
                     <button
                       onClick={() => handleWatchDemo("RolePlay AI")}
                       className="text-[#b6a888] hover:text-[#a39577] text-left block"
                     >
-                      {renderText("RolePlay AI Demo")}
+                      RolePlay AI Demo
                     </button>
                     <button
                       onClick={() => handleWatchDemo("Action AI")}
                       className="text-[#b6a888] hover:text-[#a39577] text-left block"
                     >
-                      {renderText("Action AI Demo")}
+                      Action AI Demo
                     </button>
                   </div>
                   <div className="space-y-1">
@@ -292,37 +279,37 @@ export default function HomePage() {
                       onClick={() => handleWatchDemo("RealCoach AI")}
                       className="text-[#b6a888] hover:text-[#a39577] text-left block"
                     >
-                      {renderText("RealCoach AI Demo")}
+                      RealCoach AI Demo
                     </button>
                     <button
                       onClick={() => handleWatchDemo("BizPlan AI")}
                       className="text-[#b6a888] hover:text-[#a39577] text-left block"
                     >
-                      {renderText("BizPlan AI Demo")}
+                      BizPlan AI Demo
                     </button>
                     <button
                       onClick={() => handleWatchDemo("RealDeal AI")}
                       className="text-[#b6a888] hover:text-[#a39577] text-left block"
                     >
-                      {renderText("RealDeal AI Demo")}
+                      RealDeal AI Demo
                     </button>
                     <button
                       onClick={() => handleWatchDemo("QuickCMA AI")}
                       className="text-[#b6a888] hover:text-[#a39577] text-left block"
                     >
-                      {renderText("QuickCMA AI Demo")}
+                      QuickCMA AI Demo
                     </button>
                     <button
                       onClick={() => handleWatchDemo("Who's Who AI")}
                       className="text-[#b6a888] hover:text-[#a39577] text-left block"
                     >
-                      {renderText("Who's Who AI Demo")}
+                      Who's Who AI Demo
                     </button>
                     <button
                       onClick={() => handleWatchDemo("PropBot AI")}
                       className="text-[#b6a888] hover:text-[#a39577] text-left block"
                     >
-                      {renderText("PropBot AI Demo")}
+                      PropBot AI Demo
                     </button>
                   </div>
                 </div>
@@ -333,28 +320,28 @@ export default function HomePage() {
             <Card className="bg-gray-900/50 border-gray-700 hover:border-[#b6a888]/50 transition-all duration-300">
               <CardHeader>
                 <Target className="h-12 w-12 text-[#b6a888] mb-4" />
-                <CardTitle className="text-white">{renderText("Prospecting Hub")}</CardTitle>
+                <CardTitle className="text-white">Prospecting Hub</CardTitle>
                 <CardDescription className="text-gray-300">
-                  {renderText("Complete prospecting strategies for every lead type")}
+                  Complete prospecting strategies for every lead type
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-sm text-gray-400">
                   <li className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    {renderText("FSBO & Expired Listings")}
+                    FSBO & Expired Listings
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    {renderText("Sphere of Influence")}
+                    Sphere of Influence
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    {renderText("Probate & Divorce Leads")}
+                    Probate & Divorce Leads
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    {renderText("Investor Strategies")}
+                    Investor Strategies
                   </li>
                 </ul>
               </CardContent>
@@ -364,28 +351,28 @@ export default function HomePage() {
             <Card className="bg-gray-900/50 border-gray-700 hover:border-[#b6a888]/50 transition-all duration-300">
               <CardHeader>
                 <TrendingUp className="h-12 w-12 text-[#b6a888] mb-4" />
-                <CardTitle className="text-white">{renderText("Marketing Hub")}</CardTitle>
+                <CardTitle className="text-white">Marketing Hub</CardTitle>
                 <CardDescription className="text-gray-300">
-                  {renderText("Professional marketing content and social media resources")}
+                  Professional marketing content and social media resources
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-sm text-gray-400">
                   <li className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    {renderText("Branded social content")}
+                    Branded social content
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    {renderText("Market hot takes")}
+                    Market hot takes
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    {renderText("Professional templates")}
+                    Professional templates
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    {renderText("Campaign strategies")}
+                    Campaign strategies
                   </li>
                 </ul>
               </CardContent>
@@ -395,28 +382,28 @@ export default function HomePage() {
             <Card className="bg-gray-900/50 border-gray-700 hover:border-[#b6a888]/50 transition-all duration-300">
               <CardHeader>
                 <FileText className="h-12 w-12 text-[#b6a888] mb-4" />
-                <CardTitle className="text-white">{renderText("Training Hub")}</CardTitle>
+                <CardTitle className="text-white">Training Hub</CardTitle>
                 <CardDescription className="text-gray-300">
-                  {renderText("Comprehensive training programs and skill development")}
+                  Comprehensive training programs and skill development
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-sm text-gray-400">
                   <li className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    {renderText("Script mastery training")}
+                    Script mastery training
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    {renderText("DISC & VAK personality")}
+                    DISC & VAK personality
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    {renderText("Process optimization")}
+                    Process optimization
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    {renderText("Moxi Works integration")}
+                    Moxi Works integration
                   </li>
                 </ul>
               </CardContent>
@@ -426,28 +413,28 @@ export default function HomePage() {
             <Card className="bg-gray-900/50 border-gray-700 hover:border-[#b6a888]/50 transition-all duration-300">
               <CardHeader>
                 <Users className="h-12 w-12 text-[#b6a888] mb-4" />
-                <CardTitle className="text-white">{renderText("Networking Hub")}</CardTitle>
+                <CardTitle className="text-white">Networking Hub</CardTitle>
                 <CardDescription className="text-gray-300">
-                  {renderText("Connect with other professionals and build relationships")}
+                  Connect with other professionals and build relationships
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-sm text-gray-400">
                   <li className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    {renderText("Community chat")}
+                    Community chat
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    {renderText("Collaboration tools")}
+                    Collaboration tools
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    {renderText("Professional networking")}
+                    Professional networking
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    {renderText("Industry connections")}
+                    Industry connections
                   </li>
                 </ul>
               </CardContent>
@@ -457,28 +444,26 @@ export default function HomePage() {
             <Card className="bg-gray-900/50 border-gray-700 hover:border-[#b6a888]/50 transition-all duration-300">
               <CardHeader>
                 <Zap className="h-12 w-12 text-[#b6a888] mb-4" />
-                <CardTitle className="text-white">{renderText("Services Hub")}</CardTitle>
-                <CardDescription className="text-gray-300">
-                  {renderText("Professional design and consulting services")}
-                </CardDescription>
+                <CardTitle className="text-white">Services Hub</CardTitle>
+                <CardDescription className="text-gray-300">Professional design and consulting services</CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-sm text-gray-400">
                   <li className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    {renderText("Website design")}
+                    Website design
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    {renderText("Marketing materials")}
+                    Marketing materials
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    {renderText("Brokerage consulting")}
+                    Brokerage consulting
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    {renderText("Custom solutions")}
+                    Custom solutions
                   </li>
                 </ul>
               </CardContent>
@@ -491,72 +476,73 @@ export default function HomePage() {
       <section id="about" className="py-20 px-4">
         <div className="container mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">{renderText("We're Not Just Another Tech Company")}</h2>
+            <h2 className="text-4xl font-bold text-white mb-4">We're Not Just Another Tech Company</h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              {renderText(
-                "We live and breathe real estate. Our platform was born from real-world success in the trenches of the industry.",
-              )}
+              We live and breathe real estate. Our platform was born from real-world success in the trenches of the
+              industry.
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left side - Story */}
             <div className="space-y-6">
               <div className="bg-gradient-to-r from-[#b6a888]/20 to-transparent p-6 rounded-lg border border-[#b6a888]/30">
-                <h3 className="text-2xl font-bold text-white mb-4">{renderText("Real Estate Is Our DNA")}</h3>
+                <h3 className="text-2xl font-bold text-white mb-4">Real Estate Is Our DNA</h3>
                 <p className="text-gray-300 leading-relaxed">
-                  {renderText(
-                    "We own and operate one of the largest Century 21 brokerages in the system, with hundreds of agents and over 33 years of proven success in the industry. This isn't theoretical knowledge—it's battle-tested experience from the front lines of real estate.",
-                  )}
+                  We own and operate one of the largest Century 21 brokerages in the system, with hundreds of agents and
+                  over 33 years of proven success in the industry. This isn't theoretical knowledge—it's battle-tested
+                  experience from the front lines of real estate.
                 </p>
               </div>
 
               <div className="bg-gradient-to-r from-[#b6a888]/10 to-transparent p-6 rounded-lg border border-[#b6a888]/20">
-                <h3 className="text-xl font-bold text-white mb-3">{renderText("Built by Agents, for Agents")}</h3>
+                <h3 className="text-xl font-bold text-white mb-3">Built by Agents, for Agents</h3>
                 <p className="text-gray-300">
-                  {renderText(
-                    "Our platform exists because our own agents were achieving incredible results using these tools, training methods, and scripts. We saw the transformation firsthand and knew we had to share these game-changing resources with the entire real estate community.",
-                  )}
+                  Our platform exists because our own agents were achieving incredible results using these tools,
+                  training methods, and scripts. We saw the transformation firsthand and knew we had to share these
+                  game-changing resources with the entire real estate community.
                 </p>
               </div>
             </div>
 
+            {/* Right side - Stats */}
             <div className="grid grid-cols-2 gap-6">
               <Card className="bg-gray-900/50 border-[#b6a888]/30 text-center p-6">
                 <div className="text-3xl font-bold text-[#b6a888] mb-2">33+</div>
-                <div className="text-white font-semibold mb-1">{renderText("Years")}</div>
-                <div className="text-gray-400 text-sm">{renderText("In Business")}</div>
+                <div className="text-white font-semibold mb-1">Years</div>
+                <div className="text-gray-400 text-sm">In Business</div>
               </Card>
 
               <Card className="bg-gray-900/50 border-[#b6a888]/30 text-center p-6">
                 <div className="text-3xl font-bold text-[#b6a888] mb-2">65K+</div>
-                <div className="text-white font-semibold mb-1">{renderText("Transactions")}</div>
-                <div className="text-gray-400 text-sm">{renderText("Completed")}</div>
+                <div className="text-white font-semibold mb-1">Transactions</div>
+                <div className="text-gray-400 text-sm">Completed</div>
               </Card>
 
               <Card className="bg-gray-900/50 border-[#b6a888]/30 text-center p-6">
                 <div className="text-3xl font-bold text-[#b6a888] mb-2">$1B+</div>
-                <div className="text-white font-semibold mb-1">{renderText("Annual Sales")}</div>
-                <div className="text-gray-400 text-sm">{renderText("Volume")}</div>
+                <div className="text-white font-semibold mb-1">Annual Sales</div>
+                <div className="text-gray-400 text-sm">Volume</div>
               </Card>
 
               <Card className="bg-gray-900/50 border-[#b6a888]/30 text-center p-6">
                 <div className="text-3xl font-bold text-[#b6a888] mb-2">100s</div>
-                <div className="text-white font-semibold mb-1">{renderText("of Agents")}</div>
-                <div className="text-gray-400 text-sm">{renderText("In Our Brokerage")}</div>
+                <div className="text-white font-semibold mb-1">of Agents</div>
+                <div className="text-gray-400 text-sm">In Our Brokerage</div>
               </Card>
             </div>
           </div>
 
+          {/* Bottom CTA */}
           <div className="text-center mt-12">
             <div className="bg-gradient-to-r from-[#b6a888]/10 via-[#b6a888]/5 to-[#b6a888]/10 p-8 rounded-lg border border-[#b6a888]/20">
-              <h3 className="text-2xl font-bold text-white mb-4">{renderText("Experience Meets Innovation")}</h3>
+              <h3 className="text-2xl font-bold text-white mb-4">Experience Meets Innovation</h3>
               <p className="text-gray-300 max-w-2xl mx-auto mb-6">
-                {renderText(
-                  "When you join The Next Level U, you're not just getting software—you're getting decades of real estate wisdom, proven strategies, and tools that have generated over a billion dollars in sales.",
-                )}
+                When you join The Next Level U, you're not just getting software—you're getting decades of real estate
+                wisdom, proven strategies, and tools that have generated over a billion dollars in sales.
               </p>
               <Badge className="bg-[#b6a888]/20 text-[#b6a888] border-[#b6a888]/30 px-4 py-2">
-                {renderText("🏆 Proven by Real Results")}
+                🏆 Proven by Real Results
               </Badge>
             </div>
           </div>
@@ -567,45 +553,44 @@ export default function HomePage() {
       <section id="pricing" className="py-20 px-4">
         <div className="container mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">{renderText("Simple, Transparent Pricing")}</h2>
+            <h2 className="text-4xl font-bold text-white mb-4">Simple, Transparent Pricing</h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              {renderText(
-                "Choose the plan that works best for you. All plans include access to every tool and resource.",
-              )}
+              Choose the plan that works best for you. All plans include access to every tool and resource.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Monthly Plan */}
             <Card className="bg-gray-900/50 border-gray-700 hover:border-[#b6a888]/50 transition-all duration-300">
               <CardHeader className="text-center">
-                <CardTitle className="text-2xl text-white">{renderText("Monthly")}</CardTitle>
+                <CardTitle className="text-2xl text-white">Monthly</CardTitle>
                 <div className="text-4xl font-bold text-[#b6a888] mt-4">
                   $29.99
-                  <span className="text-lg text-gray-400 font-normal">{renderText("/month")}</span>
+                  <span className="text-lg text-gray-400 font-normal">/month</span>
                 </div>
-                <CardDescription className="text-gray-300">{renderText("Perfect for getting started")}</CardDescription>
+                <CardDescription className="text-gray-300">Perfect for getting started</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <ul className="space-y-3">
                   <li className="flex items-center gap-2 text-gray-300">
                     <CheckCircle className="h-5 w-5 text-green-500" />
-                    {renderText("Access to all 11 AI tools")}
+                    Access to all 11 AI tools
                   </li>
                   <li className="flex items-center gap-2 text-gray-300">
                     <CheckCircle className="h-5 w-5 text-green-500" />
-                    {renderText("Complete training library")}
+                    Complete training library
                   </li>
                   <li className="flex items-center gap-2 text-gray-300">
                     <CheckCircle className="h-5 w-5 text-green-500" />
-                    {renderText("Marketing resources")}
+                    Marketing resources
                   </li>
                   <li className="flex items-center gap-2 text-gray-300">
                     <CheckCircle className="h-5 w-5 text-green-500" />
-                    {renderText("Community access")}
+                    Community access
                   </li>
                   <li className="flex items-center gap-2 text-gray-300">
                     <CheckCircle className="h-5 w-5 text-green-500" />
-                    {renderText("24/7 platform access")}
+                    24/7 platform access
                   </li>
                 </ul>
 
@@ -613,51 +598,50 @@ export default function HomePage() {
                   onClick={handlePricing}
                   className="w-full bg-[#b6a888] hover:bg-[#a39577] text-black font-semibold py-3 px-6 rounded-md transition-colors"
                 >
-                  {renderText("Get Started Monthly")}
+                  Get Started Monthly
                 </Button>
               </CardContent>
             </Card>
 
+            {/* Annual Plan */}
             <Card className="bg-gray-900/50 border-[#b6a888] hover:border-[#b6a888] transition-all duration-300 relative">
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <Badge className="bg-[#b6a888] text-black font-semibold px-4 py-1">{renderText("BEST VALUE")}</Badge>
+                <Badge className="bg-[#b6a888] text-black font-semibold px-4 py-1">BEST VALUE</Badge>
               </div>
               <CardHeader className="text-center">
-                <CardTitle className="text-2xl text-white">{renderText("Annual")}</CardTitle>
+                <CardTitle className="text-2xl text-white">Annual</CardTitle>
                 <div className="text-4xl font-bold text-[#b6a888] mt-4">
                   $252
-                  <span className="text-lg text-gray-400 font-normal">{renderText("/year")}</span>
+                  <span className="text-lg text-gray-400 font-normal">/year</span>
                 </div>
-                <div className="text-green-400 font-medium">{renderText("Only $21/month - Save $108!")}</div>
-                <CardDescription className="text-gray-300">
-                  {renderText("Best value for serious agents")}
-                </CardDescription>
+                <div className="text-green-400 font-medium">Only $21/month - Save $108!</div>
+                <CardDescription className="text-gray-300">Best value for serious agents</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <ul className="space-y-3">
                   <li className="flex items-center gap-2 text-gray-300">
                     <CheckCircle className="h-5 w-5 text-green-500" />
-                    {renderText("Access to all 11 AI tools")}
+                    Access to all 11 AI tools
                   </li>
                   <li className="flex items-center gap-2 text-gray-300">
                     <CheckCircle className="h-5 w-5 text-green-500" />
-                    {renderText("Complete training library")}
+                    Complete training library
                   </li>
                   <li className="flex items-center gap-2 text-gray-300">
                     <CheckCircle className="h-5 w-5 text-green-500" />
-                    {renderText("Marketing resources")}
+                    Marketing resources
                   </li>
                   <li className="flex items-center gap-2 text-gray-300">
                     <CheckCircle className="h-5 w-5 text-green-500" />
-                    {renderText("Community access")}
+                    Community access
                   </li>
                   <li className="flex items-center gap-2 text-gray-300">
                     <CheckCircle className="h-5 w-5 text-green-500" />
-                    {renderText("24/7 platform access")}
+                    24/7 platform access
                   </li>
                   <li className="flex items-center gap-2 text-green-400">
                     <Star className="h-5 w-5 text-green-500" />
-                    {renderText("Save $108 per year")}
+                    Save $108 per year
                   </li>
                 </ul>
 
@@ -665,7 +649,7 @@ export default function HomePage() {
                   onClick={handlePricing}
                   className="w-full bg-[#b6a888] hover:bg-[#a39577] text-black font-semibold py-3 px-6 rounded-md transition-colors"
                 >
-                  {renderText("Get Started Annual")}
+                  Get Started Annual
                 </Button>
               </CardContent>
             </Card>
@@ -677,11 +661,9 @@ export default function HomePage() {
       <section id="testimonials" className="py-20 px-4 bg-black/30">
         <div className="container mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">{renderText("What Our Members Say")}</h2>
+            <h2 className="text-4xl font-bold text-white mb-4">What Our Members Say</h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              {renderText(
-                "Join thousands of real estate professionals who have transformed their business with The Next Level U.",
-              )}
+              Join thousands of real estate professionals who have transformed their business with The Next Level U.
             </p>
           </div>
 
@@ -694,17 +676,16 @@ export default function HomePage() {
                   ))}
                 </div>
                 <p className="text-gray-300 mb-4">
-                  {renderText(
-                    "The AI tools have completely transformed how I create listings. What used to take hours now takes minutes, and the quality is incredible.",
-                  )}
+                  "The AI tools have completely transformed how I create listings. What used to take hours now takes
+                  minutes, and the quality is incredible."
                 </p>
                 <div className="flex items-center">
                   <div className="w-10 h-10 bg-[#b6a888] rounded-full flex items-center justify-center text-black font-bold mr-3">
                     S
                   </div>
                   <div>
-                    <p className="text-white font-semibold">{renderText("Sarah Johnson")}</p>
-                    <p className="text-gray-400 text-sm">{renderText("Top Producer, Tampa Bay")}</p>
+                    <p className="text-white font-semibold">Sarah Johnson</p>
+                    <p className="text-gray-400 text-sm">Top Producer, Tampa Bay</p>
                   </div>
                 </div>
               </CardContent>
@@ -718,17 +699,16 @@ export default function HomePage() {
                   ))}
                 </div>
                 <p className="text-gray-300 mb-4">
-                  {renderText(
-                    "The prospecting strategies and scripts have helped me close 40% more deals this year. The training is world-class.",
-                  )}
+                  "The prospecting strategies and scripts have helped me close 40% more deals this year. The training is
+                  world-class."
                 </p>
                 <div className="flex items-center">
                   <div className="w-10 h-10 bg-[#b6a888] rounded-full flex items-center justify-center text-black font-bold mr-3">
                     M
                   </div>
                   <div>
-                    <p className="text-white font-semibold">{renderText("Mike Rodriguez")}</p>
-                    <p className="text-gray-400 text-sm">{renderText("Century 21 Agent")}</p>
+                    <p className="text-white font-semibold">Mike Rodriguez</p>
+                    <p className="text-gray-400 text-sm">Century 21 Agent</p>
                   </div>
                 </div>
               </CardContent>
@@ -742,17 +722,15 @@ export default function HomePage() {
                   ))}
                 </div>
                 <p className="text-gray-300 mb-4">
-                  {renderText(
-                    "This platform has everything I need in one place. The community support and resources are unmatched.",
-                  )}
+                  "This platform has everything I need in one place. The community support and resources are unmatched."
                 </p>
                 <div className="flex items-center">
                   <div className="w-10 h-10 bg-[#b6a888] rounded-full flex items-center justify-center text-black font-bold mr-3">
                     L
                   </div>
                   <div>
-                    <p className="text-white font-semibold">{renderText("Lisa Chen")}</p>
-                    <p className="text-gray-400 text-sm">{renderText("Broker Owner")}</p>
+                    <p className="text-white font-semibold">Lisa Chen</p>
+                    <p className="text-gray-400 text-sm">Broker Owner</p>
                   </div>
                 </div>
               </CardContent>
@@ -764,11 +742,9 @@ export default function HomePage() {
       {/* CTA Section */}
       <section className="py-20 px-4">
         <div className="container mx-auto text-center">
-          <h2 className="text-4xl font-bold text-white mb-6">{renderText("Ready to Transform Your Business?")}</h2>
+          <h2 className="text-4xl font-bold text-white mb-6">Ready to Transform Your Business?</h2>
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            {renderText(
-              "Join thousands of successful real estate professionals who have taken their business to the next level.",
-            )}
+            Join thousands of successful real estate professionals who have taken their business to the next level.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
@@ -776,7 +752,7 @@ export default function HomePage() {
               onClick={handleSignup}
               className="bg-[#b6a888] hover:bg-[#a39577] text-black font-semibold text-lg px-8 py-4"
             >
-              {renderText("Start Your Free Trial")}
+              Start Your Free Trial
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <Button
@@ -784,7 +760,7 @@ export default function HomePage() {
               variant="outline"
               className="border-[#b6a888] text-[#b6a888] hover:bg-[#b6a888] hover:text-black text-lg px-8 py-4 bg-transparent"
             >
-              {renderText("Schedule a Demo")}
+              Schedule a Demo
             </Button>
           </div>
         </div>
@@ -805,70 +781,70 @@ export default function HomePage() {
                 />
               </div>
               <p className="text-gray-400">
-                {renderText("Empowering real estate professionals with AI-powered tools and comprehensive training.")}
+                Empowering real estate professionals with AI-powered tools and comprehensive training.
               </p>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4">{renderText("Platform")}</h4>
+              <h4 className="text-white font-semibold mb-4">Platform</h4>
               <ul className="space-y-2 text-gray-400">
                 <li>
                   <a href="#features" className="hover:text-[#b6a888] transition-colors">
-                    {renderText("Features")}
+                    Features
                   </a>
                 </li>
                 <li>
                   <a href="#pricing" className="hover:text-[#b6a888] transition-colors">
-                    {renderText("Pricing")}
+                    Pricing
                   </a>
                 </li>
                 <li>
                   <a href="#testimonials" className="hover:text-[#b6a888] transition-colors">
-                    {renderText("Testimonials")}
+                    Testimonials
                   </a>
                 </li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4">{renderText("Support")}</h4>
+              <h4 className="text-white font-semibold mb-4">Support</h4>
               <ul className="space-y-2 text-gray-400">
                 <li>
                   <a href="#" className="hover:text-[#b6a888] transition-colors">
-                    {renderText("Help Center")}
+                    Help Center
                   </a>
                 </li>
                 <li>
                   <a href="#" className="hover:text-[#b6a888] transition-colors">
-                    {renderText("Contact Us")}
+                    Contact Us
                   </a>
                 </li>
                 <li>
                   <a href="#" className="hover:text-[#b6a888] transition-colors">
-                    {renderText("Community")}
+                    Community
                   </a>
                 </li>
                 <li>
                   <a href="#" className="hover:text-[#b6a888] transition-colors">
-                    {renderText("Status")}
+                    Status
                   </a>
                 </li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4">{renderText("Legal")}</h4>
+              <h4 className="text-white font-semibold mb-4">Legal</h4>
               <ul className="space-y-2 text-gray-400">
                 <li>
                   <a href="#" className="hover:text-[#b6a888] transition-colors">
-                    {renderText("About")}
+                    About
                   </a>
                 </li>
                 <li>
                   <a href="#" className="hover:text-[#b6a888] transition-colors">
-                    {renderText("Privacy Policy")}
+                    Privacy Policy
                   </a>
                 </li>
                 <li>
                   <a href="#" className="hover:text-[#b6a888] transition-colors">
-                    {renderText("Terms of Service")}
+                    Terms of Service
                   </a>
                 </li>
               </ul>

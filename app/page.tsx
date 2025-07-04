@@ -20,14 +20,12 @@ export default function HomePage() {
   const [showVideoModal, setShowVideoModal] = useState(false)
   const [selectedDemo, setSelectedDemo] = useState<string | null>(null)
 
-  // Redirect to custom home page if tenant has one
   useEffect(() => {
     if (tenantConfig.features.customHomePage) {
       router.push(tenantConfig.features.customHomePage)
     }
   }, [tenantConfig, router])
 
-  // If tenant has custom home page, don't render this component
   if (tenantConfig.features.customHomePage) {
     return null
   }
@@ -84,7 +82,6 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-yellow-900">
       <TenantSwitcher />
 
-      {/* Consumer Header */}
       <header className="border-b border-gray-800 bg-black/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center">
@@ -123,7 +120,6 @@ export default function HomePage() {
             </div>
           </nav>
 
-          {/* Mobile menu */}
           <div className="md:hidden flex items-center space-x-2">
             <button
               onClick={handleLogin}
@@ -139,7 +135,6 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Hero Section */}
       <section className="py-20 px-4">
         <div className="container mx-auto text-center">
           <Badge className="mb-6 bg-[#b6a888]/20 text-[#b6a888] border-[#b6a888]/30">
@@ -174,7 +169,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Video Modal */}
       <Dialog open={showVideoModal} onOpenChange={setShowVideoModal}>
         <DialogContent className="max-w-4xl w-full p-0 bg-black border-gray-700">
           <DialogHeader className="p-6 pb-0">
@@ -211,7 +205,6 @@ export default function HomePage() {
         </DialogContent>
       </Dialog>
 
-      {/* Features Section */}
       <section id="features" className="py-20 px-4 bg-black/30">
         <div className="container mx-auto">
           <div className="text-center mb-16">
@@ -223,7 +216,6 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* AI Hub */}
             <Card className="bg-gray-900/50 border-gray-700 hover:border-[#b6a888]/50 transition-all duration-300">
               <CardHeader>
                 <Brain className="h-12 w-12 text-[#b6a888] mb-4" />
@@ -315,7 +307,6 @@ export default function HomePage() {
               </CardContent>
             </Card>
 
-            {/* Prospecting Hub */}
             <Card className="bg-gray-900/50 border-gray-700 hover:border-[#b6a888]/50 transition-all duration-300">
               <CardHeader>
                 <Target className="h-12 w-12 text-[#b6a888] mb-4" />
@@ -346,7 +337,6 @@ export default function HomePage() {
               </CardContent>
             </Card>
 
-            {/* Marketing Hub */}
             <Card className="bg-gray-900/50 border-gray-700 hover:border-[#b6a888]/50 transition-all duration-300">
               <CardHeader>
                 <TrendingUp className="h-12 w-12 text-[#b6a888] mb-4" />
@@ -377,7 +367,6 @@ export default function HomePage() {
               </CardContent>
             </Card>
 
-            {/* Training Hub */}
             <Card className="bg-gray-900/50 border-gray-700 hover:border-[#b6a888]/50 transition-all duration-300">
               <CardHeader>
                 <FileText className="h-12 w-12 text-[#b6a888] mb-4" />
@@ -408,7 +397,6 @@ export default function HomePage() {
               </CardContent>
             </Card>
 
-            {/* Networking Hub */}
             <Card className="bg-gray-900/50 border-gray-700 hover:border-[#b6a888]/50 transition-all duration-300">
               <CardHeader>
                 <Users className="h-12 w-12 text-[#b6a888] mb-4" />
@@ -439,7 +427,6 @@ export default function HomePage() {
               </CardContent>
             </Card>
 
-            {/* Services Hub */}
             <Card className="bg-gray-900/50 border-gray-700 hover:border-[#b6a888]/50 transition-all duration-300">
               <CardHeader>
                 <Zap className="h-12 w-12 text-[#b6a888] mb-4" />
@@ -471,7 +458,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* About Us Section */}
       <section id="about" className="py-20 px-4">
         <div className="container mx-auto">
           <div className="text-center mb-16">
@@ -545,7 +531,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Pricing Section */}
       <section id="pricing" className="py-20 px-4">
         <div className="container mx-auto">
           <div className="text-center mb-16">
@@ -651,7 +636,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
       <section id="testimonials" className="py-20 px-4 bg-black/30">
         <div className="container mx-auto">
           <div className="text-center mb-16">
@@ -733,7 +717,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="py-20 px-4">
         <div className="container mx-auto text-center">
           <h2 className="text-4xl font-bold text-white mb-6">Ready to Transform Your Business?</h2>
@@ -760,7 +743,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="border-t border-gray-800 bg-black/50 py-12 px-4">
         <div className="container mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">

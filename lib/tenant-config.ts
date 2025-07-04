@@ -1,77 +1,118 @@
-import { defaultTenantConfig } from "@/lib/tenants/default"
-import { brokeragePrivateConfig } from "@/lib/tenants/brokerage-private"
-import { internationalConfig } from "@/lib/tenants/international"
-import { century21BegginsConfig } from "@/lib/tenants/century21-beggins"
-import { century21CanadaConfig } from "@/lib/tenants/century21-canada"
-import type { TenantConfig } from "@/lib/types"
+// lib/tenant-config.ts
 
-const tenantConfigs: Record<string, TenantConfig> = {
-  default: defaultTenantConfig,
-  "brokerage-private": brokeragePrivateConfig,
-  international: internationalConfig,
-  "century21-beggins": century21BegginsConfig,
-  "century21-canada": century21CanadaConfig,
+interface TenantConfig {
+  tenantId: string
+  name: string
+  logo: string
+  primaryColor: string
+  secondaryColor: string
+  domain: string
+  googleAnalyticsId?: string
+  gtmId?: string
+  crispWebsiteId?: string
+  enableChat?: boolean
+  enableRequestDemo?: boolean
+  enableContactUs?: boolean
+  enableListings?: boolean
+  enableBlog?: boolean
+  enableCareers?: boolean
+  enableTestimonials?: boolean
+  enableFeaturedAgents?: boolean
+  enableFeaturedListings?: boolean
+  enablePropertySearch?: boolean
+  enableCalculators?: boolean
+  enableClientLogin?: boolean
+  enableClientSignup?: boolean
+  enableAgentLogin?: boolean
+  enableAgentSignup?: boolean
+  enableAdminLogin?: boolean
+  enableAdminSignup?: boolean
+  enableSocialSharing?: boolean
+  enablePrintListing?: boolean
+  enableSaveListing?: boolean
+  enableScheduleShowing?: boolean
+  enableMortgageCalculator?: boolean
+  enableWalkScore?: boolean
+  enableSchoolInfo?: boolean
+  enableLocalInfo?: boolean
+  enableReviews?: boolean
+  enableVirtualTour?: boolean
+  enableVideoTour?: boolean
+  enableMapSearch?: boolean
+  enableAdvancedSearch?: boolean
+  enableOpenHouseSearch?: boolean
+  enableForeclosureSearch?: boolean
+  enableNewConstructionSearch?: boolean
+  enableSoldSearch?: boolean
+  enableRentalSearch?: boolean
+  enableCommercialSearch?: boolean
+  enableLandSearch?: boolean
+  enableFarmSearch?: boolean
+  enableMultiFamilySearch?: boolean
+  enableLuxurySearch?: boolean
+  enableWaterfrontSearch?: boolean
+  enableCondoSearch?: boolean
+  enableTownhouseSearch?: boolean
+  enableMobileHomesSearch?: boolean
+  enableApartmentsSearch?: boolean
+  enableLotsAndLandSearch?: boolean
+  enableRanchesSearch?: boolean
+  enableSingleFamilyHomesSearch?: boolean
+  enableCustomSearch1?: boolean
+  customSearch1Label?: string
+  customSearch1Url?: string
+  customSearch1Icon?: string
+  customSearch1Target?: string
+  customSearch1Enabled?: boolean
+  customSearch2Label?: string
+  customSearch2Url?: string
+  customSearch2Icon?: string
+  customSearch2Target?: string
+  customSearch2Enabled?: boolean
+  customSearch3Label?: string
+  customSearch3Url?: string
+  customSearch3Icon?: string
+  customSearch3Target?: string
+  customSearch3Enabled?: boolean
+  customSearch4Label?: string
+  customSearch4Url?: string
+  customSearch4Icon?: string
+  customSearch4Target?: string
+  customSearch4Enabled?: boolean
+  customSearch5Label?: string
+  customSearch5Url?: string
+  customSearch5Icon?: string
+  customSearch5Target?: string
+  customSearch5Enabled?: boolean
+  customSearch6Label?: string
+  customSearch6Url?: string
+  customSearch6Icon?: string
+  customSearch6Target?: string
+  customSearch6Enabled?: boolean
+  customSearch7Label?: string
+  customSearch7Url?: string
+  customSearch7Icon?: string
+  customSearch7Target?: string
+  customSearch7Enabled?: boolean
+  customSearch8Label?: string
+  customSearch8Url?: string
+  customSearch8Icon?: string
+  customSearch8Target?: string
+  customSearch8Enabled?: boolean
+  customSearch9Label?: string
+  customSearch9Url?: string
+  customSearch9Icon?: string
+  customSearch9Target?: string
+  customSearch9Enabled?: boolean
+  customSearch10Label?: string
+  customSearch10Url?: string
+  customSearch10Icon?: string
+  customSearch10Target?: string
+  customSearch10Enabled?: boolean
 }
 
-export function getTenantConfig(): TenantConfig {
-  if (typeof window === "undefined") {
-    return defaultTenantConfig
-  }
+const tenantConfigurations: TenantConfig[] = [
+  // Add tenant configurations here
+]
 
-  const previewTenant = localStorage.getItem("preview-tenant")
-  if (previewTenant && tenantConfigs[previewTenant]) {
-    return tenantConfigs[previewTenant]
-  }
-
-  const urlParams = new URLSearchParams(window.location.search)
-  const tenantParam = urlParams.get("tenant")
-  if (tenantParam && tenantConfigs[tenantParam]) {
-    return tenantConfigs[tenantParam]
-  }
-
-  const hostname = window.location.hostname
-
-  if (hostname.includes("c21canada") || hostname.includes("century21-canada")) {
-    return century21CanadaConfig
-  }
-
-  if (hostname.includes("beggins") || hostname.includes("century21-beggins")) {
-    return century21BegginsConfig
-  }
-
-  if (hostname.includes("brokerage1") || hostname.includes("brokerage-private")) {
-    return brokeragePrivateConfig
-  }
-
-  if (hostname.includes("international")) {
-    return internationalConfig
-  }
-
-  return defaultTenantConfig
-}
-
-export function getAllTenants() {
-  return [
-    { id: "default", name: "The Next Level U" },
-    { id: "century21-beggins", name: "Beggins University" },
-    { id: "century21-canada", name: "Century 21 Canada" },
-    { id: "brokerage-private", name: "Private Brokerage" },
-    { id: "international", name: "International Platform" },
-  ]
-}
-
-export function getTenantById(id: string): TenantConfig | undefined {
-  return tenantConfigs[id]
-}
-
-export function isToolEnabled(toolId: string, config: TenantConfig): boolean {
-  return config.features.enabledTools?.includes(toolId) || false
-}
-
-export function isFeatureHidden(featureId: string, config: TenantConfig): boolean {
-  return config.features.hiddenFeatures?.includes(featureId) || false
-}
-
-export function getTranslation(key: string, config: TenantConfig): string {
-  return config.localization?.translations?.[key] || key
-}
+export default tenantConfigurations

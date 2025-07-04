@@ -14,6 +14,8 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { Textarea } from "@/components/ui/textarea"
+import { useToast } from "@/components/ui/use-toast"
+import { useState } from "react"
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -30,6 +32,9 @@ const formSchema = z.object({
 })
 
 export function WhosWhoForm() {
+  const [result, setResult] = useState<string | null>(null)
+  const { toast } = useToast()
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -40,7 +45,12 @@ export function WhosWhoForm() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values)
+    setResult("This is a sample result.")
   }
+
+  const contactName = form.watch("name")
+  const contactInfo = form.watch("email")
+  const notes = form.watch("description")
 
   return (
     <Form {...form}>
@@ -154,6 +164,30 @@ export function WhosWhoForm() {
         >
           <Save className="mr-2 h-4 w-4" />
           Save
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => {
+            // Save functionality - you can implement this to save to localStorage or database
+            const saveData = {
+              contactName,
+              contactInfo,
+              notes,
+              result,
+              timestamp: new Date().toISOString(),
+            }
+            localStorage.setItem(`whos-who-${Date.now()}`, JSON.stringify(saveData))
+            toast({
+              title: "Saved Successfully",
+              description: "Your Who's Who analysis has been saved.",
+            })
+          }}
+          disabled={!result}
+          className="w-full"
+        >
+          <Save className="h-4 w-4 mr-2" />
+          Save Analysis
         </Button>
       </form>
     </Form>

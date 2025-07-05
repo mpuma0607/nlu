@@ -2,45 +2,52 @@
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { BookOpen, Users, FileText, Video, MessageCircle, Award } from "lucide-react"
+import { User, Settings, FileText, Video, BookOpen, Users, Award, MessageCircle } from "lucide-react"
 import Link from "next/link"
 
 export default function OnboardingHubPage() {
   const onboardingResources = [
     {
-      title: "Getting Started Guide",
-      description: "Essential first steps for new agents",
-      icon: BookOpen,
-      href: "/onboarding-hub/getting-started",
+      title: "Agent Profile & Set Up",
+      description: "Complete your agent profile and initial setup",
+      icon: User,
+      href: "/onboarding-hub/agent-profile-setup",
       color: "bg-gradient-to-br from-blue-600 to-cyan-600",
+    },
+    {
+      title: "Moxi Works Set Up",
+      description: "Configure your Moxi Works platform",
+      icon: Settings,
+      href: "/onboarding-hub/moxi-works-setup",
+      color: "bg-gradient-to-br from-green-600 to-teal-600",
+    },
+    {
+      title: "Dotloop Set Up",
+      description: "Set up your Dotloop transaction management",
+      icon: FileText,
+      href: "/onboarding-hub/dotloop-setup",
+      color: "bg-gradient-to-br from-purple-600 to-pink-600",
+    },
+    {
+      title: "Zoom Set Up",
+      description: "Configure Zoom for client meetings",
+      icon: Video,
+      href: "/onboarding-hub/zoom-setup",
+      color: "bg-gradient-to-br from-orange-600 to-red-600",
+    },
+    {
+      title: "Training Modules",
+      description: "Structured learning path for success",
+      icon: BookOpen,
+      href: "/onboarding-hub/training-modules",
+      color: "bg-gradient-to-br from-indigo-600 to-purple-600",
     },
     {
       title: "Mentorship Program",
       description: "Connect with experienced agents",
       icon: Users,
       href: "/onboarding-hub/mentorship",
-      color: "bg-gradient-to-br from-green-600 to-teal-600",
-    },
-    {
-      title: "Training Modules",
-      description: "Structured learning path for success",
-      icon: FileText,
-      href: "/onboarding-hub/training-modules",
-      color: "bg-gradient-to-br from-purple-600 to-pink-600",
-    },
-    {
-      title: "Video Library",
-      description: "On-demand training videos",
-      icon: Video,
-      href: "/onboarding-hub/video-library",
-      color: "bg-gradient-to-br from-orange-600 to-red-600",
-    },
-    {
-      title: "Support Community",
-      description: "Connect with other new agents",
-      icon: MessageCircle,
-      href: "/onboarding-hub/community",
-      color: "bg-gradient-to-br from-indigo-600 to-purple-600",
+      color: "bg-gradient-to-br from-teal-600 to-green-600",
     },
     {
       title: "Certification Track",
@@ -48,6 +55,13 @@ export default function OnboardingHubPage() {
       icon: Award,
       href: "/onboarding-hub/certification",
       color: "bg-gradient-to-br from-yellow-600 to-orange-600",
+    },
+    {
+      title: "Support Community",
+      description: "Connect with other new agents",
+      icon: MessageCircle,
+      href: "/onboarding-hub/community",
+      color: "bg-gradient-to-br from-pink-600 to-rose-600",
     },
   ]
 
@@ -64,8 +78,8 @@ export default function OnboardingHubPage() {
             <div className="h-px bg-[#b6a888] w-16"></div>
           </div>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Your comprehensive guide to getting started at Beggins University. Access training modules, mentorship
-            programs, and everything you need to launch your successful real estate career.
+            Your comprehensive guide to getting started at Beggins University. Access training modules, setup guides,
+            and everything you need to launch your successful real estate career.
           </p>
         </div>
       </section>

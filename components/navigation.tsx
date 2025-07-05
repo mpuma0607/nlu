@@ -100,7 +100,28 @@ const navigationItems = [
   {
     title: "Onboarding Hub",
     href: "/onboarding-hub",
-    submenu: [],
+    submenu: [
+      {
+        title: "Agent Profile & Set Up",
+        href: "/onboarding-hub/agent-profile-setup",
+        description: "Complete your agent profile and initial setup",
+      },
+      {
+        title: "Moxi Works Set Up",
+        href: "/onboarding-hub/moxi-works-setup",
+        description: "Configure your Moxi Works platform",
+      },
+      {
+        title: "Dotloop Set Up",
+        href: "/onboarding-hub/dotloop-setup",
+        description: "Set up your Dotloop transaction management",
+      },
+      {
+        title: "Zoom Set Up",
+        href: "/onboarding-hub/zoom-setup",
+        description: "Configure Zoom for client meetings",
+      },
+    ],
   },
   {
     title: "Services Hub",

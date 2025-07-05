@@ -20,142 +20,142 @@ export default function MoxiWorksSetupPage() {
   const setupSteps = [
     {
       id: 1,
-      title: "Account Setup & Login",
-      description: "Set up your Moxi Works account and initial login",
-      duration: "5 minutes",
+      title: "Account Setup & Profile Creation",
+      description: "Set up your Moxi Works account and complete your agent profile",
+      duration: "15 minutes",
       content: {
-        overview:
-          "Get started with your Moxi Works account setup and learn the basics of logging in and navigating the platform.",
+        overview: "Create your Moxi Works account and set up your professional profile with all necessary information.",
         steps: [
-          "Receive your Moxi Works login credentials from your broker",
-          "Visit the Moxi Works login page",
-          "Enter your username and password",
-          "Complete the initial setup wizard",
-          "Verify your email address",
-          "Set up two-factor authentication for security",
+          "Log into Moxi Works with your provided credentials",
+          "Complete your agent profile with contact information",
+          "Upload a professional headshot photo",
+          "Add your license information and certifications",
+          "Set up your bio and professional background",
+          "Configure your notification preferences",
         ],
         tips: [
-          "Save your login credentials in a secure password manager",
-          "Use a strong, unique password",
-          "Keep your login information confidential",
-          "Contact IT support if you have login issues",
+          "Use a high-quality professional photo",
+          "Keep your bio updated with recent achievements",
+          "Set up notifications to stay on top of leads and tasks",
+          "Complete all profile fields for better lead matching",
         ],
       },
     },
     {
       id: 2,
-      title: "Profile Configuration",
-      description: "Complete your agent profile within Moxi Works",
-      duration: "10 minutes",
+      title: "Lead Management & CRM Setup",
+      description: "Configure your lead management system and CRM preferences",
+      duration: "25 minutes",
       content: {
         overview:
-          "Set up your complete agent profile with all necessary information for client interactions and marketing.",
+          "Set up your lead management system to capture, organize, and follow up with potential clients effectively.",
         steps: [
-          "Navigate to your profile settings",
-          "Upload your professional headshot",
-          "Enter your contact information and license details",
-          "Add your bio and professional background",
-          "Set up your email signature",
-          "Configure your marketing preferences",
+          "Import existing contacts and leads into the system",
+          "Set up lead categories and tags for organization",
+          "Configure lead scoring and prioritization rules",
+          "Set up automated lead assignment and routing",
+          "Create custom fields for important client information",
+          "Configure lead source tracking and attribution",
         ],
         tips: [
-          "Use the same headshot across all platforms for consistency",
-          "Keep your bio professional but personable",
-          "Double-check all contact information for accuracy",
-          "Update your profile regularly as your business grows",
+          "Clean up your contact data before importing",
+          "Use consistent tagging and categorization",
+          "Set up lead scoring based on your business priorities",
+          "Regularly review and update your lead management rules",
         ],
       },
     },
     {
       id: 3,
-      title: "CRM & Contact Management",
-      description: "Set up your contact management and CRM features",
-      duration: "15 minutes",
+      title: "Marketing Tools & Campaign Setup",
+      description: "Set up marketing automation and campaign tools",
+      duration: "20 minutes",
       content: {
-        overview: "Configure your CRM system to effectively manage leads, clients, and business relationships.",
+        overview: "Configure marketing tools to automate your client communications and marketing campaigns.",
         steps: [
-          "Import existing contacts from your previous system",
-          "Set up contact categories and tags",
-          "Configure lead assignment and routing",
-          "Set up automated follow-up campaigns",
-          "Create custom fields for important client information",
-          "Configure contact sync with your mobile device",
+          "Set up email marketing templates and campaigns",
+          "Configure automated drip campaigns for different lead types",
+          "Set up social media posting and scheduling tools",
+          "Create listing marketing templates and flyers",
+          "Configure market reports and CMA tools",
+          "Set up client communication templates",
         ],
         tips: [
-          "Clean up duplicate contacts before importing",
-          "Use consistent tagging and categorization",
-          "Set up regular database maintenance routines",
-          "Train on CRM best practices for maximum efficiency",
+          "Personalize your email templates while maintaining professionalism",
+          "Set up different campaigns for buyers vs. sellers",
+          "Use market data to create valuable content for clients",
+          "Test your campaigns before launching them",
         ],
       },
     },
     {
       id: 4,
-      title: "Marketing Tools Setup",
-      description: "Configure marketing automation and tools",
-      duration: "12 minutes",
+      title: "Transaction Management Integration",
+      description: "Connect transaction management tools and workflows",
+      duration: "18 minutes",
       content: {
-        overview: "Set up your marketing tools and automation to streamline your marketing efforts and lead nurturing.",
+        overview: "Integrate transaction management tools to streamline your deal pipeline and client communications.",
         steps: [
-          "Set up your branded email templates",
-          "Configure social media posting tools",
-          "Set up listing marketing automation",
-          "Create buyer and seller nurture campaigns",
-          "Configure market reports and CMAs",
-          "Set up referral tracking and management",
+          "Connect your transaction management system",
+          "Set up deal pipeline stages and workflows",
+          "Configure document management and storage",
+          "Set up client portal access and permissions",
+          "Configure closing timeline and milestone tracking",
+          "Set up post-closing follow-up automation",
         ],
         tips: [
-          "Customize templates with your branding",
-          "Test all automated campaigns before activation",
-          "Monitor campaign performance regularly",
-          "Keep marketing content fresh and relevant",
+          "Customize pipeline stages to match your process",
+          "Set up automated reminders for important deadlines",
+          "Keep clients informed with automated status updates",
+          "Use document templates to save time on paperwork",
         ],
       },
     },
     {
       id: 5,
-      title: "Transaction Management",
-      description: "Set up transaction tracking and management tools",
-      duration: "10 minutes",
+      title: "Mobile App Configuration",
+      description: "Set up and configure the Moxi Works mobile application",
+      duration: "12 minutes",
       content: {
-        overview: "Configure your transaction management system to track deals from contract to closing.",
+        overview:
+          "Configure the Moxi Works mobile app for on-the-go access to your business tools and client information.",
         steps: [
-          "Set up transaction pipeline stages",
-          "Configure task templates for different transaction types",
-          "Set up automated reminders and deadlines",
-          "Configure document management and storage",
-          "Set up commission tracking",
-          "Configure closing coordination tools",
+          "Download and install the Moxi Works mobile app",
+          "Log in and sync your account settings",
+          "Set up push notifications for leads and tasks",
+          "Configure mobile CRM access and contact sync",
+          "Set up mobile marketing tools and social posting",
+          "Test all mobile features and functionality",
         ],
         tips: [
-          "Create checklists for each transaction stage",
-          "Set up automated reminders for important deadlines",
-          "Keep all transaction documents organized",
-          "Regularly backup important transaction data",
+          "Enable push notifications for time-sensitive leads",
+          "Keep the app updated for the latest features",
+          "Use mobile tools to respond quickly to client inquiries",
+          "Practice using mobile features before you need them urgently",
         ],
       },
     },
     {
       id: 6,
-      title: "Reporting & Analytics",
-      description: "Set up reporting dashboards and analytics tracking",
-      duration: "8 minutes",
+      title: "Reporting & Analytics Setup",
+      description: "Configure reporting dashboards and analytics tracking",
+      duration: "15 minutes",
       content: {
         overview:
-          "Configure your reporting and analytics to track your business performance and identify growth opportunities.",
+          "Set up reporting and analytics to track your business performance and identify growth opportunities.",
         steps: [
-          "Set up your main dashboard with key metrics",
-          "Configure lead source tracking",
-          "Set up conversion rate monitoring",
-          "Configure income and commission tracking",
-          "Set up goal tracking and progress monitoring",
-          "Configure automated performance reports",
+          "Set up your business dashboard with key metrics",
+          "Configure lead source and conversion tracking",
+          "Set up sales pipeline and revenue reporting",
+          "Configure marketing campaign performance tracking",
+          "Set up automated reports and email delivery",
+          "Create custom reports for your specific business needs",
         ],
         tips: [
-          "Focus on metrics that drive business decisions",
-          "Set up regular report reviews",
-          "Use data to identify areas for improvement",
-          "Share relevant metrics with your team or broker",
+          "Focus on metrics that directly impact your business goals",
+          "Set up regular report delivery to stay informed",
+          "Use data to identify your most effective lead sources",
+          "Review reports regularly and adjust strategies accordingly",
         ],
       },
     },
@@ -181,10 +181,10 @@ export default function MoxiWorksSetupPage() {
           </div>
         </div>
         <Badge variant="secondary" className="mb-4">
-          🔧 Platform Setup
+          🎯 CRM & Marketing Platform
         </Badge>
         <p className="text-lg text-gray-700 max-w-3xl">
-          Set up your Moxi Works platform to maximize your productivity and streamline your real estate business
+          Set up your Moxi Works platform to manage leads, automate marketing, and streamline your real estate business
           operations.
         </p>
       </div>
@@ -221,7 +221,7 @@ export default function MoxiWorksSetupPage() {
             <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-2">
               <Star className="h-5 w-5 text-green-600" />
               <span className="text-green-800 font-medium">
-                Congratulations! You've completed your Moxi Works setup.
+                Excellent! Your Moxi Works platform is fully configured and ready to use.
               </span>
             </div>
           )}

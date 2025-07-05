@@ -20,144 +20,139 @@ export default function DotloopSetupPage() {
   const setupSteps = [
     {
       id: 1,
-      title: "Account Creation & Access",
-      description: "Set up your Dotloop account and initial access",
-      duration: "5 minutes",
+      title: "Account Creation & Profile Setup",
+      description: "Create your Dotloop account and set up your agent profile",
+      duration: "12 minutes",
       content: {
-        overview:
-          "Get started with your Dotloop account setup and learn how to access the transaction management platform.",
+        overview: "Set up your Dotloop account with your professional information and configure basic settings.",
         steps: [
-          "Visit dotloop.com and click 'Sign Up'",
-          "Enter your professional information and license details",
-          "Verify your email address",
-          "Complete the account verification process",
-          "Download the Dotloop mobile app",
-          "Log in and familiarize yourself with the dashboard",
+          "Create your Dotloop account using company credentials",
+          "Complete your agent profile with contact information",
+          "Upload your professional headshot and license information",
+          "Set up your digital signature and initials",
+          "Configure your notification preferences",
+          "Connect your email account for seamless integration",
         ],
         tips: [
-          "Use your professional email address for the account",
-          "Keep your license information up to date",
-          "Enable notifications for important transaction updates",
-          "Bookmark the Dotloop login page for easy access",
+          "Use a professional email address for your account",
+          "Set up your digital signature to match your handwritten signature",
+          "Enable email notifications for important transaction updates",
+          "Keep your profile information current and professional",
         ],
       },
     },
     {
       id: 2,
-      title: "Profile & Signature Setup",
-      description: "Configure your profile and electronic signature",
-      duration: "8 minutes",
-      content: {
-        overview: "Set up your professional profile and electronic signature for seamless document signing.",
-        steps: [
-          "Navigate to your profile settings",
-          "Upload your professional headshot and contact information",
-          "Create your electronic signature",
-          "Set up your default signature appearance",
-          "Configure signature authentication preferences",
-          "Test your signature on a sample document",
-        ],
-        tips: [
-          "Make your signature clear and professional",
-          "Use consistent signature styling across documents",
-          "Keep your profile information current",
-          "Practice using the signature tool before live transactions",
-        ],
-      },
-    },
-    {
-      id: 3,
-      title: "Template Library Setup",
+      title: "Document Templates & Forms Library",
       description: "Set up your document templates and forms library",
-      duration: "15 minutes",
+      duration: "20 minutes",
       content: {
-        overview:
-          "Configure your template library with commonly used forms and documents for efficient transaction management.",
+        overview: "Configure your document templates and forms library for efficient transaction management.",
         steps: [
-          "Access the template library in your account",
-          "Add state-specific purchase agreements and forms",
-          "Set up listing agreement templates",
-          "Configure disclosure document templates",
-          "Add inspection and appraisal forms",
-          "Create custom templates for your specific needs",
+          "Access your state-specific forms library",
+          "Set up commonly used contract templates",
+          "Configure listing agreement templates",
+          "Set up disclosure and addendum templates",
+          "Create custom document templates for your business",
+          "Organize templates into folders for easy access",
         ],
         tips: [
-          "Organize templates by transaction type",
-          "Keep templates updated with current legal requirements",
-          "Create folders for different property types",
+          "Keep templates updated with the latest legal requirements",
+          "Create separate folders for different transaction types",
+          "Use consistent naming conventions for easy searching",
           "Regularly review and update your template library",
         ],
       },
     },
     {
-      id: 4,
-      title: "Workflow & Automation",
-      description: "Set up automated workflows and task management",
-      duration: "12 minutes",
+      id: 3,
+      title: "Loop Creation & Management",
+      description: "Learn to create and manage transaction loops",
+      duration: "18 minutes",
       content: {
-        overview:
-          "Configure automated workflows to streamline your transaction process and ensure nothing falls through the cracks.",
+        overview: "Master the process of creating and managing transaction loops for your real estate deals.",
         steps: [
-          "Set up transaction workflow templates",
-          "Configure automated task assignments",
-          "Set up deadline reminders and notifications",
-          "Create milestone tracking for transactions",
-          "Configure client communication automation",
-          "Set up document completion tracking",
+          "Learn how to create a new loop for each transaction",
+          "Set up loop participants and assign roles",
+          "Configure loop settings and permissions",
+          "Learn how to add and organize documents within loops",
+          "Set up task assignments and deadlines",
+          "Configure loop notifications and updates",
         ],
         tips: [
-          "Customize workflows for different transaction types",
-          "Set realistic deadlines with buffer time",
-          "Test workflows with sample transactions",
-          "Regularly review and optimize your processes",
+          "Create loops early in the transaction process",
+          "Add all relevant parties to the loop from the beginning",
+          "Use clear naming conventions for your loops",
+          "Set up automated reminders for important deadlines",
+        ],
+      },
+    },
+    {
+      id: 4,
+      title: "Team Collaboration & Permissions",
+      description: "Set up team collaboration and user permissions",
+      duration: "15 minutes",
+      content: {
+        overview: "Configure team collaboration features and set appropriate permissions for different users.",
+        steps: [
+          "Add team members and assign appropriate roles",
+          "Set up permission levels for different user types",
+          "Configure team templates and shared resources",
+          "Set up team notification preferences",
+          "Learn how to transfer loops between team members",
+          "Configure team reporting and oversight features",
+        ],
+        tips: [
+          "Assign permissions based on job responsibilities",
+          "Regularly review and update team member access",
+          "Use team templates to maintain consistency",
+          "Set up clear communication protocols within the platform",
         ],
       },
     },
     {
       id: 5,
-      title: "Team & Collaboration Setup",
-      description: "Configure team access and collaboration features",
-      duration: "10 minutes",
+      title: "Integration & Workflow Automation",
+      description: "Set up integrations with other tools and automate workflows",
+      duration: "22 minutes",
       content: {
-        overview:
-          "Set up team collaboration features to work effectively with other agents, brokers, and service providers.",
+        overview: "Connect Dotloop with your other business tools and set up automated workflows.",
         steps: [
-          "Add team members and set permission levels",
-          "Configure collaboration settings with other agents",
-          "Set up lender and title company connections",
-          "Configure client access and permissions",
-          "Set up document sharing preferences",
-          "Create communication protocols for team members",
+          "Connect Dotloop with your CRM system",
+          "Set up MLS integration for property information",
+          "Configure email integration and synchronization",
+          "Set up calendar integration for important dates",
+          "Configure automated workflow triggers",
+          "Set up reporting and analytics integrations",
         ],
         tips: [
-          "Clearly define roles and permissions for team members",
-          "Establish communication protocols early",
-          "Regularly review team access and permissions",
-          "Train team members on Dotloop best practices",
+          "Test all integrations thoroughly before going live",
+          "Set up automated workflows for repetitive tasks",
+          "Keep integration settings updated as your tools change",
+          "Use automation to reduce manual data entry",
         ],
       },
     },
     {
       id: 6,
-      title: "Integration & Sync Setup",
-      description: "Connect Dotloop with your other business tools",
-      duration: "8 minutes",
+      title: "Mobile App Setup & Training",
+      description: "Configure the mobile app and learn mobile features",
+      duration: "10 minutes",
       content: {
-        overview:
-          "Integrate Dotloop with your CRM, calendar, and other business tools for seamless workflow management.",
+        overview: "Set up the Dotloop mobile app for on-the-go transaction management.",
         steps: [
-          "Connect Dotloop to your CRM system",
-          "Set up calendar integration for important dates",
-          "Configure email integration and notifications",
-          "Set up mobile app synchronization",
-          "Connect with MLS and listing platforms",
-          "Configure backup and data export settings",
+          "Download and install the Dotloop mobile app",
+          "Log in and sync your account settings",
+          "Learn how to access and review documents on mobile",
+          "Practice signing documents using the mobile app",
+          "Set up mobile notifications and alerts",
+          "Learn how to share documents and updates from mobile",
         ],
         tips: [
-          "Test all integrations thoroughly before going live",
-          "Set up regular data backups",
-          "Keep integration settings updated",
-          "Monitor sync status regularly to avoid data loss",
+          "Keep the app updated for the latest features",
+          "Practice using mobile features before you need them urgently",
+          "Use mobile app for quick document reviews and signatures",
+          "Enable push notifications for time-sensitive updates",
         ],
       },
     },
@@ -183,7 +178,7 @@ export default function DotloopSetupPage() {
           </div>
         </div>
         <Badge variant="secondary" className="mb-4">
-          📄 Transaction Management
+          📋 Transaction Management
         </Badge>
         <p className="text-lg text-gray-700 max-w-3xl">
           Configure Dotloop to streamline your transaction management, document handling, and client collaboration
@@ -222,7 +217,9 @@ export default function DotloopSetupPage() {
           {completionPercentage === 100 && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-2">
               <Star className="h-5 w-5 text-green-600" />
-              <span className="text-green-800 font-medium">Congratulations! You've completed your Dotloop setup.</span>
+              <span className="text-green-800 font-medium">
+                Perfect! Your Dotloop transaction management system is ready to streamline your deals.
+              </span>
             </div>
           )}
         </CardContent>

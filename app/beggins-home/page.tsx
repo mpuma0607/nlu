@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 export default function BegginsHomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
-      {/* Simple Header with just logo and login */}
+      {/* Simple Header with ONLY logo and login - NO navigation menu */}
       <header className="absolute top-0 left-0 right-0 z-10 p-6">
         <div className="container mx-auto flex justify-between items-center">
           {/* Logo - using white text logo for dark background */}
@@ -20,7 +20,7 @@ export default function BegginsHomePage() {
             />
           </div>
 
-          {/* Login Link */}
+          {/* Login Link ONLY */}
           <Button
             asChild
             variant="outline"

@@ -1,6 +1,4 @@
 "use client"
-
-import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -20,13 +18,9 @@ import {
   Play,
   Award,
   GraduationCap,
-  Menu,
-  X,
 } from "lucide-react"
 
 export default function BegginsHomePage() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
   const aiTools = [
     {
       title: "IdeaHub AI",
@@ -105,11 +99,11 @@ export default function BegginsHomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
-      {/* Navigation Header */}
+      {/* Minimal Header - Logo and Login Only */}
       <nav className="bg-white/10 backdrop-blur-md border-b border-white/20 sticky top-0 z-50">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center py-4">
-            {/* Logo - Using dark background version */}
+            {/* Logo - Using dark background version (white text) */}
             <Link href="/beggins-home" className="flex items-center">
               <Image
                 src="/images/beggins-university-dark.png"
@@ -120,65 +114,13 @@ export default function BegginsHomePage() {
               />
             </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-8">
-              <Link href="/ai-hub" className="text-white hover:text-yellow-400 font-medium transition-colors">
-                AI Hub
-              </Link>
-              <Link href="/training-hub" className="text-white hover:text-yellow-400 font-medium transition-colors">
-                Training Hub
-              </Link>
-              <Link href="/marketing-hub" className="text-white hover:text-yellow-400 font-medium transition-colors">
-                Marketing Hub
-              </Link>
-              <Link href="/support" className="text-white hover:text-yellow-400 font-medium transition-colors">
-                Get Support
-              </Link>
-            </div>
-
-            {/* Mobile Menu Button */}
-            <div className="lg:hidden">
-              <Button variant="ghost" size="sm" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {/* Login Link Only */}
+            <div className="flex items-center">
+              <Button asChild variant="outline" className="border-white/30 text-white hover:bg-white/10 bg-transparent">
+                <Link href="/portal">Login</Link>
               </Button>
             </div>
           </div>
-
-          {/* Mobile Navigation */}
-          {mobileMenuOpen && (
-            <div className="lg:hidden py-4 border-t border-white/20">
-              <div className="space-y-2">
-                <Link
-                  href="/ai-hub"
-                  className="block py-2 text-white hover:text-yellow-400 font-medium"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  AI Hub
-                </Link>
-                <Link
-                  href="/training-hub"
-                  className="block py-2 text-white hover:text-yellow-400 font-medium"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Training Hub
-                </Link>
-                <Link
-                  href="/marketing-hub"
-                  className="block py-2 text-white hover:text-yellow-400 font-medium"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Marketing Hub
-                </Link>
-                <Link
-                  href="/support"
-                  className="block py-2 text-white hover:text-yellow-400 font-medium"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Get Support
-                </Link>
-              </div>
-            </div>
-          )}
         </div>
       </nav>
 

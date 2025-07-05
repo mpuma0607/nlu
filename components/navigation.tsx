@@ -98,6 +98,11 @@ const navigationItems = [
     ],
   },
   {
+    title: "Onboarding Hub",
+    href: "/onboarding-hub",
+    submenu: [],
+  },
+  {
     title: "Services Hub",
     href: "/services-hub",
     submenu: [
@@ -171,14 +176,23 @@ export default function Navigation() {
         return null
       }
 
+      // For Beggins tenant, show Onboarding Hub, for others hide it
+      if (item.title === "Onboarding Hub" && tenantConfig.id !== "century21-beggins") {
+        return null
+      }
+
       // For AI Hub, show ALL tools including PropBot AI - don't filter by tenant config for now
       let filteredSubmenu = item.submenu || []
 
-      // Add custom sections for Training Hub if they exist
+      // Add custom sections for Training Hub if they exist, but exclude onboarding for Beggins
       if (item.title === "Training Hub" && tenantConfig.features.customSections.length > 0) {
-        const customTrainingSections = tenantConfig.features.customSections.filter((section) =>
-          section.href.startsWith("/training-hub/"),
-        )
+        const customTrainingSections = tenantConfig.features.customSections.filter((section) => {
+          // For Beggins tenant, exclude onboarding from Training Hub since it's now its own hub
+          if (tenantConfig.id === "century21-beggins" && section.id === "onboarding") {
+            return false
+          }
+          return section.href.startsWith("/training-hub/")
+        })
         filteredSubmenu = [...filteredSubmenu, ...customTrainingSections]
       }
 

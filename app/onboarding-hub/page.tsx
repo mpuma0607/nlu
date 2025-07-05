@@ -1,197 +1,212 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { BookOpen, Users, Video, FileText, CheckCircle, Clock, Star } from "lucide-react"
-import Link from "next/link"
+import { BookOpen, Users, Target, CheckCircle, Clock, Award } from "lucide-react"
+import { useTenantConfig } from "@/contexts/tenant-context"
 
 export default function OnboardingHubPage() {
+  const tenantConfig = useTenantConfig()
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Onboarding Hub</h1>
-        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          Welcome to your comprehensive onboarding experience. Get started with the tools, training, and resources you
-          need to succeed.
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2 bg-blue-100 rounded-lg">
+            <BookOpen className="h-8 w-8 text-blue-600" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Onboarding Hub</h1>
+            <p className="text-gray-600">Your comprehensive guide to getting started</p>
+          </div>
+        </div>
+        <Badge variant="secondary" className="mb-4">
+          🚀 Start Your Journey
+        </Badge>
+        <p className="text-lg text-gray-700 max-w-3xl">
+          Welcome to your onboarding journey! This hub contains everything you need to get started and succeed in your
+          real estate career.
         </p>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-        <Card>
-          <CardContent className="p-6 text-center">
-            <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">12</div>
-            <div className="text-sm text-gray-600">Modules Available</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6 text-center">
-            <Clock className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">4-6</div>
-            <div className="text-sm text-gray-600">Hours to Complete</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6 text-center">
-            <Users className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">500+</div>
-            <div className="text-sm text-gray-600">Agents Trained</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6 text-center">
-            <Star className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">4.9</div>
-            <div className="text-sm text-gray-600">Average Rating</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* Onboarding Sections Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Getting Started */}
-        <Card className="lg:col-span-2">
+        <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-green-600" />
-              Getting Started
-            </CardTitle>
-            <CardDescription>Begin your journey with these essential onboarding modules</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold">Welcome & Company Overview</h3>
-                <Badge variant="secondary">Required</Badge>
-              </div>
-              <p className="text-sm text-gray-600 mb-3">
-                Learn about our company culture, values, and what makes us different
-              </p>
-              <Button size="sm" asChild>
-                <Link href="/onboarding-hub/welcome">Start Module</Link>
-              </Button>
+            <div className="flex items-center gap-2 mb-2">
+              <Target className="h-5 w-5 text-green-600" />
+              <CardTitle className="text-xl">Getting Started</CardTitle>
             </div>
-
-            <div className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold">Technology Setup</h3>
-                <Badge variant="secondary">Required</Badge>
-              </div>
-              <p className="text-sm text-gray-600 mb-3">Set up your essential tools and technology stack</p>
-              <Button size="sm" variant="outline" asChild>
-                <Link href="/onboarding-hub/technology">Start Module</Link>
-              </Button>
-            </div>
-
-            <div className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold">Compliance & Legal</h3>
-                <Badge variant="secondary">Required</Badge>
-              </div>
-              <p className="text-sm text-gray-600 mb-3">Understanding legal requirements and compliance standards</p>
-              <Button size="sm" variant="outline" asChild>
-                <Link href="/onboarding-hub/compliance">Start Module</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Progress Tracker */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-600" />
-              Your Progress
-            </CardTitle>
-            <CardDescription>Track your onboarding completion</CardDescription>
+            <CardDescription>Essential first steps to begin your real estate journey</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span>Overall Progress</span>
-                  <span>0%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-green-600 h-2 rounded-full" style={{ width: "0%" }}></div>
-                </div>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                Welcome orientation
               </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm">
-                  <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
-                  <span>Welcome & Overview</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
-                  <span>Technology Setup</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
-                  <span>Compliance Training</span>
-                </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                Platform overview
               </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                Initial setup guide
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-              <Button className="w-full mt-4" asChild>
-                <Link href="/onboarding-hub/welcome">Continue Learning</Link>
-              </Button>
+        {/* Training Modules */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div className="flex items-center gap-2 mb-2">
+              <BookOpen className="h-5 w-5 text-blue-600" />
+              <CardTitle className="text-xl">Training Modules</CardTitle>
+            </div>
+            <CardDescription>Structured learning path for new agents</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Clock className="h-4 w-4 text-blue-500" />
+                Foundation courses
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Clock className="h-4 w-4 text-blue-500" />
+                Skills development
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Clock className="h-4 w-4 text-blue-500" />
+                Advanced techniques
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Mentorship */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div className="flex items-center gap-2 mb-2">
+              <Users className="h-5 w-5 text-purple-600" />
+              <CardTitle className="text-xl">Mentorship</CardTitle>
+            </div>
+            <CardDescription>Connect with experienced professionals</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Users className="h-4 w-4 text-purple-500" />
+                Mentor matching
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Users className="h-4 w-4 text-purple-500" />
+                One-on-one guidance
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Users className="h-4 w-4 text-purple-500" />
+                Progress tracking
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Certification */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div className="flex items-center gap-2 mb-2">
+              <Award className="h-5 w-5 text-yellow-600" />
+              <CardTitle className="text-xl">Certification</CardTitle>
+            </div>
+            <CardDescription>Earn credentials and recognition</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Award className="h-4 w-4 text-yellow-500" />
+                Completion certificates
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Award className="h-4 w-4 text-yellow-500" />
+                Skill badges
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Award className="h-4 w-4 text-yellow-500" />
+                Achievement tracking
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Resources */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div className="flex items-center gap-2 mb-2">
+              <BookOpen className="h-5 w-5 text-indigo-600" />
+              <CardTitle className="text-xl">Resources</CardTitle>
+            </div>
+            <CardDescription>Tools and materials for success</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <CheckCircle className="h-4 w-4 text-indigo-500" />
+                Document templates
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <CheckCircle className="h-4 w-4 text-indigo-500" />
+                Reference guides
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <CheckCircle className="h-4 w-4 text-indigo-500" />
+                Best practices
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Support */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div className="flex items-center gap-2 mb-2">
+              <Users className="h-5 w-5 text-red-600" />
+              <CardTitle className="text-xl">Support</CardTitle>
+            </div>
+            <CardDescription>Get help when you need it</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Users className="h-4 w-4 text-red-500" />
+                Help desk
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Users className="h-4 w-4 text-red-500" />
+                Community forums
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Users className="h-4 w-4 text-red-500" />
+                FAQ resources
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Additional Resources */}
-      <div className="mt-12">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Additional Resources</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Video className="h-5 w-5 text-blue-600" />
-                Video Library
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-600 mb-4">Access our comprehensive video training library</p>
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/onboarding-hub/videos">Browse Videos</Link>
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-purple-600" />
-                Documentation
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-600 mb-4">Download important forms, guides, and reference materials</p>
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/onboarding-hub/documents">View Documents</Link>
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-green-600" />
-                Support Team
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-600 mb-4">Connect with your onboarding team for personalized support</p>
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/support">Get Help</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+      {/* Call to Action */}
+      <div className="mt-12 text-center">
+        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+          <CardContent className="p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Ready to Begin?</h2>
+            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+              Your onboarding journey is designed to set you up for success. Take it step by step and don't hesitate to
+              reach out for support.
+            </p>
+            <Badge className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2">Start Your Onboarding</Badge>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

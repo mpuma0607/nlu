@@ -1,150 +1,269 @@
 "use client"
-
-import { Card, CardContent } from "@/components/ui/card"
-import { Brain, Megaphone, GraduationCap, Wrench, Network, ShoppingBag, Target } from "lucide-react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import { useTenantConfig } from "@/contexts/tenant-context"
-import TranslatedText from "@/components/translated-text"
+import { useTracking } from "@/hooks/use-tracking"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import Image from "next/image"
+import {
+  Brain,
+  Users,
+  TrendingUp,
+  FileText,
+  Zap,
+  Target,
+  CheckCircle,
+  ArrowRight,
+  BookOpen,
+  Wrench,
+} from "lucide-react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
 
 export default function PortalPage() {
   const tenantConfig = useTenantConfig()
-  const isC21Canada = tenantConfig.id === "century21-canada"
+  const router = useRouter()
+  const { trackEvent } = useTracking()
 
-  const hubs = [
+  const handleHubClick = (hubName: string, hubPath: string) => {
+    trackEvent("hub_accessed", { hub: hubName })
+    router.push(hubPath)
+  }
+
+  // Define all hubs with their info
+  const allHubs = [
     {
-      title: "AI Tool Hub",
-      description: "11 powerful AI tools to automate and enhance your real estate business",
+      id: "ai-hub",
+      title: "AI Hub",
+      description: "Powerful AI tools for listings, scripts, bios, and more",
       icon: Brain,
+      color: "text-purple-600",
+      bgColor: "bg-purple-100",
       href: "/ai-hub",
-      color: "bg-gradient-to-br from-purple-600 to-blue-600",
+      features: ["12 AI Tools", "Content Generation", "Smart Analysis"],
     },
     {
-      title: "Marketing Hub",
-      description: "Branded content, social media graphics, and real estate market insights",
-      icon: Megaphone,
-      href: "/marketing-hub",
-      color: "bg-gradient-to-br from-pink-600 to-red-600",
-    },
-    {
+      id: "prospecting-hub",
       title: "Prospecting Hub",
-      description: "Lead generation strategies for FSBO, expired listings, and more",
+      description: "Complete prospecting strategies for every lead type",
       icon: Target,
+      color: "text-green-600",
+      bgColor: "bg-green-100",
       href: "/prospecting-hub",
-      color: "bg-gradient-to-br from-orange-600 to-yellow-600",
+      features: ["FSBO & Expired", "SOI Management", "Lead Generation"],
     },
     {
+      id: "marketing-hub",
+      title: "Marketing Hub",
+      description: "Professional marketing content and social media resources",
+      icon: TrendingUp,
+      color: "text-blue-600",
+      bgColor: "bg-blue-100",
+      href: "/marketing-hub",
+      features: ["Social Content", "Market Updates", "Brand Materials"],
+    },
+    {
+      id: "training-hub",
       title: "Training Hub",
-      description: "Comprehensive training on Moxi Works, scripts, and sales processes",
-      icon: GraduationCap,
+      description: "Comprehensive training programs and skill development",
+      icon: FileText,
+      color: "text-orange-600",
+      bgColor: "bg-orange-100",
       href: "/training-hub",
-      color: "bg-gradient-to-br from-blue-600 to-cyan-600",
+      features: ["Script Mastery", "DISC/VAK", "Process Training"],
     },
     {
+      id: "onboarding-hub",
+      title: "Onboarding Hub",
+      description: "Your comprehensive guide to getting started",
+      icon: BookOpen,
+      color: "text-indigo-600",
+      bgColor: "bg-indigo-100",
+      href: "/onboarding-hub",
+      features: ["Getting Started", "Training Modules", "Mentorship"],
+      tenantOnly: "century21-beggins", // Only show for Beggins tenant
+    },
+    {
+      id: "services-hub",
       title: "Services Hub",
-      description: "Professional design services and brokerage consulting",
-      icon: Wrench,
+      description: "Professional design and consulting services",
+      icon: Zap,
+      color: "text-yellow-600",
+      bgColor: "bg-yellow-100",
       href: "/services-hub",
-      color: "bg-gradient-to-br from-green-600 to-teal-600",
+      features: ["Design Services", "Consulting", "Custom Solutions"],
     },
     {
+      id: "networking-hub",
       title: "Networking Hub",
-      description: "Connect with agents, brokers, and industry professionals",
-      icon: Network,
+      description: "Connect with other professionals and build relationships",
+      icon: Users,
+      color: "text-pink-600",
+      bgColor: "bg-pink-100",
       href: "/networking-hub",
-      color: "bg-gradient-to-br from-indigo-600 to-purple-600",
+      features: ["Community Chat", "Agent Directory", "Collaboration"],
     },
     {
+      id: "gear-hub",
       title: "Gear Hub",
-      description: "Exclusive merchandise and professional tools for Next Level agents",
-      icon: ShoppingBag,
+      description: "Essential tools and resources for real estate professionals",
+      icon: Wrench,
+      color: "text-gray-600",
+      bgColor: "bg-gray-100",
       href: "/gear-hub",
-      color: "bg-gradient-to-br from-gray-700 to-gray-900",
+      features: ["Tools & Resources", "Equipment", "Recommendations"],
     },
   ]
 
+  // Filter hubs based on tenant config
+  const visibleHubs = allHubs.filter((hub) => {
+    // If hub is tenant-specific, only show for that tenant
+    if (hub.tenantOnly && hub.tenantOnly !== tenantConfig.id) {
+      return false
+    }
+
+    // Check if hub is hidden in tenant config
+    const hubKey = hub.id
+    if (tenantConfig.features.hiddenHubs?.includes(hubKey)) {
+      return false
+    }
+
+    return true
+  })
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-gray-900 via-black to-yellow-900 text-white py-24">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative container mx-auto px-4 text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 tracking-tight">
-            {isC21Canada ? <TranslatedText>Welcome to Your Portal</TranslatedText> : "Welcome to Your Portal"}
-          </h1>
-          <div className="flex items-center justify-center gap-4 mb-8">
-            <div className="h-px bg-[#b6a888] w-16"></div>
-            <p className="text-xl text-[#b6a888] font-medium tracking-wide">EMPOWER • EDUCATE • ENCOURAGE</p>
-            <div className="h-px bg-[#b6a888] w-16"></div>
+      <section className="py-12 px-4 bg-gradient-to-r from-gray-900 to-gray-800 text-white">
+        <div className="container mx-auto text-center">
+          <div className="flex items-center justify-center mb-6">
+            <Image
+              src={tenantConfig.branding.logoDark || tenantConfig.branding.logo || "/placeholder.svg"}
+              alt={tenantConfig.branding.name}
+              width={120}
+              height={48}
+              className="object-contain"
+            />
           </div>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            {isC21Canada ? (
-              <TranslatedText>
-                Access your complete suite of real estate superpowers. Choose your hub and start transforming your
-                business today.
-              </TranslatedText>
-            ) : (
-              "Access your complete suite of real estate superpowers. Choose your hub and start transforming your business today."
-            )}
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Welcome to Your Portal</h1>
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <span className="text-gray-300">EMPOWER</span>
+            <span className="text-gray-400">•</span>
+            <span className="text-gray-300">EDUCATE</span>
+            <span className="text-gray-400">•</span>
+            <span className="text-gray-300">ENCOURAGE</span>
+          </div>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            Access your complete suite of real estate superpowers. Choose your hub and start transforming your business
+            today.
           </p>
         </div>
       </section>
 
-      {/* Hubs Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-black mb-4">
-              {isC21Canada ? <TranslatedText>Choose Your Hub</TranslatedText> : "Choose Your Hub"}
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              {isC21Canada ? (
-                <TranslatedText>
-                  Access specialized tools and resources designed to elevate every aspect of your real estate business
-                </TranslatedText>
-              ) : (
-                "Access specialized tools and resources designed to elevate every aspect of your real estate business"
-              )}
+      {/* Hubs Grid */}
+      <section className="py-16 px-4">
+        <div className="container mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Choose Your Hub</h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Each hub is designed to supercharge a specific aspect of your real estate business. Explore the tools and
+              resources that will take you to the next level.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
-            {hubs.map((hub, index) => (
-              <Card
-                key={index}
-                className="h-full bg-white hover:bg-gray-50 transition-all duration-300 border-0 shadow-lg hover:shadow-2xl group"
-              >
-                <CardContent className="p-8 h-full">
-                  <div className="flex flex-col h-full text-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {visibleHubs.map((hub) => {
+              const IconComponent = hub.icon
+              return (
+                <Card
+                  key={hub.id}
+                  className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-2 hover:border-gray-300"
+                  onClick={() => handleHubClick(hub.title, hub.href)}
+                >
+                  <CardHeader className="text-center pb-4">
                     <div
-                      className={`w-20 h-20 ${hub.color} rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
+                      className={`w-16 h-16 ${hub.bgColor} rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}
                     >
-                      <hub.icon className="h-10 w-10 text-white" />
+                      <IconComponent className={`h-8 w-8 ${hub.color}`} />
                     </div>
+                    <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-gray-700 transition-colors">
+                      {hub.title}
+                    </CardTitle>
+                    <CardDescription className="text-gray-600">{hub.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="space-y-2 mb-6">
+                      {hub.features.map((feature, index) => (
+                        <div key={index} className="flex items-center gap-2 text-sm text-gray-600">
+                          <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                          <span>{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <Button
+                      className="w-full group-hover:bg-gray-900 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleHubClick(hub.title, hub.href)
+                      }}
+                    >
+                      Explore {hub.title}
+                      <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+        </div>
+      </section>
 
-                    <h3 className="text-xl font-bold text-black mb-3 group-hover:text-[#b6a888] transition-colors">
-                      {isC21Canada ? <TranslatedText>{hub.title}</TranslatedText> : hub.title}
-                    </h3>
+      {/* Quick Stats */}
+      <section className="py-12 px-4 bg-white">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+            <div>
+              <div className="text-3xl font-bold text-gray-900 mb-2">12+</div>
+              <div className="text-gray-600">AI Tools</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-gray-900 mb-2">50+</div>
+              <div className="text-gray-600">Training Modules</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-gray-900 mb-2">1000+</div>
+              <div className="text-gray-600">Active Users</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-gray-900 mb-2">24/7</div>
+              <div className="text-gray-600">Platform Access</div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-                    <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-grow">
-                      {isC21Canada ? <TranslatedText>{hub.description}</TranslatedText> : hub.description}
-                    </p>
-
-                    <Link href={hub.href} className="w-full mt-auto">
-                      <Button className="w-full bg-[#b6a888] hover:bg-[#a39577] text-white">
-                        {isC21Canada ? (
-                          <>
-                            <TranslatedText>Open</TranslatedText> <TranslatedText>{hub.title}</TranslatedText>
-                          </>
-                        ) : (
-                          `Open ${hub.title}`
-                        )}
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+      {/* Call to Action */}
+      <section className="py-16 px-4 bg-gradient-to-r from-gray-900 to-gray-800 text-white">
+        <div className="container mx-auto text-center">
+          <h2 className="text-3xl font-bold mb-4">Ready to Transform Your Business?</h2>
+          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+            Join thousands of successful real estate professionals who have taken their business to the next level.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/ai-hub">
+              <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100">
+                Start with AI Hub
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+            <Link href="/support">
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-white text-white hover:bg-white hover:text-gray-900 bg-transparent"
+              >
+                Get Support
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

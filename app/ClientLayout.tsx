@@ -21,12 +21,13 @@ export default function ClientLayout({
 }) {
   const pathname = usePathname()
   const isHomePage = pathname === "/"
+  const isBegginsHomePage = pathname === "/beggins-home"
 
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <TenantProvider>
         <TrackingWrapper>
-          {!isHomePage && <Navigation />}
+          {!isHomePage && !isBegginsHomePage && <Navigation />}
           {children}
           <TenantSwitcher />
           <Toaster />

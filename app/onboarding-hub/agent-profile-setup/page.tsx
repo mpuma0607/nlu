@@ -20,139 +20,287 @@ export default function AgentProfileSetupPage() {
   const setupSteps = [
     {
       id: 1,
-      title: "Personal Information",
-      description: "Complete your basic profile information",
-      duration: "5 minutes",
+      title: "Meet Your Leadership Team & Who To Contact For What",
+      description: "Get to know your leadership team and understand the support structure",
+      duration: "10 minutes",
       content: {
-        overview: "Set up your personal information including contact details, bio, and professional background.",
+        overview:
+          "Learn about your leadership team, their roles, and who to contact for different types of support and questions.",
         steps: [
-          "Navigate to your profile settings",
-          "Fill in your contact information (phone, email, address)",
-          "Upload a professional headshot photo",
-          "Write a compelling bio (150-300 words)",
-          "Add your license information and certifications",
-          "Set your preferred communication methods",
+          "Review the leadership team directory and contact information",
+          "Understand each leader's role and areas of expertise",
+          "Save important contact numbers in your phone",
+          "Learn the escalation process for different types of issues",
+          "Schedule introductory meetings with key team members",
+          "Join relevant team communication channels",
         ],
         tips: [
-          "Use a high-quality, professional headshot",
-          "Keep your bio conversational but professional",
-          "Include your specialties and areas of expertise",
-          "Update your contact information regularly",
+          "Don't hesitate to reach out when you need help",
+          "Build relationships early with your support team",
+          "Keep contact information easily accessible",
+          "Understand the best communication method for each leader",
         ],
       },
     },
     {
       id: 2,
-      title: "Professional Branding",
-      description: "Set up your professional brand and marketing materials",
-      duration: "10 minutes",
+      title: "Get Connected - Wifi, Office Access, Printers",
+      description: "Set up your office connectivity and access to shared resources",
+      duration: "15 minutes",
       content: {
-        overview: "Create consistent branding across all your marketing materials and online presence.",
+        overview: "Get connected to all office systems including wifi, printers, and physical access to office spaces.",
         steps: [
-          "Choose your brand colors and fonts",
-          "Upload your logo or create one using our tools",
-          "Set up your email signature template",
-          "Configure your business card design",
-          "Create your social media profile templates",
-          "Set up your listing presentation template",
+          "Obtain wifi network credentials and connect your devices",
+          "Get your office access card or key code",
+          "Set up printer access on your computer and mobile devices",
+          "Test printing from both computer and mobile",
+          "Learn office hours and access protocols",
+          "Get contact information for IT support",
         ],
         tips: [
-          "Keep branding consistent across all platforms",
-          "Choose colors that reflect your personality",
-          "Ensure your logo is high resolution",
-          "Test your email signature on different devices",
+          "Test all connections before you need them urgently",
+          "Save wifi passwords securely",
+          "Know who to contact for technical issues",
+          "Respect office access policies and security protocols",
         ],
       },
     },
     {
       id: 3,
-      title: "Contact Management",
-      description: "Set up your CRM and contact organization system",
-      duration: "15 minutes",
+      title: "G-Suite & Email Set Up",
+      description: "Configure your Google Workspace and professional email account",
+      duration: "20 minutes",
       content: {
-        overview: "Organize your contacts and set up systems for lead management and follow-up.",
+        overview:
+          "Set up your professional Google Workspace account including Gmail, Calendar, Drive, and other productivity tools.",
         steps: [
-          "Import existing contacts from your phone/email",
-          "Create contact categories (leads, clients, referrals, etc.)",
-          "Set up automated follow-up sequences",
-          "Configure lead scoring and prioritization",
-          "Create custom fields for important information",
-          "Set up contact sync with your phone and email",
+          "Receive your G-Suite account credentials from IT",
+          "Log into your new Gmail account and set up your profile",
+          "Configure email forwarding if needed from personal accounts",
+          "Set up Google Drive file organization structure",
+          "Configure Google Calendar with your availability",
+          "Install Google Workspace apps on your mobile devices",
         ],
         tips: [
-          "Clean up duplicate contacts before importing",
-          "Use consistent naming conventions",
-          "Set up regular contact database maintenance",
-          "Create templates for common communications",
+          "Use a professional profile photo across all Google services",
+          "Set up email signatures with your contact information",
+          "Organize your Drive with clear folder structures",
+          "Enable two-factor authentication for security",
         ],
       },
     },
     {
       id: 4,
-      title: "Calendar & Scheduling",
-      description: "Configure your calendar and appointment scheduling",
-      duration: "8 minutes",
+      title: "How To Set Up Company Calendar",
+      description: "Configure your company calendar system and scheduling",
+      duration: "12 minutes",
       content: {
-        overview: "Set up your calendar system for efficient scheduling and time management.",
+        overview:
+          "Set up your company calendar system to manage appointments, meetings, and important business events.",
         steps: [
-          "Connect your calendar (Google, Outlook, etc.)",
-          "Set your availability and working hours",
-          "Create appointment types (showings, consultations, etc.)",
-          "Set up automated reminders and confirmations",
-          "Configure buffer times between appointments",
-          "Create calendar sharing settings for team members",
+          "Access the company calendar system",
+          "Set up your personal calendar within the company system",
+          "Configure calendar sharing with team members",
+          "Set up appointment types and availability",
+          "Configure automatic reminders and notifications",
+          "Sync company calendar with your personal devices",
         ],
         tips: [
-          "Block time for prospecting and admin tasks",
-          "Set realistic travel times between appointments",
-          "Use color coding for different appointment types",
-          "Always include location and contact information",
+          "Block time for prospecting and administrative tasks",
+          "Use color coding for different types of appointments",
+          "Set realistic buffer times between appointments",
+          "Keep your calendar updated and accurate",
         ],
       },
     },
     {
       id: 5,
-      title: "Communication Preferences",
-      description: "Set up your communication channels and preferences",
-      duration: "7 minutes",
+      title: "How To Add Voicemail Greeting",
+      description: "Set up your professional voicemail greeting",
+      duration: "8 minutes",
       content: {
-        overview: "Configure how you communicate with clients and manage your communication channels.",
+        overview:
+          "Create and set up a professional voicemail greeting that represents you and your business effectively.",
         steps: [
-          "Set up your business phone system",
-          "Configure email templates and signatures",
-          "Set up text messaging preferences",
-          "Configure social media business accounts",
-          "Set up video calling preferences",
-          "Create communication preference profiles for different client types",
+          "Access your phone system voicemail settings",
+          "Write a professional voicemail script",
+          "Record your voicemail greeting",
+          "Review and re-record if necessary for clarity",
+          "Set up voicemail-to-email notifications",
+          "Test your voicemail system by calling yourself",
         ],
         tips: [
-          "Have separate business and personal phone numbers",
-          "Create templates for common responses",
-          "Set up auto-responders for after hours",
-          "Keep communication professional but personable",
+          "Keep your greeting concise and professional",
+          "Include your name and company information",
+          "Mention when callers can expect a return call",
+          "Update your greeting if you'll be unavailable for extended periods",
         ],
       },
     },
     {
       id: 6,
-      title: "Goal Setting & Tracking",
-      description: "Set up your business goals and tracking systems",
-      duration: "12 minutes",
+      title: "How To Write Your Agent Bio",
+      description: "Create a compelling professional bio for marketing materials",
+      duration: "25 minutes",
       content: {
-        overview: "Establish your business goals and set up systems to track your progress.",
+        overview:
+          "Write a professional bio that showcases your expertise, personality, and value proposition to potential clients.",
         steps: [
-          "Set your annual income and transaction goals",
-          "Break down goals into monthly and weekly targets",
-          "Set up activity tracking (calls, appointments, etc.)",
-          "Configure progress reporting and dashboards",
-          "Create accountability check-in schedules",
-          "Set up reward systems for goal achievement",
+          "Gather information about your background and experience",
+          "Write a compelling opening that grabs attention",
+          "Include your professional qualifications and certifications",
+          "Add personal touches that make you relatable",
+          "Include your specialties and areas of expertise",
+          "End with a strong call-to-action",
         ],
         tips: [
-          "Make goals specific, measurable, and time-bound",
-          "Track leading indicators, not just results",
-          "Review and adjust goals regularly",
-          "Celebrate small wins along the way",
+          "Keep it conversational but professional",
+          "Focus on benefits to clients, not just features about you",
+          "Include specific achievements and results when possible",
+          "Have colleagues review your bio for feedback",
+        ],
+      },
+    },
+    {
+      id: 7,
+      title: "Printed & Digital Business Cards",
+      description: "Design and order your professional business cards",
+      duration: "15 minutes",
+      content: {
+        overview:
+          "Create professional business cards for both print and digital use to make lasting impressions with clients and contacts.",
+        steps: [
+          "Access the company business card design system",
+          "Choose a template that matches your brand",
+          "Add your contact information and photo",
+          "Review design guidelines and compliance requirements",
+          "Order printed business cards",
+          "Set up digital business card for mobile sharing",
+        ],
+        tips: [
+          "Use a high-quality professional headshot",
+          "Include all relevant contact information",
+          "Follow company branding guidelines",
+          "Order extra cards - you'll use more than you think",
+        ],
+      },
+    },
+    {
+      id: 8,
+      title: "Ring Central Phone Set Up",
+      description: "Configure your Ring Central phone system",
+      duration: "18 minutes",
+      content: {
+        overview: "Set up your Ring Central phone system for professional communication with clients and team members.",
+        steps: [
+          "Download and install Ring Central app on all devices",
+          "Log in with your provided credentials",
+          "Set up your phone number and extension",
+          "Configure call forwarding and routing preferences",
+          "Set up voicemail and greeting messages",
+          "Test calling and receiving calls on all devices",
+        ],
+        tips: [
+          "Test the system thoroughly before going live",
+          "Set up call forwarding to ensure you never miss important calls",
+          "Use professional greetings and hold music",
+          "Keep the app updated on all devices",
+        ],
+      },
+    },
+    {
+      id: 9,
+      title: "MLS Set Up",
+      description: "Get access to and set up your MLS system",
+      duration: "20 minutes",
+      content: {
+        overview:
+          "Set up your Multiple Listing Service (MLS) access to search properties and manage listings effectively.",
+        steps: [
+          "Complete MLS application and background check",
+          "Receive MLS login credentials",
+          "Complete required MLS training modules",
+          "Set up your MLS profile and preferences",
+          "Learn basic search and listing functions",
+          "Download MLS mobile app and configure settings",
+        ],
+        tips: [
+          "Complete all required training before using the system",
+          "Keep your MLS credentials secure and confidential",
+          "Stay updated on MLS rules and regulations",
+          "Practice using search functions to become proficient",
+        ],
+      },
+    },
+    {
+      id: 10,
+      title: "How To Use 21online.com",
+      description: "Learn to navigate and use the Century 21 online platform",
+      duration: "15 minutes",
+      content: {
+        overview:
+          "Get familiar with the Century 21 online platform for accessing resources, tools, and company information.",
+        steps: [
+          "Access 21online.com with your credentials",
+          "Complete your profile setup",
+          "Explore available resources and tools",
+          "Set up notifications and preferences",
+          "Learn how to access marketing materials",
+          "Understand how to submit support requests",
+        ],
+        tips: [
+          "Bookmark important sections for quick access",
+          "Check for updates and new resources regularly",
+          "Use the search function to find specific information quickly",
+          "Take advantage of all available training materials",
+        ],
+      },
+    },
+    {
+      id: 11,
+      title: "Setting Up Your Online Presence",
+      description: "Establish your presence on Zillow, Realtor.com, GMB, and YouTube",
+      duration: "45 minutes",
+      content: {
+        overview:
+          "Create and optimize your online presence across major real estate platforms and social media channels.",
+        steps: [
+          "Set up your Zillow agent profile with photos and bio",
+          "Create your Realtor.com agent profile",
+          "Set up Google My Business listing",
+          "Create your YouTube channel for real estate content",
+          "Optimize all profiles with consistent branding",
+          "Add client reviews and testimonials where possible",
+        ],
+        tips: [
+          "Use consistent branding across all platforms",
+          "Include professional photos and compelling descriptions",
+          "Encourage satisfied clients to leave reviews",
+          "Keep all profiles updated with current information",
+        ],
+      },
+    },
+    {
+      id: 12,
+      title: "Agent Safety Protocols",
+      description: "Learn essential safety protocols for real estate agents",
+      duration: "20 minutes",
+      content: {
+        overview:
+          "Understand and implement safety protocols to protect yourself while working with clients and showing properties.",
+        steps: [
+          "Review company safety policies and procedures",
+          "Learn about personal safety apps and tools",
+          "Understand client verification procedures",
+          "Set up emergency contacts and check-in protocols",
+          "Learn about property showing safety measures",
+          "Complete safety training certification",
+        ],
+        tips: [
+          "Always inform someone of your whereabouts when showing properties",
+          "Trust your instincts - if something feels wrong, leave",
+          "Keep emergency contacts easily accessible",
+          "Stay updated on safety best practices and new tools",
         ],
       },
     },
@@ -181,8 +329,8 @@ export default function AgentProfileSetupPage() {
           🚀 Essential Setup
         </Badge>
         <p className="text-lg text-gray-700 max-w-3xl">
-          Set up your complete agent profile to establish your professional presence and streamline your business
-          operations.
+          Complete your comprehensive agent onboarding checklist to establish your professional presence and get
+          connected to all essential systems and tools.
         </p>
       </div>
 
@@ -193,7 +341,7 @@ export default function AgentProfileSetupPage() {
             <CheckCircle className="h-5 w-5 text-green-600" />
             Setup Progress
           </CardTitle>
-          <CardDescription>Track your profile setup completion</CardDescription>
+          <CardDescription>Track your agent setup completion</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4 mb-4">
@@ -218,7 +366,7 @@ export default function AgentProfileSetupPage() {
             <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-2">
               <Star className="h-5 w-5 text-green-600" />
               <span className="text-green-800 font-medium">
-                Congratulations! You've completed your agent profile setup.
+                Congratulations! You've completed your agent profile setup. Next Step: Attend Tools and Tech Overview
               </span>
             </div>
           )}

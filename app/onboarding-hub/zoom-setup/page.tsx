@@ -12,152 +12,149 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { FileText, CheckCircle, Clock, Star, ArrowRight, Play } from "lucide-react"
+import { Video, CheckCircle, Clock, Star, ArrowRight, Play } from "lucide-react"
 
-export default function DotloopSetupPage() {
+export default function ZoomSetupPage() {
   const [completedSteps, setCompletedSteps] = useState<number[]>([])
 
   const setupSteps = [
     {
       id: 1,
-      title: "Account Creation & Access",
-      description: "Set up your Dotloop account and initial access",
-      duration: "5 minutes",
+      title: "Account Setup & Installation",
+      description: "Create your Zoom account and install the application",
+      duration: "8 minutes",
       content: {
         overview:
-          "Get started with your Dotloop account setup and learn how to access the transaction management platform.",
+          "Get started with Zoom by creating your professional account and installing the necessary applications.",
         steps: [
-          "Visit dotloop.com and click 'Sign Up'",
-          "Enter your professional information and license details",
-          "Verify your email address",
-          "Complete the account verification process",
-          "Download the Dotloop mobile app",
-          "Log in and familiarize yourself with the dashboard",
+          "Visit zoom.us and sign up for a professional account",
+          "Verify your email address and complete account setup",
+          "Download Zoom desktop application for your computer",
+          "Install Zoom mobile app on your smartphone and tablet",
+          "Log into all applications with your account credentials",
+          "Complete the initial setup wizard and preferences",
         ],
         tips: [
           "Use your professional email address for the account",
-          "Keep your license information up to date",
-          "Enable notifications for important transaction updates",
-          "Bookmark the Dotloop login page for easy access",
+          "Choose a professional username that includes your name",
+          "Enable automatic updates for the best experience",
+          "Test your installation by joining a test meeting",
         ],
       },
     },
     {
       id: 2,
-      title: "Profile & Signature Setup",
-      description: "Configure your profile and electronic signature",
-      duration: "8 minutes",
+      title: "Profile & Professional Setup",
+      description: "Configure your professional profile and settings",
+      duration: "10 minutes",
       content: {
-        overview: "Set up your professional profile and electronic signature for seamless document signing.",
+        overview: "Set up your professional profile to make a great impression with clients and colleagues.",
         steps: [
-          "Navigate to your profile settings",
-          "Upload your professional headshot and contact information",
-          "Create your electronic signature",
-          "Set up your default signature appearance",
-          "Configure signature authentication preferences",
-          "Test your signature on a sample document",
+          "Upload a professional headshot as your profile picture",
+          "Set your display name to your professional name",
+          "Add your title and company information",
+          "Configure your time zone and location settings",
+          "Set up your professional email signature",
+          "Configure privacy and security settings",
         ],
         tips: [
-          "Make your signature clear and professional",
-          "Use consistent signature styling across documents",
-          "Keep your profile information current",
-          "Practice using the signature tool before live transactions",
+          "Use the same professional photo across all platforms",
+          "Keep your display name consistent with business cards",
+          "Set privacy settings to protect client confidentiality",
+          "Regularly update your profile information",
         ],
       },
     },
     {
       id: 3,
-      title: "Template Library Setup",
-      description: "Set up your document templates and forms library",
-      duration: "15 minutes",
+      title: "Meeting Settings & Preferences",
+      description: "Configure your default meeting settings and preferences",
+      duration: "12 minutes",
       content: {
-        overview:
-          "Configure your template library with commonly used forms and documents for efficient transaction management.",
+        overview: "Set up your meeting preferences to ensure professional and efficient client interactions.",
         steps: [
-          "Access the template library in your account",
-          "Add state-specific purchase agreements and forms",
-          "Set up listing agreement templates",
-          "Configure disclosure document templates",
-          "Add inspection and appraisal forms",
-          "Create custom templates for your specific needs",
+          "Configure default meeting settings (mute on entry, waiting room, etc.)",
+          "Set up meeting security options and passwords",
+          "Configure recording preferences and storage options",
+          "Set up screen sharing permissions and controls",
+          "Configure chat and annotation settings",
+          "Set up meeting templates for different types of appointments",
         ],
         tips: [
-          "Organize templates by transaction type",
-          "Keep templates updated with current legal requirements",
-          "Create folders for different property types",
-          "Regularly review and update your template library",
+          "Always use waiting rooms for client meetings",
+          "Enable meeting passwords for added security",
+          "Test recording features before important meetings",
+          "Create templates for listing presentations and buyer consultations",
         ],
       },
     },
     {
       id: 4,
-      title: "Workflow & Automation",
-      description: "Set up automated workflows and task management",
-      duration: "12 minutes",
+      title: "Calendar Integration",
+      description: "Connect Zoom with your calendar system",
+      duration: "8 minutes",
       content: {
-        overview:
-          "Configure automated workflows to streamline your transaction process and ensure nothing falls through the cracks.",
+        overview: "Integrate Zoom with your calendar to streamline scheduling and automatically add meeting links.",
         steps: [
-          "Set up transaction workflow templates",
-          "Configure automated task assignments",
-          "Set up deadline reminders and notifications",
-          "Create milestone tracking for transactions",
-          "Configure client communication automation",
-          "Set up document completion tracking",
+          "Connect Zoom to your Google Calendar or Outlook",
+          "Configure automatic meeting link generation",
+          "Set up meeting reminders and notifications",
+          "Test calendar integration with a sample meeting",
+          "Configure meeting invitation templates",
+          "Set up recurring meeting options for regular clients",
         ],
         tips: [
-          "Customize workflows for different transaction types",
-          "Set realistic deadlines with buffer time",
-          "Test workflows with sample transactions",
-          "Regularly review and optimize your processes",
+          "Test integration thoroughly before scheduling client meetings",
+          "Customize meeting invitation templates with your branding",
+          "Set up buffer time between meetings",
+          "Use descriptive meeting titles for easy identification",
         ],
       },
     },
     {
       id: 5,
-      title: "Team & Collaboration Setup",
-      description: "Configure team access and collaboration features",
-      duration: "10 minutes",
+      title: "Audio & Video Setup",
+      description: "Configure and test your audio and video equipment",
+      duration: "15 minutes",
       content: {
-        overview:
-          "Set up team collaboration features to work effectively with other agents, brokers, and service providers.",
+        overview: "Ensure your audio and video quality is professional for client meetings and presentations.",
         steps: [
-          "Add team members and set permission levels",
-          "Configure collaboration settings with other agents",
-          "Set up lender and title company connections",
-          "Configure client access and permissions",
-          "Set up document sharing preferences",
-          "Create communication protocols for team members",
+          "Test your computer's built-in camera and microphone",
+          "Configure external camera and microphone if available",
+          "Set up proper lighting for video calls",
+          "Test audio levels and background noise reduction",
+          "Configure virtual backgrounds if desired",
+          "Test screen sharing and presentation features",
         ],
         tips: [
-          "Clearly define roles and permissions for team members",
-          "Establish communication protocols early",
-          "Regularly review team access and permissions",
-          "Train team members on Dotloop best practices",
+          "Invest in good lighting - it makes a huge difference",
+          "Use a headset or external microphone for better audio quality",
+          "Test your setup in different lighting conditions",
+          "Have a backup plan for technical difficulties",
         ],
       },
     },
     {
       id: 6,
-      title: "Integration & Sync Setup",
-      description: "Connect Dotloop with your other business tools",
-      duration: "8 minutes",
+      title: "Advanced Features & Tools",
+      description: "Learn advanced Zoom features for real estate professionals",
+      duration: "20 minutes",
       content: {
         overview:
-          "Integrate Dotloop with your CRM, calendar, and other business tools for seamless workflow management.",
+          "Master advanced Zoom features that can enhance your real estate presentations and client interactions.",
         steps: [
-          "Connect Dotloop to your CRM system",
-          "Set up calendar integration for important dates",
-          "Configure email integration and notifications",
-          "Set up mobile app synchronization",
-          "Connect with MLS and listing platforms",
-          "Configure backup and data export settings",
+          "Learn to use breakout rooms for group consultations",
+          "Set up and practice using whiteboard features",
+          "Configure polling and Q&A features for presentations",
+          "Learn to use annotation tools during screen sharing",
+          "Set up and test virtual property tour capabilities",
+          "Practice using Zoom for listing presentations and buyer consultations",
         ],
         tips: [
-          "Test all integrations thoroughly before going live",
-          "Set up regular data backups",
-          "Keep integration settings updated",
-          "Monitor sync status regularly to avoid data loss",
+          "Practice advanced features before using them with clients",
+          "Create templates for common presentation scenarios",
+          "Keep backup materials ready in case of technical issues",
+          "Record practice sessions to improve your presentation skills",
         ],
       },
     },
@@ -174,20 +171,20 @@ export default function DotloopSetupPage() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-purple-100 rounded-lg">
-            <FileText className="h-8 w-8 text-purple-600" />
+          <div className="p-2 bg-orange-100 rounded-lg">
+            <Video className="h-8 w-8 text-orange-600" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Dotloop Set Up</h1>
-            <p className="text-gray-600">Set up your Dotloop transaction management</p>
+            <h1 className="text-3xl font-bold text-gray-900">Zoom Set Up</h1>
+            <p className="text-gray-600">Configure Zoom for client meetings</p>
           </div>
         </div>
         <Badge variant="secondary" className="mb-4">
-          📄 Transaction Management
+          📹 Video Conferencing
         </Badge>
         <p className="text-lg text-gray-700 max-w-3xl">
-          Configure Dotloop to streamline your transaction management, document handling, and client collaboration
-          processes.
+          Set up Zoom to conduct professional virtual meetings, property tours, and client consultations with
+          confidence.
         </p>
       </div>
 
@@ -198,7 +195,7 @@ export default function DotloopSetupPage() {
             <CheckCircle className="h-5 w-5 text-green-600" />
             Setup Progress
           </CardTitle>
-          <CardDescription>Track your Dotloop setup completion</CardDescription>
+          <CardDescription>Track your Zoom setup completion</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4 mb-4">
@@ -209,20 +206,20 @@ export default function DotloopSetupPage() {
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
-                  className="bg-purple-600 h-2 rounded-full transition-all duration-300"
+                  className="bg-orange-600 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${completionPercentage}%` }}
                 ></div>
               </div>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold text-purple-600">{completedSteps.length}</div>
+              <div className="text-2xl font-bold text-orange-600">{completedSteps.length}</div>
               <div className="text-sm text-gray-500">of {setupSteps.length} steps</div>
             </div>
           </div>
           {completionPercentage === 100 && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-2">
               <Star className="h-5 w-5 text-green-600" />
-              <span className="text-green-800 font-medium">Congratulations! You've completed your Dotloop setup.</span>
+              <span className="text-green-800 font-medium">Congratulations! You've completed your Zoom setup.</span>
             </div>
           )}
         </CardContent>
@@ -268,7 +265,7 @@ export default function DotloopSetupPage() {
                     <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle className="flex items-center gap-2">
-                          <FileText className="h-5 w-5 text-purple-600" />
+                          <Video className="h-5 w-5 text-orange-600" />
                           {step.title}
                         </DialogTitle>
                         <DialogDescription>{step.content.overview}</DialogDescription>
@@ -276,13 +273,13 @@ export default function DotloopSetupPage() {
                       <div className="space-y-6">
                         <div>
                           <h4 className="font-semibold mb-3 flex items-center gap-2">
-                            <ArrowRight className="h-4 w-4 text-purple-600" />
+                            <ArrowRight className="h-4 w-4 text-orange-600" />
                             Step-by-Step Instructions
                           </h4>
                           <ol className="space-y-2">
                             {step.content.steps.map((stepItem, index) => (
                               <li key={index} className="flex items-start gap-2">
-                                <span className="bg-purple-100 text-purple-600 text-xs font-medium px-2 py-1 rounded-full min-w-[24px] text-center">
+                                <span className="bg-orange-100 text-orange-600 text-xs font-medium px-2 py-1 rounded-full min-w-[24px] text-center">
                                   {index + 1}
                                 </span>
                                 <span className="text-sm text-gray-700">{stepItem}</span>

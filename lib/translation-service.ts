@@ -1,10 +1,5 @@
 class TranslationService {
   private cache = new Map<string, string>()
-  private apiKey: string
-
-  constructor() {
-    this.apiKey = process.env.NEXT_PUBLIC_GOOGLE_TRANSLATE_API_KEY || ""
-  }
 
   async translateText(text: string, targetLanguage: string): Promise<string> {
     if (!text || targetLanguage === "en") {
@@ -17,20 +12,15 @@ class TranslationService {
     }
 
     try {
-      if (!this.apiKey) {
-        console.warn("Google Translate API key not found, using mock translation")
-        return this.getMockTranslation(text, targetLanguage)
-      }
-
-      const response = await fetch(`https://translation.googleapis.com/language/translate/v2?key=${this.apiKey}`, {
+      // Use server action instead of direct API call
+      const response = await fetch("/api/translate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          q: text,
-          target: targetLanguage,
-          format: "text",
+          text,
+          targetLanguage,
         }),
       })
 
@@ -39,7 +29,7 @@ class TranslationService {
       }
 
       const data = await response.json()
-      const translatedText = data.data.translations[0].translatedText
+      const translatedText = data.translatedText
 
       this.cache.set(cacheKey, translatedText)
       return translatedText

@@ -202,7 +202,7 @@ export default function Navigation() {
           {/* Logo */}
           <Link href="/portal" className="flex items-center">
             <Image
-              src={tenantConfig.branding.logoDark || tenantConfig.branding.logo || "/placeholder.svg"}
+              src={tenantConfig.branding.logo || "/placeholder.svg"}
               alt={tenantConfig.branding.name}
               width={100}
               height={40}

@@ -1,9 +1,14 @@
 "use client"
 import Link from "next/link"
+import { useEffect } from "react"
+
+import { useState } from "react"
+
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { useTenantConfig } from "@/contexts/tenant-context"
 import {
   BookOpen,
   Users,
@@ -21,6 +26,8 @@ import {
 } from "lucide-react"
 
 export default function BegginsHomePage() {
+  const tenantConfig = useTenantConfig()
+  const [mounted, setMounted] = useState(false)
   const aiTools = [
     {
       title: "IdeaHub AI",
@@ -97,88 +104,62 @@ export default function BegginsHomePage() {
     },
   ]
 
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return null
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
-      {/* Minimal Header - Logo and Login Only */}
-      <nav className="bg-white/10 backdrop-blur-md border-b border-white/20 sticky top-0 z-50">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center py-4">
-            {/* Logo - Using dark background version (white text) */}
-            <Link href="/beggins-home" className="flex items-center">
-              <Image
-                src="/images/beggins-university-dark.png"
-                alt="Beggins University"
-                width={120}
-                height={48}
-                className="object-contain"
-              />
-            </Link>
-
-            {/* Login Link Only */}
-            <div className="flex items-center">
-              <Button asChild variant="outline" className="border-white/30 text-white hover:bg-white/10 bg-transparent">
-                <Link href="/portal">Login</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <section className="relative py-20 px-4">
-        <div className="container mx-auto text-center">
-          <div className="max-w-4xl mx-auto">
-            {/* Using dark background logo in hero */}
+      {/* Simple Header with just logo and login */}
+      <header className="absolute top-0 left-0 right-0 z-10 p-6">
+        <div className="container mx-auto flex justify-between items-center">
+          {/* Logo - using logoDark for dark background */}
+          <div className="flex items-center">
             <Image
-              src="/images/beggins-university-dark.png"
-              alt="Beggins University"
+              src={tenantConfig.branding.logoDark || tenantConfig.branding.logo || "/placeholder.svg"}
+              alt={tenantConfig.branding.name}
               width={200}
-              height={80}
-              className="mx-auto mb-8 object-contain"
+              height={60}
+              className="object-contain"
             />
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-              Beggins University
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Century 21 Beggins Training Platform
-            </p>
-            <p className="text-lg text-gray-400 mb-12 max-w-2xl mx-auto">
-              Welcome to your comprehensive training and development platform, designed to elevate our agents to the
-              next level of success.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                asChild
-                size="lg"
-                className="bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-700 hover:to-yellow-600 text-black font-semibold px-8 py-4 text-lg"
-              >
-                <Link href="/training-hub/onboarding">
-                  <GraduationCap className="mr-2 h-5 w-5" />
-                  Start Onboarding
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="border-white/30 text-white hover:bg-white/10 px-8 py-4 text-lg bg-transparent"
-              >
-                <Link href="/ai-hub">
-                  <Zap className="mr-2 h-5 w-5" />
-                  Explore AI Tools
-                </Link>
-              </Button>
-            </div>
           </div>
-        </div>
 
-        {/* Background decoration */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-yellow-500/10 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl"></div>
+          {/* Login Link */}
+          <Button
+            asChild
+            variant="outline"
+            className="bg-transparent border-white text-white hover:bg-white hover:text-black"
+          >
+            <Link href="/portal">Login</Link>
+          </Button>
         </div>
-      </section>
+      </header>
+
+      {/* Main Content */}
+      <main className="flex items-center justify-center min-h-screen px-6">
+        <div className="text-center max-w-4xl mx-auto">
+          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">Welcome to {tenantConfig.branding.name}</h1>
+
+          <div className="flex items-center justify-center mb-8">
+            <div className="h-px bg-gradient-to-r from-transparent via-white to-transparent w-32"></div>
+            <span className="px-6 text-xl text-gray-300 font-light">EMPOWER • EDUCATE • ENCOURAGE</span>
+            <div className="h-px bg-gradient-to-r from-transparent via-white to-transparent w-32"></div>
+          </div>
+
+          <p className="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed">
+            Your comprehensive training and development platform, designed to elevate our agents to the next level of
+            success.
+          </p>
+
+          <Button asChild size="lg" className="bg-white text-black hover:bg-gray-100 text-lg px-8 py-4">
+            <Link href="/portal">Access Your Portal</Link>
+          </Button>
+        </div>
+      </main>
 
       {/* Quick Access Section */}
       <section className="py-16 px-4">

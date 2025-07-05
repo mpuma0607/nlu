@@ -6,14 +6,14 @@ export const century21BegginsConfig: TenantConfig = {
   domain: ["beggins.thenextlevelu.com", "beggins-university.com"],
   branding: {
     name: "Beggins University",
-    logo: "/images/beggins-university-light.png", // Updated to use the new shield logo
-    logoDark: "/images/beggins-university-dark.png", // White text version for dark backgrounds
+    logo: "/images/beggins-university-light.png",
+    logoDark: "/images/beggins-university-dark.png",
     colors: {
-      primary: "#000000", // Black
-      secondary: "#b6a888", // Vegas Gold
-      accent: "#b6a888", // Vegas Gold
-      background: "#ffffff", // White
-      text: "#000000", // Black
+      primary: "#000000",
+      secondary: "#b6a888",
+      accent: "#b6a888",
+      background: "#ffffff",
+      text: "#000000",
     },
   },
   features: {
@@ -58,9 +58,9 @@ export const century21BegginsConfig: TenantConfig = {
         description: "Learn about and purchase Zillow Showcase service",
       },
     ],
-    hiddenFeatures: ["profile"], // Hide profile page for Beggins University
+    hiddenFeatures: ["profile"],
     customNavigation: false,
-    customHomePage: "/beggins-home", // Custom home page route
+    customHomePage: "/beggins-home",
   },
   localization: {
     language: "en",
@@ -81,7 +81,7 @@ export const century21BegginsConfig: TenantConfig = {
     settings: {
       googleWorkspace: {
         allowedDomains: ["c21be.com", "c21be3.com"],
-        clientId: "your-google-client-id", // Would be configured in production
+        clientId: "your-google-client-id",
       },
     },
     billing: {

@@ -6,8 +6,8 @@ export const century21BegginsConfig: TenantConfig = {
   domain: ["beggins.thenextlevelu.com", "beggins-university.com"],
   branding: {
     name: "Beggins University",
-    logo: "/images/beggins-university-light.png",
-    logoDark: "/images/beggins-university-dark.png",
+    logo: "/images/beggins-university-light.png", // Black text for light backgrounds
+    logoDark: "/images/beggins-university-dark.png", // White text for dark backgrounds
     colors: {
       primary: "#000000",
       secondary: "#b6a888",

@@ -109,10 +109,10 @@ export default function BegginsHomePage() {
       <nav className="bg-white/10 backdrop-blur-md border-b border-white/20 sticky top-0 z-50">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center py-4">
-            {/* Logo */}
+            {/* Logo - Using dark background version */}
             <Link href="/beggins-home" className="flex items-center">
               <Image
-                src="/images/beggins-university-light.png"
+                src="/images/beggins-university-dark.png"
                 alt="Beggins University"
                 width={120}
                 height={48}
@@ -186,8 +186,9 @@ export default function BegginsHomePage() {
       <section className="relative py-20 px-4">
         <div className="container mx-auto text-center">
           <div className="max-w-4xl mx-auto">
+            {/* Using dark background logo in hero */}
             <Image
-              src="/images/beggins-university-light.png"
+              src="/images/beggins-university-dark.png"
               alt="Beggins University"
               width={200}
               height={80}
@@ -393,8 +394,9 @@ export default function BegginsHomePage() {
       {/* Footer */}
       <footer className="py-8 px-4 border-t border-white/20">
         <div className="container mx-auto text-center">
+          {/* Using dark background logo in footer */}
           <Image
-            src="/images/beggins-university-light.png"
+            src="/images/beggins-university-dark.png"
             alt="Beggins University"
             width={100}
             height={40}

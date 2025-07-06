@@ -1,11 +1,10 @@
-// Stub translation service without sensitive API key
 export class TranslationService {
-  async translateText(text: string, targetLanguage = "en"): Promise<string> {
-    // Just return original text without translation
+  async translate(text: string, targetLanguage: string): Promise<string> {
+    // Just return the original text without translation
     return text
   }
 
-  getSupportedLanguages() {
+  getSupportedLanguages(): string[] {
     return ["en"]
   }
 }

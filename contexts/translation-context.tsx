@@ -3,7 +3,7 @@
 import { createContext, useContext, type ReactNode } from "react"
 
 interface TranslationContextType {
-  translate: (text: string) => Promise<string>
+  translate: (text: string) => string
   currentLanguage: string
   setLanguage: (language: string) => void
 }
@@ -11,9 +11,9 @@ interface TranslationContextType {
 const TranslationContext = createContext<TranslationContextType | undefined>(undefined)
 
 export function TranslationProvider({ children }: { children: ReactNode }) {
-  const translate = async (text: string) => text // Just return original text
+  const translate = (text: string) => text // Just return original text
   const currentLanguage = "en"
-  const setLanguage = () => {} // Do nothing
+  const setLanguage = (language: string) => {} // Do nothing
 
   return (
     <TranslationContext.Provider value={{ translate, currentLanguage, setLanguage }}>

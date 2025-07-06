@@ -1,6 +1,6 @@
 "use client"
 
 export default function LanguageSelector() {
-  // Return empty component since we're not using translation
+  // Return null to hide the language selector
   return null
 }

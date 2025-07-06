@@ -1,5 +1,3 @@
-"use client"
-
 interface TranslatedTextProps {
   text: string
   className?: string

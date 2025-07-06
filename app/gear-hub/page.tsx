@@ -3,12 +3,66 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Wrench, Clock, Bell, Mail } from "lucide-react"
+import { Wrench, Clock, Bell, Mail, ExternalLink } from "lucide-react"
 import { useTenantConfig } from "@/contexts/tenant-context"
 
 export default function GearHubPage() {
   const tenantConfig = useTenantConfig()
 
+  // Show Printful store for default tenant, coming soon for others
+  const showPrintfulStore = tenantConfig.id === "default"
+
+  if (showPrintfulStore) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center mb-4">
+              <div className="p-3 bg-orange-100 rounded-full">
+                <Wrench className="h-8 w-8 text-orange-600" />
+              </div>
+            </div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">Gear Hub</h1>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-6">
+              Your one-stop shop for The Next Level U branded merchandise and real estate tools.
+            </p>
+            <div className="flex items-center justify-center gap-2 text-sm text-gray-500 mb-4">
+              <ExternalLink className="h-4 w-4" />
+              <span>Powered by Printful - Secure checkout and worldwide shipping</span>
+            </div>
+          </div>
+
+          {/* Embedded Printful Store */}
+          <div className="w-full">
+            <iframe
+              src="https://nextlevelu.printful.me/"
+              className="w-full h-screen min-h-[800px] border-0 rounded-lg shadow-lg"
+              title="The Next Level U Store"
+              loading="lazy"
+            />
+          </div>
+
+          {/* Additional Info */}
+          <div className="mt-8 text-center">
+            <p className="text-gray-500">
+              Questions about your order?
+              <a
+                href="https://nextlevelu.printful.me/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-700 ml-1"
+              >
+                Visit our store directly
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Coming soon page for other tenants
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">

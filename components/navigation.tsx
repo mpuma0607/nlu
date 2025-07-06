@@ -230,6 +230,10 @@ export default function Navigation() {
     })
     .filter(Boolean)
 
+  // Get the correct logo for the tenant
+  const logoSrc =
+    tenantConfig.id === "default" ? "/images/nlu-logo-dark-new.png" : tenantConfig.branding.logo || "/placeholder.svg"
+
   return (
     <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
       <div className="container mx-auto px-4">
@@ -237,7 +241,7 @@ export default function Navigation() {
           {/* Logo */}
           <Link href="/portal" className="flex items-center">
             <Image
-              src={tenantConfig.branding.logo || "/placeholder.svg"}
+              src={logoSrc || "/placeholder.svg"}
               alt={tenantConfig.branding.name}
               width={100}
               height={40}
@@ -252,12 +256,23 @@ export default function Navigation() {
                 item && (
                   <div key={item.title} className="relative group">
                     <div className="flex items-center gap-1">
-                      <Link
-                        href={item.href}
-                        className="text-gray-700 hover:text-green-600 font-medium transition-colors"
-                      >
-                        {item.title}
-                      </Link>
+                      {item.title === "Gear Hub" && tenantConfig.id === "default" ? (
+                        <a
+                          href="https://nextlevelu.printful.me/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-700 hover:text-green-600 font-medium transition-colors"
+                        >
+                          {item.title}
+                        </a>
+                      ) : (
+                        <Link
+                          href={item.href}
+                          className="text-gray-700 hover:text-green-600 font-medium transition-colors"
+                        >
+                          {item.title}
+                        </Link>
+                      )}
                       {item.submenu && item.submenu.length > 0 && (
                         <ChevronDown className="h-4 w-4 text-gray-500 group-hover:text-green-600 transition-colors" />
                       )}
@@ -324,19 +339,31 @@ export default function Navigation() {
                         className="flex items-center justify-between py-2"
                         onClick={() => item.submenu && item.submenu.length > 0 && toggleSubmenu(item.title)}
                       >
-                        <Link
-                          href={item.href}
-                          className="block text-gray-700 hover:text-green-600 font-medium"
-                          onClick={(e) => {
-                            if (item.submenu && item.submenu.length > 0) {
-                              e.preventDefault()
-                            } else {
-                              setMobileMenuOpen(false)
-                            }
-                          }}
-                        >
-                          {item.title}
-                        </Link>
+                        {item.title === "Gear Hub" && tenantConfig.id === "default" ? (
+                          <a
+                            href="https://nextlevelu.printful.me/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block text-gray-700 hover:text-green-600 font-medium"
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            {item.title}
+                          </a>
+                        ) : (
+                          <Link
+                            href={item.href}
+                            className="block text-gray-700 hover:text-green-600 font-medium"
+                            onClick={(e) => {
+                              if (item.submenu && item.submenu.length > 0) {
+                                e.preventDefault()
+                              } else {
+                                setMobileMenuOpen(false)
+                              }
+                            }}
+                          >
+                            {item.title}
+                          </Link>
+                        )}
                         {item.submenu && item.submenu.length > 0 && (
                           <Button variant="ghost" size="sm" className="p-1">
                             {activeSubmenu === item.title ? (

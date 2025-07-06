@@ -1,6 +1,7 @@
 "use client"
 
-import { createContext, useContext, type ReactNode } from "react"
+import type React from "react"
+import { createContext, useContext } from "react"
 
 interface TranslationContextType {
   translate: (text: string) => string
@@ -10,10 +11,13 @@ interface TranslationContextType {
 
 const TranslationContext = createContext<TranslationContextType | undefined>(undefined)
 
-export function TranslationProvider({ children }: { children: ReactNode }) {
-  const translate = (text: string) => text // Just return original text
+export function TranslationProvider({ children }: { children: React.ReactNode }) {
+  // Stub implementation - just returns original text
+  const translate = (text: string) => text
   const currentLanguage = "en"
-  const setLanguage = (language: string) => {} // Do nothing
+  const setLanguage = (language: string) => {
+    // Do nothing - translation disabled
+  }
 
   return (
     <TranslationContext.Provider value={{ translate, currentLanguage, setLanguage }}>

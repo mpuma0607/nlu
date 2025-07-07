@@ -32,17 +32,76 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/favicon.ico" />
 
-        {/* MemberSpace Script */}
+        {/* Default MemberSpace Script for Next Level U */}
         <Script
-          id="memberspace-config"
+          id="memberspace-config-default"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
-              window.MemberSpace = window.MemberSpace || {"subdomain":"thenextlevelu"};
+              // Check if this is a Beggins domain
+              const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+              const isBegginsAgent = hostname === 'begginsagents.com' || 
+                                   hostname === 'www.begginsagents.com' || 
+                                   hostname === 'beggins.thenextlevelu.com';
+              
+              if (!isBegginsAgent) {
+                // Default Next Level U MemberSpace config
+                window.MemberSpace = window.MemberSpace || {"subdomain":"thenextlevelu"};
+              }
             `,
           }}
         />
-        <Script src="https://cdn.memberspace.com/scripts/widgets.js" strategy="beforeInteractive" />
+
+        {/* Beggins-specific MemberSpace Script */}
+        <Script
+          id="memberspace-config-beggins"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Check if this is a Beggins domain
+              const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+              const isBegginsAgent = hostname === 'begginsagents.com' || 
+                                   hostname === 'www.begginsagents.com' || 
+                                   hostname === 'beggins.thenextlevelu.com';
+              
+              if (isBegginsAgent) {
+                // Beggins-specific MemberSpace config
+                var MemberSpace = window.MemberSpace || {"subdomain":"begginsagents"};
+                (function(d){ 
+                  var s = d.createElement("script"); 
+                  s.src = "https://cdn.memberspace.com/scripts/widgets.js"; 
+                  var e = d.getElementsByTagName("script")[0]; 
+                  e.parentNode.insertBefore(s,e); 
+                }(document));
+              }
+            `,
+          }}
+        />
+
+        {/* Default MemberSpace Script for Next Level U */}
+        <Script
+          id="memberspace-script-default"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Check if this is NOT a Beggins domain
+              const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+              const isBegginsAgent = hostname === 'begginsagents.com' || 
+                                   hostname === 'www.begginsagents.com' || 
+                                   hostname === 'beggins.thenextlevelu.com';
+              
+              if (!isBegginsAgent) {
+                // Load default MemberSpace script for Next Level U
+                (function(d){ 
+                  var s = d.createElement("script"); 
+                  s.src = "https://cdn.memberspace.com/scripts/widgets.js"; 
+                  var e = d.getElementsByTagName("script")[0]; 
+                  e.parentNode.insertBefore(s,e); 
+                }(document));
+              }
+            `,
+          }}
+        />
       </head>
       <body className={inter.className}>
         <ClientLayout>{children}</ClientLayout>

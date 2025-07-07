@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -9,12 +8,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Loader2, Copy, Download, Mail } from "lucide-react"
+import { generateIdeaHubContent } from "./actions"
+import { useMemberSpaceUser } from "@/hooks/useMemberSpaceUser"
+import { useTenantConfig } from "@/hooks/useTenantConfig"
+import { Mic, MicOff } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { generateContent } from "./actions"
-import { Loader2, Copy, Download, Mail, Mic, MicOff } from "lucide-react"
 import Image from "next/image"
-import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
-import { useTenantConfig } from "@/contexts/tenant-context"
 
 const topicOptions = [
   "The benefits of working with a real estate agent",
@@ -483,7 +483,7 @@ export default function IdeaHubForm() {
     setIsGenerating(true)
 
     try {
-      const generatedContent = await generateContent(formData)
+      const generatedContent = await generateIdeaHubContent(formData)
       setResult(generatedContent)
       setStep(3)
     } catch (error) {

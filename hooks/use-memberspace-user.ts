@@ -1,65 +1,63 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useTenantConfig } from "@/contexts/tenant-context"
+import { useTenant } from "@/contexts/tenant-context"
 
 interface MemberSpaceUser {
   id: string
-  name: string
   email: string
+  name: string
   customFields?: Record<string, any>
+  planConnections?: Array<{
+    planId: string
+    planName: string
+    status: string
+  }>
 }
 
 export function useMemberSpaceUser() {
   const [user, setUser] = useState<MemberSpaceUser | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const tenantConfig = useTenantConfig()
+  const { tenantConfig } = useTenant()
 
   useEffect(() => {
-    // Only load MemberSpace for the default tenant (main domain)
-    if (tenantConfig.id !== "default") {
+    // Only load MemberSpace for the default tenant and main domain
+    const isMainDomain =
+      typeof window !== "undefined" &&
+      (window.location.hostname === "thenextlevelu.com" ||
+        window.location.hostname === "www.thenextlevelu.com" ||
+        window.location.hostname === "localhost")
+
+    const isDefaultTenant = tenantConfig.id === "default"
+
+    if (!isMainDomain || !isDefaultTenant) {
       setLoading(false)
-      setUser(null)
       return
     }
 
-    // Only load MemberSpace on the main domain
-    if (typeof window !== "undefined") {
-      const hostname = window.location.hostname
-      if (
-        !hostname.includes("thenextlevelu.com") ||
-        hostname.includes("beggins.") ||
-        hostname.includes("brokerage.") ||
-        hostname.includes("international.")
-      ) {
-        setLoading(false)
-        setUser(null)
-        return
-      }
-    }
-
-    const loadMemberSpace = async () => {
+    const initializeMemberSpace = async () => {
       try {
         // Check if MemberSpace is available
         if (typeof window !== "undefined" && (window as any).MemberSpace) {
           const memberSpace = (window as any).MemberSpace
 
-          // Get current member
-          const currentMember = await memberSpace.getCurrentMember()
+          // Get current user
+          const currentUser = await memberSpace.getCurrentMember()
 
-          if (currentMember) {
+          if (currentUser) {
             setUser({
-              id: currentMember.id,
-              name: currentMember.name || "",
-              email: currentMember.email || "",
-              customFields: currentMember.customFields || {},
+              id: currentUser.id,
+              email: currentUser.email,
+              name: currentUser.name || currentUser.email,
+              customFields: currentUser.customFields,
+              planConnections: currentUser.planConnections,
             })
           }
         }
       } catch (err) {
-        console.error("MemberSpace error:", err)
-        setError(err instanceof Error ? err.message : "Failed to load user")
+        console.error("MemberSpace initialization error:", err)
+        setError("Failed to load user information")
       } finally {
         setLoading(false)
       }
@@ -68,13 +66,13 @@ export function useMemberSpaceUser() {
     // Wait for MemberSpace to load
     if (typeof window !== "undefined") {
       if ((window as any).MemberSpace) {
-        loadMemberSpace()
+        initializeMemberSpace()
       } else {
         // Wait for MemberSpace to load
         const checkMemberSpace = setInterval(() => {
           if ((window as any).MemberSpace) {
             clearInterval(checkMemberSpace)
-            loadMemberSpace()
+            initializeMemberSpace()
           }
         }, 100)
 

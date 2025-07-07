@@ -1,37 +1,34 @@
 "use client"
 
 import type React from "react"
-import { usePathname } from "next/navigation"
-import { TenantProvider } from "@/contexts/tenant-context"
-import Navigation from "@/components/navigation"
+
 import { ThemeProvider } from "@/components/theme-provider"
+import { TenantProvider } from "@/contexts/tenant-context"
+import { Navigation } from "@/components/navigation"
 import { Toaster } from "@/components/ui/toaster"
-import TenantSwitcher from "@/components/tenant-switcher"
+import { useEffect } from "react"
 import { useTracking } from "@/hooks/use-tracking"
 
-function TrackingWrapper({ children }: { children: React.ReactNode }) {
-  useTracking() // This will automatically track page views
-  return <>{children}</>
+interface ClientLayoutProps {
+  children: React.ReactNode
 }
 
-export default function ClientLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  const pathname = usePathname()
-  const isHomePage = pathname === "/"
-  const isBegginsHomePage = pathname === "/beggins-home"
+export default function ClientLayout({ children }: ClientLayoutProps) {
+  const { trackPageView } = useTracking()
+
+  useEffect(() => {
+    // Track initial page view
+    trackPageView()
+  }, [trackPageView])
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
       <TenantProvider>
-        <TrackingWrapper>
-          {!isHomePage && !isBegginsHomePage && <Navigation />}
-          {children}
-          <TenantSwitcher />
-          <Toaster />
-        </TrackingWrapper>
+        <div className="min-h-screen bg-background">
+          <Navigation />
+          <main className="flex-1">{children}</main>
+        </div>
+        <Toaster />
       </TenantProvider>
     </ThemeProvider>
   )

@@ -11,8 +11,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { generateContent } from "./actions"
-import { Loader2, Copy, Download, Mail } from "lucide-react"
+import { Loader2, Copy, Download, Mail, Mic, MicOff } from "lucide-react"
 import Image from "next/image"
+import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
+import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
 
 const topicOptions = [
   "The benefits of working with a real estate agent",
@@ -383,7 +385,10 @@ export default function IdeaHubForm() {
   const [step, setStep] = useState(1)
   const [isGenerating, setIsGenerating] = useState(false)
   const [isSendingEmail, setIsSendingEmail] = useState(false)
+  const [isListening, setIsListening] = useState(false)
   const resultsRef = useRef<HTMLDivElement>(null)
+  const recognitionRef = useRef<any>(null)
+  const { user } = useMemberSpaceUser()
   const [formData, setFormData] = useState<FormState>({
     primaryTopic: "",
     alternateTopic: "",
@@ -394,6 +399,17 @@ export default function IdeaHubForm() {
     tonality: "Professional & Authoritative",
   })
   const [result, setResult] = useState<ContentResult | null>(null)
+
+  // Auto-fill user data from MemberSpace
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        name: user.name || prev.name,
+        email: user.email || prev.email,
+      }))
+    }
+  }, [user])
 
   // Auto-scroll to results when they're generated
   useEffect(() => {
@@ -416,6 +432,50 @@ export default function IdeaHubForm() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
+  const startListening = () => {
+    if (!("webkitSpeechRecognition" in window)) {
+      alert("Speech recognition not supported in this browser.")
+      return
+    }
+
+    const recognition = new (window as any).webkitSpeechRecognition()
+    recognitionRef.current = recognition
+
+    recognition.continuous = false
+    recognition.interimResults = false
+    recognition.lang = "en-US"
+
+    recognition.onstart = () => {
+      setIsListening(true)
+    }
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript
+      setFormData((prev) => ({
+        ...prev,
+        alternateTopic: prev.alternateTopic + (prev.alternateTopic ? " " : "") + transcript,
+      }))
+    }
+
+    recognition.onerror = (event: any) => {
+      console.error("Speech recognition error:", event.error)
+      setIsListening(false)
+    }
+
+    recognition.onend = () => {
+      setIsListening(false)
+    }
+
+    recognition.start()
+  }
+
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop()
+    }
+    setIsListening(false)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsGenerating(true)
@@ -424,6 +484,25 @@ export default function IdeaHubForm() {
       const generatedContent = await generateContent(formData)
       setResult(generatedContent)
       setStep(3)
+
+      // Auto-save the creation
+      if (user && generatedContent.text) {
+        const title = generateCreationTitle("ideahub-ai", formData)
+        await saveUserCreation({
+          userId: user.id,
+          userEmail: user.email,
+          toolType: "ideahub-ai",
+          title,
+          content: generatedContent.text,
+          formData,
+          metadata: {
+            imageUrl: generatedContent.imageUrl,
+            contentType: formData.contentType,
+            tonality: formData.tonality,
+            language: formData.language,
+          },
+        })
+      }
     } catch (error) {
       console.error("Error generating content:", error)
       alert("Failed to generate content. Please try again.")
@@ -512,14 +591,26 @@ export default function IdeaHubForm() {
 
       <div className="space-y-2">
         <Label htmlFor="alternateTopic">Custom Topic or Additional Details</Label>
-        <Textarea
-          id="alternateTopic"
-          name="alternateTopic"
-          placeholder="Enter any custom topic or additional details you'd like to include"
-          value={formData.alternateTopic}
-          onChange={handleInputChange}
-          className="min-h-[100px]"
-        />
+        <div className="relative">
+          <Textarea
+            id="alternateTopic"
+            name="alternateTopic"
+            placeholder="Enter any custom topic or additional details you'd like to include"
+            value={formData.alternateTopic}
+            onChange={handleInputChange}
+            className="min-h-[100px] pr-12"
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="absolute top-2 right-2 h-8 w-8 p-0"
+            onClick={isListening ? stopListening : startListening}
+          >
+            {isListening ? <MicOff className="h-4 w-4 text-red-500" /> : <Mic className="h-4 w-4" />}
+          </Button>
+        </div>
+        {isListening && <p className="text-sm text-blue-600">Listening... Speak now</p>}
       </div>
 
       <div className="space-y-2">

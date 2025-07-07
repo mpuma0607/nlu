@@ -17,15 +17,13 @@ export default function BegginsHomePage() {
     setIsClient(true)
   }, [])
 
-  const handleSignUpClick = () => {
-    window.open("https://www.thenextlevelu.com?msopen=/member/plans/x8lgb2fe1z", "_blank")
-  }
-
-  const handlePortalClick = () => {
+  const handleAuthAction = () => {
     if (user) {
+      // User is logged in, go to portal
       window.location.href = "/portal"
     } else {
-      handleSignUpClick()
+      // User not logged in, open MemberSpace signup/login
+      window.open("https://www.thenextlevelu.com?msopen=/member/plans/x8lgb2fe1z", "_blank")
     }
   }
 
@@ -52,73 +50,59 @@ export default function BegginsHomePage() {
         }}
       />
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
-        {/* Header */}
-        <header className="border-b border-white/10 bg-black/20 backdrop-blur-sm">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <Image
-                  src="/images/beggins-university-light.png"
-                  alt="Beggins University"
-                  width={200}
-                  height={60}
-                  className="h-12 w-auto"
-                />
-              </div>
-              <div className="flex items-center space-x-4">
-                <Button
-                  variant="ghost"
-                  className="text-white hover:bg-white/10"
-                  onClick={handlePortalClick}
-                  disabled={loading}
-                >
-                  {loading ? "Loading..." : user ? "Portal" : "Log in/Sign up"}
-                </Button>
-              </div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
+        {/* Simple Header with ONLY logo and login - NO navigation menu */}
+        <header className="absolute top-0 left-0 right-0 z-10 p-6">
+          <div className="container mx-auto flex justify-between items-center">
+            {/* Logo - using white text logo for dark background */}
+            <div className="flex items-center">
+              <Image
+                src="/images/beggins-university-dark.png"
+                alt="Beggins University"
+                width={200}
+                height={60}
+                className="object-contain"
+              />
             </div>
+
+            {/* Login/Sign up Button */}
+            <Button
+              onClick={handleAuthAction}
+              variant="outline"
+              className="bg-transparent border-white text-white hover:bg-white hover:text-black"
+              disabled={loading}
+            >
+              {loading ? "Loading..." : user ? "Portal" : "Log in/Sign up"}
+            </Button>
           </div>
         </header>
 
-        {/* Hero Section */}
-        <section className="py-20 px-4">
-          <div className="container mx-auto text-center">
-            <Badge className="mb-6 bg-blue-600/20 text-blue-300 border-blue-500/30">
-              🎓 Transform Your Real Estate Business
-            </Badge>
+        {/* Main Content */}
+        <main className="flex items-center justify-center min-h-screen px-6">
+          <div className="text-center max-w-4xl mx-auto">
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">Welcome to Beggins University</h1>
 
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-              Beggins
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
-                University
-              </span>
-            </h1>
+            <div className="flex items-center justify-center mb-8">
+              <div className="h-px bg-gradient-to-r from-transparent via-white to-transparent w-32"></div>
+              <span className="px-6 text-xl text-gray-300 font-light">EMPOWER • EDUCATE • ENCOURAGE</span>
+              <div className="h-px bg-gradient-to-r from-transparent via-white to-transparent w-32"></div>
+            </div>
 
-            <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Unlock your potential with our AI-powered tools, comprehensive training, marketing resources, and a
-              thriving community of real estate professionals.
+            <p className="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed">
+              Your comprehensive training and development platform, designed to elevate our agents to the next level of
+              success.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button
-                size="lg"
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg font-semibold shadow-xl"
-                onClick={handlePortalClick}
-                disabled={loading}
-              >
-                {loading ? "Loading..." : user ? "Access Your Portal" : "Start Your Journey"}
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="border-white/30 text-white hover:bg-white/10 px-8 py-4 text-lg bg-transparent"
-              >
-                📺 Watch Demo
-              </Button>
-            </div>
+            <Button
+              onClick={handleAuthAction}
+              size="lg"
+              className="bg-white text-black hover:bg-gray-100 text-lg px-8 py-4"
+              disabled={loading}
+            >
+              {loading ? "Loading..." : user ? "Access Your Portal" : "Access Your Portal"}
+            </Button>
           </div>
-        </section>
+        </main>
 
         {/* Everything You Need Section */}
         <section className="py-20 px-4 bg-black/20">
@@ -350,7 +334,7 @@ export default function BegginsHomePage() {
             <Button
               size="lg"
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-12 py-6 text-xl font-semibold shadow-xl"
-              onClick={handlePortalClick}
+              onClick={handleAuthAction}
               disabled={loading}
             >
               {loading ? "Loading..." : user ? "Access Your Portal" : "Get Started Today"}
@@ -365,7 +349,7 @@ export default function BegginsHomePage() {
             <div className="grid md:grid-cols-4 gap-8">
               <div>
                 <Image
-                  src="/images/beggins-university-light.png"
+                  src="/images/beggins-university-dark.png"
                   alt="Beggins University"
                   width={200}
                   height={60}

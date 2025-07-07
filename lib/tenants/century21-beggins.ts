@@ -1,81 +1,100 @@
-import type { TenantConfig } from "@/lib/types"
+import type { TenantConfig } from "../types"
 
 export const century21BegginsConfig: TenantConfig = {
   id: "century21-beggins",
   name: "Beggins University",
-  domain: ["beggins-university.com", "beggins.com", "beggins-university"],
-
+  domain: ["beggins.thenextlevelu.com", "beggins-university.com"],
   branding: {
     name: "Beggins University",
-    tagline: "EMPOWER • EDUCATE • ENCOURAGE",
-    logo: {
-      light: "/images/beggins-university-light.png",
-      dark: "/images/beggins-university-dark.png",
-    },
+    logo: "/images/beggins-university-light.png", // Black text for light backgrounds
+    logoDark: "/images/beggins-university-dark.png", // White text for dark backgrounds
     colors: {
-      primary: "#1a365d", // Navy blue
-      secondary: "#2d3748", // Dark gray
-      accent: "#3182ce", // Blue
-      background: "#f7fafc", // Light gray
-      text: "#1a202c", // Dark text
-    },
-    fonts: {
-      heading: "Inter",
-      body: "Inter",
+      primary: "#000000",
+      secondary: "#b6a888",
+      accent: "#b6a888",
+      background: "#ffffff",
+      text: "#000000",
     },
   },
-
   features: {
-    customHomePage: "/beggins-home", // This is the key line that was missing!
     enabledTools: [
       "ideahub-ai",
-      "listit-ai",
-      "scriptit-ai",
       "realbio",
-      "quickcma-ai",
+      "listit",
+      "scriptit",
       "roleplay-ai",
-      "propbot-ai",
-      "whos-who-ai",
-      "goalscreen-ai",
       "action-ai",
       "realcoach-ai",
       "bizplan-ai",
       "realdeal-ai",
+      "quickcma-ai",
+      "whos-who-ai",
+      "goalscreen-ai",
+      "propbot-ai",
     ],
-    hiddenFeatures: [],
-    enableAnalytics: true,
-    enableCommunity: true,
-    enableMarketingHub: true,
-    enableProspectingHub: true,
-    enableTrainingHub: true,
-    enableNetworkingHub: true,
-    enableServicesHub: false, // Disabled for this tenant
+    customSections: [
+      {
+        id: "dotloop-training",
+        title: "Dotloop Training",
+        href: "/training-hub/dotloop-training",
+        description: "Complete Dotloop platform training",
+      },
+      {
+        id: "onboarding",
+        title: "Onboarding",
+        href: "/training-hub/onboarding",
+        description: "New agent onboarding process",
+      },
+      {
+        id: "brokerage-logos",
+        title: "Brokerage Logos",
+        href: "/marketing-hub/brokerage-logos",
+        description: "Century 21 Beggins logos and branding assets",
+      },
+      {
+        id: "zillow-showcase",
+        title: "Zillow Showcase",
+        href: "/marketing-hub/zillow-showcase",
+        description: "Learn about and purchase Zillow Showcase service",
+      },
+    ],
+    hiddenFeatures: ["profile"],
+    customNavigation: false,
+    customHomePage: "/beggins-home",
   },
-
   localization: {
     language: "en",
     currency: "USD",
-    timezone: "America/New_York",
+    dateFormat: "MM/DD/YYYY",
     translations: {
-      welcome: "Welcome to Beggins University",
-      tagline: "EMPOWER • EDUCATE • ENCOURAGE",
-      get_started: "Access Your Portal",
+      "ai-hub.title": "AI Hub",
+      "marketing-hub.title": "Marketing Hub",
+      "prospecting-hub.title": "Prospecting Hub",
+      "training-hub.title": "Training Hub",
+      "services-hub.title": "Services Hub",
+      "networking-hub.title": "Networking Hub",
+      "gear-hub.title": "Gear Hub",
     },
   },
-
-  integrations: {
-    memberspace: {
-      enabled: true,
-      subdomain: "thenextlevelu",
+  auth: {
+    provider: "google-workspace",
+    settings: {
+      googleWorkspace: {
+        allowedDomains: ["c21be.com", "c21be3.com"],
+        clientId: "your-google-client-id",
+      },
     },
-    analytics: {
-      enabled: true,
+    billing: {
+      model: "enterprise",
+      currency: "USD",
+      plans: [],
     },
   },
-
-  customization: {
-    showTenantSwitcher: true,
-    allowCustomBranding: false,
-    restrictedDomains: [],
+  content: {
+    customTraining: true,
+    onboardingFlow: true,
+    privateResources: true,
+    customAbout:
+      "Beggins University is Century 21 Beggins' comprehensive training and development platform, designed to elevate our agents to the next level of success.",
   },
 }

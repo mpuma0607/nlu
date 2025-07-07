@@ -710,7 +710,7 @@ export default function IdeaHubForm() {
       <div className="text-center mb-6">
         <h3 className="text-xl font-bold text-black">Your Content is Ready!</h3>
         <p className="text-gray-600">
-          Here's your professionally generated social media content with Century 21 branding
+          Here's your professionally generated social media content with {tenantConfig.branding.name} branding
         </p>
       </div>
 
@@ -726,7 +726,7 @@ export default function IdeaHubForm() {
                 <div className="relative w-full h-[300px]">
                   <Image
                     src={result.imageUrl || "/placeholder.svg"}
-                    alt="Generated content image with Century 21 branding"
+                    alt={`Generated content image with ${tenantConfig.branding.name} branding`}
                     fill
                     className="object-cover"
                   />
@@ -797,7 +797,9 @@ export default function IdeaHubForm() {
       <CardContent className="p-8">
         <div className="mb-8 text-center">
           <h2 className="text-2xl font-bold text-black mb-2">IdeaHub AI</h2>
-          <p className="text-gray-600">Generate professional social media content with Century 21 branding</p>
+          <p className="text-gray-600">
+            Generate professional social media content with {tenantConfig.branding.name} branding
+          </p>
         </div>
 
         {step === 1 && renderStepOne()}

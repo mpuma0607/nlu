@@ -1,4 +1,3 @@
-import { headers } from "next/headers"
 import { defaultTenantConfig } from "@/lib/tenants/default"
 import { brokeragePrivateConfig } from "@/lib/tenants/brokerage-private"
 import { internationalConfig } from "@/lib/tenants/international"
@@ -13,21 +12,11 @@ const tenantConfigs: Record<string, TenantConfig> = {
 }
 
 export function getTenantConfig(): TenantConfig {
-  // Server-side: Use headers from middleware
   if (typeof window === "undefined") {
-    try {
-      const headersList = headers()
-      const tenantId = headersList.get("x-tenant-id")
-      if (tenantId && tenantConfigs[tenantId]) {
-        return tenantConfigs[tenantId]
-      }
-    } catch (error) {
-      // Headers not available, fall back to default
-    }
     return defaultTenantConfig
   }
 
-  // Client-side: Check for preview tenant override first
+  // Check for preview tenant override
   const previewTenant = localStorage.getItem("preview-tenant")
   if (previewTenant && tenantConfigs[previewTenant]) {
     return tenantConfigs[previewTenant]
@@ -40,7 +29,7 @@ export function getTenantConfig(): TenantConfig {
     return tenantConfigs[tenantParam]
   }
 
-  // Detect by domain (client-side)
+  // Detect by domain
   const hostname = window.location.hostname
 
   if (hostname.includes("beggins") || hostname.includes("century21-beggins")) {
@@ -60,29 +49,15 @@ export function getTenantConfig(): TenantConfig {
 
 export function getAllTenants() {
   return [
-    { id: "default", name: "The Next Level U", domains: defaultTenantConfig.domain },
-    { id: "century21-beggins", name: "Beggins University", domains: century21BegginsConfig.domain },
-    { id: "brokerage-private", name: "Private Brokerage", domains: brokeragePrivateConfig.domain },
-    { id: "international", name: "International Platform", domains: internationalConfig.domain },
+    { id: "default", name: "The Next Level U" },
+    { id: "century21-beggins", name: "Beggins University" },
+    { id: "brokerage-private", name: "Private Brokerage" },
+    { id: "international", name: "International Platform" },
   ]
 }
 
 export function getTenantById(id: string): TenantConfig | undefined {
   return tenantConfigs[id]
-}
-
-// Server-side function to get tenant from headers
-export function getServerTenantConfig(): TenantConfig {
-  try {
-    const headersList = headers()
-    const tenantId = headersList.get("x-tenant-id")
-    if (tenantId && tenantConfigs[tenantId]) {
-      return tenantConfigs[tenantId]
-    }
-  } catch (error) {
-    // Headers not available
-  }
-  return defaultTenantConfig
 }
 
 // Utility functions for feature checking

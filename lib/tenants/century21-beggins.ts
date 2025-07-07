@@ -4,7 +4,6 @@ export const century21BegginsConfig: TenantConfig = {
   id: "century21-beggins",
   name: "Century 21 Beggins",
   domain: ["beggins.thenextlevelu.com"],
-  customHomePage: "/beggins-home",
   branding: {
     name: "Beggins University",
     logo: "/images/beggins-university-light.png",
@@ -18,6 +17,7 @@ export const century21BegginsConfig: TenantConfig = {
     },
   },
   features: {
+    customHomePage: "/beggins-home",
     enabledTools: [
       "ideahub-ai",
       "realbio",

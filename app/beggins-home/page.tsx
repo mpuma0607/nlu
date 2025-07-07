@@ -404,3 +404,4 @@ export default function BegginsHomePage() {
     </>
   )
 }
+</merged_code>

@@ -2,122 +2,71 @@ import type { TenantConfig } from "../types"
 
 export const century21BegginsConfig: TenantConfig = {
   id: "century21-beggins",
-  name: "Beggins University",
-  domain: [
-    // Phase 2: Test subdomains
-    "beggins.thenextlevelu.com",
-    "beggins.localhost",
-    // Phase 3: Future custom domains
-    "beggins-university.com",
-    "www.beggins-university.com",
-  ],
+  name: "Century 21 Beggins",
+  domain: "beggins.thenextlevelu.com",
+  customHomePage: "/beggins-home",
   branding: {
     name: "Beggins University",
-    logo: "/images/beggins-university-light.png", // Black text for light backgrounds
-    logoDark: "/images/beggins-university-dark.png", // White text for dark backgrounds
+    logo: {
+      light: "/images/beggins-university-light.png",
+      dark: "/images/beggins-university-dark.png",
+    },
     colors: {
-      primary: "#000000",
-      secondary: "#b6a888",
-      accent: "#b6a888",
-      background: "#ffffff",
-      text: "#000000",
+      primary: "#C8102E",
+      secondary: "#FFD100",
+      accent: "#1F4E79",
     },
-  },
-  features: {
-    enabledTools: [
-      "ideahub-ai",
-      "realbio",
-      "listit",
-      "scriptit",
-      "roleplay-ai",
-      "action-ai",
-      "realcoach-ai",
-      "bizplan-ai",
-      "realdeal-ai",
-      "quickcma-ai",
-      "whos-who-ai",
-      "goalscreen-ai",
-      "propbot-ai",
-    ],
-    customSections: [
-      {
-        id: "dotloop-training",
-        title: "Dotloop Training",
-        href: "/training-hub/dotloop-training",
-        description: "Complete Dotloop platform training",
-      },
-      {
-        id: "onboarding",
-        title: "Onboarding",
-        href: "/training-hub/onboarding",
-        description: "New agent onboarding process",
-      },
-      {
-        id: "brokerage-logos",
-        title: "Brokerage Logos",
-        href: "/marketing-hub/brokerage-logos",
-        description: "Century 21 Beggins logos and branding assets",
-      },
-      {
-        id: "zillow-showcase",
-        title: "Zillow Showcase",
-        href: "/marketing-hub/zillow-showcase",
-        description: "Learn about and purchase Zillow Showcase service",
-      },
-    ],
-    hiddenFeatures: ["profile"],
-    customNavigation: false,
-    customHomePage: "/beggins-home",
-  },
-  localization: {
-    language: "en",
-    currency: "USD",
-    dateFormat: "MM/DD/YYYY",
-    translations: {
-      "ai-hub.title": "AI Hub",
-      "marketing-hub.title": "Marketing Hub",
-      "prospecting-hub.title": "Prospecting Hub",
-      "training-hub.title": "Training Hub",
-      "services-hub.title": "Services Hub",
-      "networking-hub.title": "Networking Hub",
-      "gear-hub.title": "Gear Hub",
-    },
+    favicon: "/images/nlu-favicon.png",
   },
   auth: {
     provider: "memberspace",
     settings: {
       memberspace: {
-        siteId: "thenextlevelu",
-        requireLogin: true,
-        allowedPlans: [],
+        publicKey: "pk_sb_4f9a8c7e2d1b3a5f",
+        loginUrl: "https://beggins.memberspace.com/sign-in",
+        signupUrl: "https://beggins.memberspace.com/sign-up",
       },
     },
-    billing: {
-      model: "subscription",
-      currency: "USD",
-      plans: [
-        {
-          id: "beggins-monthly",
-          name: "Beggins University Monthly",
-          price: 29.99,
-          interval: "month",
-          features: ["All AI Tools", "Training Library", "Community Access"],
-        },
-        {
-          id: "beggins-annual",
-          name: "Beggins University Annual",
-          price: 252,
-          interval: "year",
-          features: ["All AI Tools", "Training Library", "Community Access", "Save $108/year"],
-        },
-      ],
+    requireAuth: true,
+    redirectAfterLogin: "/portal",
+    redirectAfterLogout: "/",
+  },
+  features: {
+    aiHub: true,
+    prospectingHub: true,
+    trainingHub: true,
+    marketingHub: true,
+    networkingHub: true,
+    servicesHub: true,
+    onboardingHub: true,
+    gearHub: true,
+    analytics: false,
+  },
+  navigation: {
+    showBranding: true,
+    customLinks: [
+      {
+        title: "University Home",
+        href: "/beggins-home",
+        icon: "home",
+      },
+    ],
+  },
+  integrations: {
+    googleAnalytics: "G-BEGGINS123",
+    memberspace: {
+      enabled: true,
+      publicKey: "pk_sb_4f9a8c7e2d1b3a5f",
     },
   },
-  content: {
-    customTraining: true,
-    onboardingFlow: true,
-    privateResources: true,
-    customAbout:
-      "Beggins University is Century 21 Beggins' comprehensive training and development platform, designed to elevate our agents to the next level of success.",
+  customization: {
+    showTenantSwitcher: false,
+    customCSS: `
+      :root {
+        --primary: #C8102E;
+        --secondary: #FFD100;
+        --accent: #1F4E79;
+      }
+    `,
   },
 }

@@ -1,16 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useTenantConfig } from "@/contexts/tenant-context"
+import { useTenantConfig } from "./useTenantConfig"
 
 interface MemberSpaceUser {
   id: string
   email: string
-  firstName: string
-  lastName: string
-  planName: string
-  planId: string
-  isActive: boolean
+  name: string
+  firstName?: string
+  lastName?: string
+  customFields?: Record<string, any>
 }
 
 export function useMemberSpaceUser() {
@@ -21,36 +20,37 @@ export function useMemberSpaceUser() {
 
   useEffect(() => {
     // Only load MemberSpace for tenants configured to use it
-    if (tenantConfig.auth?.provider !== "memberspace") {
+    if (tenantConfig.auth.provider !== "memberspace") {
       setLoading(false)
       return
     }
 
     let timeoutId: NodeJS.Timeout
 
-    const loadMemberSpaceUser = () => {
+    const loadMemberSpace = () => {
       try {
         // Check if MemberSpace is available
-        if (typeof window !== "undefined" && window.MemberSpace) {
-          const memberSpaceUser = window.MemberSpace.getMember()
+        if (typeof window !== "undefined" && (window as any).MemberSpace) {
+          const memberspace = (window as any).MemberSpace
 
-          if (memberSpaceUser && memberSpaceUser.id) {
+          // Get current user
+          const currentUser = memberspace.getCurrentMember()
+
+          if (currentUser) {
             setUser({
-              id: memberSpaceUser.id,
-              email: memberSpaceUser.email || "",
-              firstName: memberSpaceUser.firstName || "",
-              lastName: memberSpaceUser.lastName || "",
-              planName: memberSpaceUser.planName || "",
-              planId: memberSpaceUser.planId || "",
-              isActive: memberSpaceUser.isActive || false,
+              id: currentUser.id,
+              email: currentUser.email,
+              name: currentUser.name || `${currentUser.firstName || ""} ${currentUser.lastName || ""}`.trim(),
+              firstName: currentUser.firstName,
+              lastName: currentUser.lastName,
+              customFields: currentUser.customFields,
             })
-          } else {
-            setUser(null)
           }
+
           setLoading(false)
         } else {
           // MemberSpace not loaded yet, try again
-          timeoutId = setTimeout(loadMemberSpaceUser, 100)
+          timeoutId = setTimeout(loadMemberSpace, 500)
         }
       } catch (err) {
         console.error("Error loading MemberSpace user:", err)
@@ -59,32 +59,19 @@ export function useMemberSpaceUser() {
       }
     }
 
-    // Start loading immediately
-    loadMemberSpaceUser()
+    // Start loading with a timeout to prevent infinite waiting
+    const maxWaitTime = setTimeout(() => {
+      setLoading(false)
+      setError("MemberSpace took too long to load")
+    }, 10000) // 10 seconds max wait
 
-    // Set a maximum timeout of 10 seconds
-    const maxTimeout = setTimeout(() => {
-      if (loading) {
-        console.warn("MemberSpace loading timeout")
-        setLoading(false)
-      }
-    }, 10000)
+    loadMemberSpace()
 
     return () => {
       if (timeoutId) clearTimeout(timeoutId)
-      clearTimeout(maxTimeout)
+      if (maxWaitTime) clearTimeout(maxWaitTime)
     }
-  }, [tenantConfig.auth?.provider, loading])
+  }, [tenantConfig.auth.provider])
 
   return { user, loading, error }
-}
-
-// Extend the Window interface to include MemberSpace
-declare global {
-  interface Window {
-    MemberSpace: {
-      getMember: () => any
-      [key: string]: any
-    }
-  }
 }

@@ -3,76 +3,88 @@ import type { TenantConfig } from "../types"
 export const century21BegginsConfig: TenantConfig = {
   id: "century21-beggins",
   name: "Century 21 Beggins",
-  domain: "beggins.thenextlevelu.com",
-  customHomePage: "/beggins-home",
+  domain: ["beggins.thenextlevelu.com"],
   branding: {
     name: "Beggins University",
-    logo: {
-      light: "/images/beggins-university-light.png",
-      dark: "/images/beggins-university-dark.png",
-    },
+    logo: "/images/beggins-university-light.png",
+    logoDark: "/images/beggins-university-dark.png",
     colors: {
       primary: "#C8102E",
       secondary: "#FFD100",
       accent: "#1F4E79",
+      background: "#ffffff",
+      text: "#1f2937",
     },
-    favicon: "/images/nlu-favicon.png",
-  },
-  auth: {
-    provider: "memberspace",
-    settings: {
-      memberspace: {
-        publicKey: "pk_sb_4f9a8c7e2d1b3a5f",
-        loginUrl: "https://beggins.memberspace.com/sign-in",
-        signupUrl: "https://beggins.memberspace.com/sign-up",
-      },
-    },
-    requireAuth: true,
-    redirectAfterLogin: "/portal",
-    redirectAfterLogout: "/",
   },
   features: {
-    aiHub: true,
-    prospectingHub: true,
-    trainingHub: true,
-    marketingHub: true,
-    networkingHub: true,
-    servicesHub: true,
-    onboardingHub: true,
-    gearHub: true,
-    analytics: false,
-  },
-  navigation: {
-    showBranding: true,
-    customLinks: [
-      {
-        title: "University Home",
-        href: "/beggins-home",
-        icon: "home",
-      },
+    enabledTools: [
+      "ideahub-ai",
+      "realbio",
+      "listit",
+      "scriptit",
+      "roleplay-ai",
+      "action-ai",
+      "realcoach-ai",
+      "bizplan-ai",
+      "realdeal-ai",
+      "quickcma-ai",
+      "whos-who-ai",
+      "goalscreen-ai",
+      "propbot-ai",
     ],
-  },
-  integrations: {
-    googleAnalytics: "G-BEGGINS123",
-    memberspace: {
-      enabled: true,
-      publicKey: "pk_sb_4f9a8c7e2d1b3a5f",
-    },
-  },
-  customization: {
-    showTenantSwitcher: false,
-    customCSS: `
-      :root {
-        --primary: #C8102E;
-        --secondary: #FFD100;
-        --accent: #1F4E79;
-      }
-    `,
+    customSections: [],
+    hiddenFeatures: [],
+    customNavigation: false,
   },
   localization: {
     language: "en",
     currency: "USD",
     dateFormat: "MM/DD/YYYY",
-    translations: {},
+    translations: {
+      "ai-hub.title": "AI Hub",
+      "marketing-hub.title": "Marketing Hub",
+      "prospecting-hub.title": "Prospecting Hub",
+      "training-hub.title": "Training Hub",
+      "services-hub.title": "Services Hub",
+      "networking-hub.title": "Networking Hub",
+      "gear-hub.title": "Gear Hub",
+    },
+  },
+  auth: {
+    provider: "memberspace",
+    settings: {
+      memberspace: {
+        subdomain: "beggins",
+        planUrls: {
+          monthly: "/plans/monthly",
+          annual: "/plans/annual",
+        },
+      },
+    },
+    billing: {
+      model: "subscription",
+      currency: "USD",
+      plans: [
+        {
+          id: "monthly",
+          name: "Monthly Plan",
+          price: 29.99,
+          interval: "month",
+          features: ["All AI Tools", "Training Hub", "Community Access"],
+        },
+        {
+          id: "annual",
+          name: "Annual Plan",
+          price: 252,
+          interval: "year",
+          features: ["All AI Tools", "Training Hub", "Community Access", "30% Savings"],
+        },
+      ],
+    },
+  },
+  content: {
+    customTraining: false,
+    onboardingFlow: true,
+    privateResources: false,
   },
 }

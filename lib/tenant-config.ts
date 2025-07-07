@@ -1,4 +1,3 @@
-import { headers } from "next/headers"
 import { defaultTenantConfig } from "@/lib/tenants/default"
 import { brokeragePrivateConfig } from "@/lib/tenants/brokerage-private"
 import { internationalConfig } from "@/lib/tenants/international"
@@ -13,18 +12,7 @@ const tenantConfigs: Record<string, TenantConfig> = {
 }
 
 export function getTenantConfig(): TenantConfig {
-  // Server-side: Check for domain-based tenant from middleware first
   if (typeof window === "undefined") {
-    try {
-      const headersList = headers()
-      const domainTenantId = headersList.get("x-tenant-id")
-      if (domainTenantId && tenantConfigs[domainTenantId]) {
-        return tenantConfigs[domainTenantId]
-      }
-    } catch (error) {
-      // Headers not available, continue to fallback methods
-    }
-    // Server-side fallback to default (existing behavior)
     return defaultTenantConfig
   }
 
@@ -43,8 +31,21 @@ export function getTenantConfig(): TenantConfig {
     return tenantConfigs[tenantParam]
   }
 
-  // 3. NEW: Check domain detection (additive - doesn't break existing)
+  // 3. Check domain detection (additive - doesn't break existing)
   const hostname = window.location.hostname
+
+  // Check for exact subdomain matches first
+  if (hostname === "beggins.thenextlevelu.com") {
+    return century21BegginsConfig
+  }
+  if (hostname === "brokerage.thenextlevelu.com") {
+    return brokeragePrivateConfig
+  }
+  if (hostname === "international.thenextlevelu.com") {
+    return internationalConfig
+  }
+
+  // Fallback to partial matches (existing logic)
   if (hostname.includes("beggins") || hostname.includes("century21-beggins")) {
     return century21BegginsConfig
   }

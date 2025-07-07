@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -8,12 +9,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Loader2, Copy, Download, Mail } from "lucide-react"
-import { generateContent } from "./actions"
-import { useMemberSpaceUser } from "@/hooks/useMemberSpaceUser"
-import { useTenantConfig } from "@/hooks/useTenantConfig"
-import { Mic, MicOff } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { generateContent } from "./actions"
+import { Loader2, Copy, Download, Mail } from "lucide-react"
 import Image from "next/image"
 
 const topicOptions = [
@@ -385,12 +383,7 @@ export default function IdeaHubForm() {
   const [step, setStep] = useState(1)
   const [isGenerating, setIsGenerating] = useState(false)
   const [isSendingEmail, setIsSendingEmail] = useState(false)
-  const [isListening, setIsListening] = useState(false)
   const resultsRef = useRef<HTMLDivElement>(null)
-  const recognitionRef = useRef<any>(null)
-  const { user } = useMemberSpaceUser()
-  const tenantConfig = useTenantConfig()
-
   const [formData, setFormData] = useState<FormState>({
     primaryTopic: "",
     alternateTopic: "",
@@ -401,17 +394,6 @@ export default function IdeaHubForm() {
     tonality: "Professional & Authoritative",
   })
   const [result, setResult] = useState<ContentResult | null>(null)
-
-  // Auto-fill user data from MemberSpace
-  useEffect(() => {
-    if (user) {
-      setFormData((prev) => ({
-        ...prev,
-        name: user.name || prev.name,
-        email: user.email || prev.email,
-      }))
-    }
-  }, [user])
 
   // Auto-scroll to results when they're generated
   useEffect(() => {
@@ -432,50 +414,6 @@ export default function IdeaHubForm() {
 
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const startListening = () => {
-    if (!("webkitSpeechRecognition" in window)) {
-      alert("Speech recognition not supported in this browser.")
-      return
-    }
-
-    const recognition = new (window as any).webkitSpeechRecognition()
-    recognitionRef.current = recognition
-
-    recognition.continuous = false
-    recognition.interimResults = false
-    recognition.lang = "en-US"
-
-    recognition.onstart = () => {
-      setIsListening(true)
-    }
-
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript
-      setFormData((prev) => ({
-        ...prev,
-        alternateTopic: prev.alternateTopic + (prev.alternateTopic ? " " : "") + transcript,
-      }))
-    }
-
-    recognition.onerror = (event: any) => {
-      console.error("Speech recognition error:", event.error)
-      setIsListening(false)
-    }
-
-    recognition.onend = () => {
-      setIsListening(false)
-    }
-
-    recognition.start()
-  }
-
-  const stopListening = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop()
-    }
-    setIsListening(false)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -574,26 +512,14 @@ export default function IdeaHubForm() {
 
       <div className="space-y-2">
         <Label htmlFor="alternateTopic">Custom Topic or Additional Details</Label>
-        <div className="relative">
-          <Textarea
-            id="alternateTopic"
-            name="alternateTopic"
-            placeholder="Enter any custom topic or additional details you'd like to include"
-            value={formData.alternateTopic}
-            onChange={handleInputChange}
-            className="min-h-[100px] pr-12"
-          />
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="absolute top-2 right-2 h-8 w-8 p-0"
-            onClick={isListening ? stopListening : startListening}
-          >
-            {isListening ? <MicOff className="h-4 w-4 text-red-500" /> : <Mic className="h-4 w-4" />}
-          </Button>
-        </div>
-        {isListening && <p className="text-sm text-blue-600">Listening... Speak now</p>}
+        <Textarea
+          id="alternateTopic"
+          name="alternateTopic"
+          placeholder="Enter any custom topic or additional details you'd like to include"
+          value={formData.alternateTopic}
+          onChange={handleInputChange}
+          className="min-h-[100px]"
+        />
       </div>
 
       <div className="space-y-2">
@@ -710,7 +636,7 @@ export default function IdeaHubForm() {
       <div className="text-center mb-6">
         <h3 className="text-xl font-bold text-black">Your Content is Ready!</h3>
         <p className="text-gray-600">
-          Here's your professionally generated social media content with {tenantConfig.branding.name} branding
+          Here's your professionally generated social media content with Century 21 branding
         </p>
       </div>
 
@@ -726,7 +652,7 @@ export default function IdeaHubForm() {
                 <div className="relative w-full h-[300px]">
                   <Image
                     src={result.imageUrl || "/placeholder.svg"}
-                    alt={`Generated content image with ${tenantConfig.branding.name} branding`}
+                    alt="Generated content image with Century 21 branding"
                     fill
                     className="object-cover"
                   />
@@ -753,16 +679,14 @@ export default function IdeaHubForm() {
           onClick={copyToClipboard}
           className="flex items-center justify-center gap-2 bg-transparent"
         >
-          <Copy className="h-4 w-4" />
-          Copy Text
+          <Copy className="h-4 w-4" /> <span className="whitespace-nowrap">Copy</span>
         </Button>
         <Button
           variant="outline"
           onClick={downloadImage}
           className="flex items-center justify-center gap-2 bg-transparent"
         >
-          <Download className="h-4 w-4" />
-          Download Image
+          <Download className="h-4 w-4" /> <span className="whitespace-nowrap">Download</span>
         </Button>
         <Button
           variant="outline"
@@ -771,7 +695,7 @@ export default function IdeaHubForm() {
           className="flex items-center justify-center gap-2 bg-transparent"
         >
           {isSendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-          {isSendingEmail ? "Sending..." : "Email Me"}
+          <span className="whitespace-nowrap">Email</span>
         </Button>
       </div>
 
@@ -779,33 +703,58 @@ export default function IdeaHubForm() {
         onClick={() => {
           setStep(1)
           setResult(null)
-          setFormData((prev) => ({
-            ...prev,
+          setFormData({
             primaryTopic: "",
             alternateTopic: "",
-          }))
+            language: "English",
+            name: "",
+            email: "",
+            contentType: "Social post",
+            tonality: "Professional & Authoritative",
+          })
         }}
         className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
       >
-        Create Another
+        Create New Content
       </Button>
     </div>
   )
 
   return (
-    <Card className="w-full max-w-2xl mx-auto border-0 shadow-lg">
-      <CardContent className="p-8">
-        <div className="mb-8 text-center">
-          <h2 className="text-2xl font-bold text-black mb-2">IdeaHub AI</h2>
-          <p className="text-gray-600">
-            Generate professional social media content with {tenantConfig.branding.name} branding
-          </p>
+    <div className="bg-white rounded-lg p-6">
+      <div className="mb-8">
+        <div className="flex items-center justify-center space-x-2">
+          <div
+            className={`w-10 h-10 rounded-full flex items-center justify-center ${
+              step >= 1 ? "bg-purple-600 text-white" : "bg-gray-200 text-gray-600"
+            }`}
+          >
+            1
+          </div>
+          <div className={`h-1 w-16 ${step >= 2 ? "bg-purple-600" : "bg-gray-200"}`}></div>
+          <div
+            className={`w-10 h-10 rounded-full flex items-center justify-center ${
+              step >= 2 ? "bg-purple-600 text-white" : "bg-gray-200 text-gray-600"
+            }`}
+          >
+            2
+          </div>
+          <div className={`h-1 w-16 ${step >= 3 ? "bg-purple-600" : "bg-gray-200"}`}></div>
+          <div
+            className={`w-10 h-10 rounded-full flex items-center justify-center ${
+              step >= 3 ? "bg-purple-600 text-white" : "bg-gray-200 text-gray-600"
+            }`}
+          >
+            3
+          </div>
         </div>
+      </div>
 
+      <form onSubmit={(e) => e.preventDefault()}>
         {step === 1 && renderStepOne()}
         {step === 2 && renderStepTwo()}
         {step === 3 && renderStepThree()}
-      </CardContent>
-    </Card>
+      </form>
+    </div>
   )
 }

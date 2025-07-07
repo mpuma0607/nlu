@@ -84,17 +84,33 @@ export const century21BegginsConfig: TenantConfig = {
     },
   },
   auth: {
-    provider: "google-workspace",
+    provider: "memberspace",
     settings: {
-      googleWorkspace: {
-        allowedDomains: ["c21be.com", "c21be3.com"],
-        clientId: "your-google-client-id",
+      memberspace: {
+        siteId: "your-memberspace-site-id",
+        requireLogin: true,
+        allowedPlans: [], // Empty means all plans allowed
       },
     },
     billing: {
-      model: "enterprise",
+      model: "subscription",
       currency: "USD",
-      plans: [],
+      plans: [
+        {
+          id: "beggins-monthly",
+          name: "Beggins University Monthly",
+          price: 29.99,
+          interval: "month",
+          features: ["All AI Tools", "Training Library", "Community Access"],
+        },
+        {
+          id: "beggins-annual",
+          name: "Beggins University Annual",
+          price: 252,
+          interval: "year",
+          features: ["All AI Tools", "Training Library", "Community Access", "Save $108/year"],
+        },
+      ],
     },
   },
   content: {

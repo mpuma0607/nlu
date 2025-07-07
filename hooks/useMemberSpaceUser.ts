@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useTenant } from "@/contexts/tenant-context"
+import { useTenantConfig } from "@/contexts/tenant-context"
 
 interface MemberSpaceUser {
   id: string
@@ -19,7 +19,7 @@ export function useMemberSpaceUser() {
   const [user, setUser] = useState<MemberSpaceUser | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const { config: tenantConfig } = useTenant()
+  const tenantConfig = useTenantConfig()
 
   useEffect(() => {
     // Only load MemberSpace for tenants configured to use it

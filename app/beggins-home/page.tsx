@@ -23,7 +23,7 @@ export default function BegginsHomePage() {
       window.location.href = "/portal"
     } else {
       // User not logged in, open MemberSpace signup/login
-      window.open("https://www.thenextlevelu.com?msopen=/member/plans/x8lgb2fe1z", "_blank")
+      window.open("https://www.begginsagents.com?msopen=/member/sign_in", "_blank")
     }
   }
 
@@ -99,7 +99,7 @@ export default function BegginsHomePage() {
               className="bg-white text-black hover:bg-gray-100 text-lg px-8 py-4"
               disabled={loading}
             >
-              {loading ? "Loading..." : user ? "Access Your Portal" : "Log in/Sign up"}
+              {loading ? "Loading..." : user ? "Access Your Portal" : "Access Your Portal"}
             </Button>
           </div>
         </main>

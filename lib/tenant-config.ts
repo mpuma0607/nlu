@@ -1,3 +1,4 @@
+import { headers } from "next/headers"
 import { defaultTenantConfig } from "@/lib/tenants/default"
 import { brokeragePrivateConfig } from "@/lib/tenants/brokerage-private"
 import { internationalConfig } from "@/lib/tenants/international"
@@ -12,38 +13,49 @@ const tenantConfigs: Record<string, TenantConfig> = {
 }
 
 export function getTenantConfig(): TenantConfig {
+  // Server-side: Check for domain-based tenant from middleware first
   if (typeof window === "undefined") {
+    try {
+      const headersList = headers()
+      const domainTenantId = headersList.get("x-tenant-id")
+      if (domainTenantId && tenantConfigs[domainTenantId]) {
+        return tenantConfigs[domainTenantId]
+      }
+    } catch (error) {
+      // Headers not available, continue to fallback methods
+    }
+    // Server-side fallback to default (existing behavior)
     return defaultTenantConfig
   }
 
-  // Check for preview tenant override
+  // Client-side: All existing methods preserved in exact same order
+
+  // 1. Check for preview tenant override (existing)
   const previewTenant = localStorage.getItem("preview-tenant")
   if (previewTenant && tenantConfigs[previewTenant]) {
     return tenantConfigs[previewTenant]
   }
 
-  // Check URL parameter
+  // 2. Check URL parameter (existing)
   const urlParams = new URLSearchParams(window.location.search)
   const tenantParam = urlParams.get("tenant")
   if (tenantParam && tenantConfigs[tenantParam]) {
     return tenantConfigs[tenantParam]
   }
 
-  // Detect by domain
+  // 3. NEW: Check domain detection (additive - doesn't break existing)
   const hostname = window.location.hostname
-
   if (hostname.includes("beggins") || hostname.includes("century21-beggins")) {
     return century21BegginsConfig
   }
-
   if (hostname.includes("brokerage1") || hostname.includes("brokerage-private")) {
     return brokeragePrivateConfig
   }
-
   if (hostname.includes("international")) {
     return internationalConfig
   }
 
+  // 4. Fallback to default (existing)
   return defaultTenantConfig
 }
 

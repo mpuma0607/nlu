@@ -3,7 +3,14 @@ import type { TenantConfig } from "../types"
 export const century21BegginsConfig: TenantConfig = {
   id: "century21-beggins",
   name: "Beggins University",
-  domain: ["beggins.thenextlevelu.com", "beggins-university.com"],
+  domain: [
+    // Phase 2: Test subdomains
+    "beggins.thenextlevelu.com",
+    "beggins.localhost",
+    // Phase 3: Future custom domains
+    "beggins-university.com",
+    "www.beggins-university.com",
+  ],
   branding: {
     name: "Beggins University",
     logo: "/images/beggins-university-light.png", // Black text for light backgrounds

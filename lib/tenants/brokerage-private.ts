@@ -2,63 +2,109 @@ import type { TenantConfig } from "../types"
 
 export const brokeragePrivateConfig: TenantConfig = {
   id: "brokerage-private",
-  name: "Brokerage Pro Platform",
-  domain: ["brokerage-pro.com", "www.brokerage-pro.com", "brokerage1.thenextlevelu.com"],
+  name: "Private Brokerage",
+  domain: [
+    // Phase 2: Test subdomains
+    "brokerage.thenextlevelu.com",
+    "brokerage.localhost",
+    // Phase 3: Future custom domains
+    "brokerage-pro.com",
+    "www.brokerage-pro.com",
+  ],
   branding: {
-    name: "Brokerage Pro Platform",
-    logo: "/images/tenants/brokerage-logo.png",
+    name: "Private Brokerage Platform",
+    logo: "/images/nlu-logo-light.png",
+    logoDark: "/images/nlu-logo-dark.png",
     colors: {
-      primary: "#1e40af", // blue-700
-      secondary: "#1d4ed8", // blue-700
-      accent: "#2563eb", // blue-600
+      primary: "#2563eb",
+      secondary: "#64748b",
+      accent: "#0ea5e9",
       background: "#ffffff",
-      text: "#1f2937",
+      text: "#1e293b",
     },
   },
   features: {
-    enabledTools: ["listit", "scriptit", "realbio", "action-ai", "realcoach-ai", "quickcma-ai", "whos-who-ai"],
+    enabledTools: [
+      "ideahub-ai",
+      "realbio",
+      "listit",
+      "scriptit",
+      "quickcma-ai",
+      "roleplay-ai",
+      "propbot-ai",
+      "whos-who-ai",
+      "goalscreen-ai",
+      "action-ai",
+      "realcoach-ai",
+      "bizplan-ai",
+      "realdeal-ai",
+    ],
     customSections: [
       {
-        id: "onboarding-ai",
-        title: "Onboarding AI",
-        href: "/ai-hub/onboarding-ai",
-        description: "New agent onboarding assistant",
+        id: "private-training",
+        title: "Private Training",
+        href: "/training-hub/private-training",
+        description: "Exclusive training materials",
       },
       {
-        id: "team-management",
-        title: "Team Management",
-        href: "/brokerage/team-management",
-        description: "Manage your agent team",
+        id: "brokerage-resources",
+        title: "Brokerage Resources",
+        href: "/marketing-hub/brokerage-resources",
+        description: "Internal brokerage materials",
       },
     ],
-    hiddenFeatures: ["gear-hub", "networking-hub"],
-    customNavigation: true,
+    hiddenFeatures: [],
+    customNavigation: false,
+    customHomePage: null,
   },
   localization: {
     language: "en",
     currency: "USD",
     dateFormat: "MM/DD/YYYY",
-    translations: {},
+    translations: {
+      "ai-hub.title": "AI Hub",
+      "marketing-hub.title": "Marketing Hub",
+      "prospecting-hub.title": "Prospecting Hub",
+      "training-hub.title": "Training Hub",
+      "services-hub.title": "Services Hub",
+      "networking-hub.title": "Networking Hub",
+      "gear-hub.title": "Gear Hub",
+    },
   },
   auth: {
-    provider: "internal",
+    provider: "memberspace",
     settings: {
-      internal: {
-        adminEmails: ["admin@brokerage-pro.com"],
-        requireApproval: true,
+      memberspace: {
+        subdomain: "private-brokerage",
+        planUrls: {
+          monthly: "/plans/monthly",
+          annual: "/plans/annual",
+        },
       },
     },
     billing: {
-      model: "enterprise",
+      model: "subscription",
       currency: "USD",
-      plans: [],
+      plans: [
+        {
+          id: "basic",
+          name: "Basic Plan",
+          price: 49,
+          interval: "month",
+        },
+        {
+          id: "pro",
+          name: "Pro Plan",
+          price: 99,
+          interval: "month",
+        },
+      ],
     },
   },
   content: {
     customTraining: true,
-    onboardingFlow: true,
+    onboardingFlow: false,
     privateResources: true,
-    customAbout:
-      "Welcome to your private brokerage platform with exclusive tools and training designed specifically for your team.",
+    customAbout: "Private brokerage platform with exclusive tools and training.",
   },
 }

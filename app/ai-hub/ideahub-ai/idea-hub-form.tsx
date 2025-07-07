@@ -15,8 +15,6 @@ import { Loader2, Copy, Download, Mail, Mic, MicOff } from "lucide-react"
 import Image from "next/image"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 import { useTenantConfig } from "@/contexts/tenant-context"
-import { useTranslation } from "@/contexts/translation-context"
-import TranslatedText from "@/components/translated-text"
 
 const topicOptions = [
   "The benefits of working with a real estate agent",
@@ -392,13 +390,11 @@ export default function IdeaHubForm() {
   const recognitionRef = useRef<any>(null)
   const { user } = useMemberSpaceUser()
   const tenantConfig = useTenantConfig()
-  const { currentLanguage } = useTranslation()
-  const isC21Canada = tenantConfig.id === "century21-canada"
 
   const [formData, setFormData] = useState<FormState>({
     primaryTopic: "",
     alternateTopic: "",
-    language: isC21Canada ? currentLanguage : "English",
+    language: "English",
     name: "",
     email: "",
     contentType: "Social post",
@@ -416,16 +412,6 @@ export default function IdeaHubForm() {
       }))
     }
   }, [user])
-
-  // Update language when site language changes for C21 Canada
-  useEffect(() => {
-    if (isC21Canada) {
-      setFormData((prev) => ({
-        ...prev,
-        language: currentLanguage,
-      }))
-    }
-  }, [currentLanguage, isC21Canada])
 
   // Auto-scroll to results when they're generated
   useEffect(() => {
@@ -571,20 +557,10 @@ export default function IdeaHubForm() {
   const renderStepOne = () => (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="primaryTopic">
-          {isC21Canada ? <TranslatedText>Choose a Topic (Optional)</TranslatedText> : "Choose a Topic (Optional)"}
-        </Label>
+        <Label htmlFor="primaryTopic">Choose a Topic (Optional)</Label>
         <Select value={formData.primaryTopic} onValueChange={(value) => handleSelectChange("primaryTopic", value)}>
           <SelectTrigger id="primaryTopic">
-            <SelectValue
-              placeholder={
-                isC21Canada ? (
-                  <TranslatedText>Select a topic from our library</TranslatedText>
-                ) : (
-                  "Select a topic from our library"
-                )
-              }
-            />
+            <SelectValue placeholder="Select a topic from our library" />
           </SelectTrigger>
           <SelectContent className="max-h-[300px]">
             {topicOptions.map((topic, index) => (
@@ -597,22 +573,12 @@ export default function IdeaHubForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="alternateTopic">
-          {isC21Canada ? (
-            <TranslatedText>Custom Topic or Additional Details</TranslatedText>
-          ) : (
-            "Custom Topic or Additional Details"
-          )}
-        </Label>
+        <Label htmlFor="alternateTopic">Custom Topic or Additional Details</Label>
         <div className="relative">
           <Textarea
             id="alternateTopic"
             name="alternateTopic"
-            placeholder={
-              isC21Canada
-                ? "Enter any custom topic or additional details you'd like to include"
-                : "Enter any custom topic or additional details you'd like to include"
-            }
+            placeholder="Enter any custom topic or additional details you'd like to include"
             value={formData.alternateTopic}
             onChange={handleInputChange}
             className="min-h-[100px] pr-12"
@@ -627,56 +593,36 @@ export default function IdeaHubForm() {
             {isListening ? <MicOff className="h-4 w-4 text-red-500" /> : <Mic className="h-4 w-4" />}
           </Button>
         </div>
-        {isListening && (
-          <p className="text-sm text-blue-600">
-            {isC21Canada ? <TranslatedText>Listening... Speak now</TranslatedText> : "Listening... Speak now"}
-          </p>
-        )}
+        {isListening && <p className="text-sm text-blue-600">Listening... Speak now</p>}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="contentType">
-          {isC21Canada ? <TranslatedText>Content Type *</TranslatedText> : "Content Type *"}
-        </Label>
+        <Label htmlFor="contentType">Content Type *</Label>
         <Select value={formData.contentType} onValueChange={(value) => handleSelectChange("contentType", value)}>
           <SelectTrigger id="contentType">
-            <SelectValue
-              placeholder={isC21Canada ? <TranslatedText>Select content type</TranslatedText> : "Select content type"}
-            />
+            <SelectValue placeholder="Select content type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Social post">
-              {isC21Canada ? <TranslatedText>Social Post</TranslatedText> : "Social Post"}
-            </SelectItem>
-            <SelectItem value="Email">{isC21Canada ? <TranslatedText>Email</TranslatedText> : "Email"}</SelectItem>
-            <SelectItem value="Blog article">
-              {isC21Canada ? <TranslatedText>Blog Article</TranslatedText> : "Blog Article"}
-            </SelectItem>
-            <SelectItem value="Text message">
-              {isC21Canada ? <TranslatedText>Text Message</TranslatedText> : "Text Message"}
-            </SelectItem>
+            <SelectItem value="Social post">Social Post</SelectItem>
+            <SelectItem value="Email">Email</SelectItem>
+            <SelectItem value="Blog article">Blog Article</SelectItem>
+            <SelectItem value="Text message">Text Message</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="tonality">{isC21Canada ? <TranslatedText>Tonality</TranslatedText> : "Tonality"}</Label>
+        <Label htmlFor="tonality">Tonality</Label>
         <Select value={formData.tonality} onValueChange={(value) => handleSelectChange("tonality", value)}>
           <SelectTrigger id="tonality">
-            <SelectValue
-              placeholder={isC21Canada ? <TranslatedText>Select tonality</TranslatedText> : "Select tonality"}
-            />
+            <SelectValue placeholder="Select tonality" />
           </SelectTrigger>
           <SelectContent>
             {tonalityOptions.map((option, index) => (
               <SelectItem key={index} value={option.value}>
                 <div>
-                  <div className="font-medium">
-                    {isC21Canada ? <TranslatedText>{option.value}</TranslatedText> : option.value}
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    {isC21Canada ? <TranslatedText>{option.description}</TranslatedText> : option.description}
-                  </div>
+                  <div className="font-medium">{option.value}</div>
+                  <div className="text-sm text-gray-500">{option.description}</div>
                 </div>
               </SelectItem>
             ))}
@@ -685,28 +631,18 @@ export default function IdeaHubForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="language">{isC21Canada ? <TranslatedText>Language</TranslatedText> : "Language"}</Label>
+        <Label htmlFor="language">Language</Label>
         <Select value={formData.language} onValueChange={(value) => handleSelectChange("language", value)}>
           <SelectTrigger id="language">
-            <SelectValue
-              placeholder={isC21Canada ? <TranslatedText>Select language</TranslatedText> : "Select language"}
-            />
+            <SelectValue placeholder="Select language" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="English">
-              {isC21Canada ? <TranslatedText>English</TranslatedText> : "English"}
-            </SelectItem>
-            <SelectItem value="Spanish">
-              {isC21Canada ? <TranslatedText>Spanish</TranslatedText> : "Spanish"}
-            </SelectItem>
-            <SelectItem value="French">{isC21Canada ? <TranslatedText>French</TranslatedText> : "French"}</SelectItem>
-            <SelectItem value="German">{isC21Canada ? <TranslatedText>German</TranslatedText> : "German"}</SelectItem>
-            <SelectItem value="Italian">
-              {isC21Canada ? <TranslatedText>Italian</TranslatedText> : "Italian"}
-            </SelectItem>
-            <SelectItem value="Portuguese">
-              {isC21Canada ? <TranslatedText>Portuguese</TranslatedText> : "Portuguese"}
-            </SelectItem>
+            <SelectItem value="English">English</SelectItem>
+            <SelectItem value="Spanish">Spanish</SelectItem>
+            <SelectItem value="French">French</SelectItem>
+            <SelectItem value="German">German</SelectItem>
+            <SelectItem value="Italian">Italian</SelectItem>
+            <SelectItem value="Portuguese">Portuguese</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -716,7 +652,7 @@ export default function IdeaHubForm() {
         disabled={!formData.primaryTopic && !formData.alternateTopic}
         className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
       >
-        {isC21Canada ? <TranslatedText>Next</TranslatedText> : "Next"}
+        Next
       </Button>
     </div>
   )
@@ -724,11 +660,11 @@ export default function IdeaHubForm() {
   const renderStepTwo = () => (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="name">{isC21Canada ? <TranslatedText>Your Name *</TranslatedText> : "Your Name *"}</Label>
+        <Label htmlFor="name">Your Name *</Label>
         <Input
           id="name"
           name="name"
-          placeholder={isC21Canada ? "Enter your name" : "Enter your name"}
+          placeholder="Enter your name"
           value={formData.name}
           onChange={handleInputChange}
           required
@@ -736,12 +672,12 @@ export default function IdeaHubForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="email">{isC21Canada ? <TranslatedText>Your Email *</TranslatedText> : "Your Email *"}</Label>
+        <Label htmlFor="email">Your Email *</Label>
         <Input
           id="email"
           name="email"
           type="email"
-          placeholder={isC21Canada ? "Enter your email" : "Enter your email"}
+          placeholder="Enter your email"
           value={formData.email}
           onChange={handleInputChange}
           required
@@ -750,7 +686,7 @@ export default function IdeaHubForm() {
 
       <div className="flex gap-4">
         <Button variant="outline" onClick={() => setStep(1)} className="flex-1">
-          {isC21Canada ? <TranslatedText>Back</TranslatedText> : "Back"}
+          Back
         </Button>
         <Button
           onClick={handleSubmit}
@@ -759,11 +695,8 @@ export default function IdeaHubForm() {
         >
           {isGenerating ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
-              {isC21Canada ? <TranslatedText>Generating...</TranslatedText> : "Generating..."}
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...
             </>
-          ) : isC21Canada ? (
-            <TranslatedText>Generate Content</TranslatedText>
           ) : (
             "Generate Content"
           )}
@@ -775,28 +708,16 @@ export default function IdeaHubForm() {
   const renderStepThree = () => (
     <div ref={resultsRef} className="space-y-6">
       <div className="text-center mb-6">
-        <h3 className="text-xl font-bold text-black">
-          {isC21Canada ? <TranslatedText>Your Content is Ready!</TranslatedText> : "Your Content is Ready!"}
-        </h3>
+        <h3 className="text-xl font-bold text-black">Your Content is Ready!</h3>
         <p className="text-gray-600">
-          {isC21Canada ? (
-            <TranslatedText>
-              Here's your professionally generated social media content with Century 21 branding
-            </TranslatedText>
-          ) : (
-            "Here's your professionally generated social media content with Century 21 branding"
-          )}
+          Here's your professionally generated social media content with Century 21 branding
         </p>
       </div>
 
       <Tabs defaultValue="preview" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="preview">
-            {isC21Canada ? <TranslatedText>Preview</TranslatedText> : "Preview"}
-          </TabsTrigger>
-          <TabsTrigger value="text">
-            {isC21Canada ? <TranslatedText>Text Only</TranslatedText> : "Text Only"}
-          </TabsTrigger>
+          <TabsTrigger value="preview">Preview</TabsTrigger>
+          <TabsTrigger value="text">Text Only</TabsTrigger>
         </TabsList>
         <TabsContent value="preview" className="space-y-4">
           <Card className="border-0 shadow-md overflow-hidden">
@@ -833,7 +754,7 @@ export default function IdeaHubForm() {
           className="flex items-center justify-center gap-2 bg-transparent"
         >
           <Copy className="h-4 w-4" />
-          {isC21Canada ? <TranslatedText>Copy Text</TranslatedText> : "Copy Text"}
+          Copy Text
         </Button>
         <Button
           variant="outline"
@@ -841,7 +762,7 @@ export default function IdeaHubForm() {
           className="flex items-center justify-center gap-2 bg-transparent"
         >
           <Download className="h-4 w-4" />
-          {isC21Canada ? <TranslatedText>Download Image</TranslatedText> : "Download Image"}
+          Download Image
         </Button>
         <Button
           variant="outline"
@@ -850,17 +771,7 @@ export default function IdeaHubForm() {
           className="flex items-center justify-center gap-2 bg-transparent"
         >
           {isSendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-          {isSendingEmail ? (
-            isC21Canada ? (
-              <TranslatedText>Sending...</TranslatedText>
-            ) : (
-              "Sending..."
-            )
-          ) : isC21Canada ? (
-            <TranslatedText>Email Me</TranslatedText>
-          ) : (
-            "Email Me"
-          )}
+          {isSendingEmail ? "Sending..." : "Email Me"}
         </Button>
       </div>
 
@@ -876,7 +787,7 @@ export default function IdeaHubForm() {
         }}
         className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
       >
-        {isC21Canada ? <TranslatedText>Create Another</TranslatedText> : "Create Another"}
+        Create Another
       </Button>
     </div>
   )
@@ -885,16 +796,8 @@ export default function IdeaHubForm() {
     <Card className="w-full max-w-2xl mx-auto border-0 shadow-lg">
       <CardContent className="p-8">
         <div className="mb-8 text-center">
-          <h2 className="text-2xl font-bold text-black mb-2">
-            {isC21Canada ? <TranslatedText>IdeaHub AI</TranslatedText> : "IdeaHub AI"}
-          </h2>
-          <p className="text-gray-600">
-            {isC21Canada ? (
-              <TranslatedText>Generate professional social media content with Century 21 branding</TranslatedText>
-            ) : (
-              "Generate professional social media content with Century 21 branding"
-            )}
-          </p>
+          <h2 className="text-2xl font-bold text-black mb-2">IdeaHub AI</h2>
+          <p className="text-gray-600">Generate professional social media content with Century 21 branding</p>
         </div>
 
         {step === 1 && renderStepOne()}

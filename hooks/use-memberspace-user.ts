@@ -1,109 +1,91 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useTenantConfig } from "@/contexts/tenant-context"
 
-interface MemberInfo {
-  id: number
+interface MemberSpaceUser {
+  id: string
   name: string
-  firstName: string
-  lastName: string
   email: string
-  profileImageUrl: string
-  memberships: Array<{
-    id: number
-    planId: number
-    publicPlanId: string
-    name: string
-    type: string
-    createdAt: string
-    status: string
-    cancelsOn?: string
-    billingPeriodEnd?: string
-    expiresOn?: string
-    paymentFailure: boolean
-    welcomeUrl: string
-    contentUrl: string
-  }>
-  customSignupFields: Array<{
-    id: number
-    type: string
-    required: boolean
-    value: any
-    options?: Array<{ label: string; value: string }>
-  }>
-}
-
-interface MemberSpaceData {
-  isLoggedIn: boolean
-  memberInfo?: MemberInfo
-}
-
-declare global {
-  interface Window {
-    MemberSpace?: {
-      ready: boolean
-      getMemberInfo(): MemberSpaceData
-    }
-  }
+  customFields?: Record<string, any>
 }
 
 export function useMemberSpaceUser() {
-  const [user, setUser] = useState<MemberInfo | null>(null)
+  const [user, setUser] = useState<MemberSpaceUser | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const tenantConfig = useTenantConfig()
 
   useEffect(() => {
-    const checkMemberSpace = () => {
-      try {
-        if (window.MemberSpace && window.MemberSpace.ready) {
-          const data = window.MemberSpace.getMemberInfo()
+    // Only load MemberSpace for the default tenant (main domain)
+    if (tenantConfig.id !== "default") {
+      setLoading(false)
+      setUser(null)
+      return
+    }
 
-          if (data.isLoggedIn && data.memberInfo) {
-            setUser(data.memberInfo)
-          } else {
-            setUser(null)
+    // Only load MemberSpace on the main domain
+    if (typeof window !== "undefined") {
+      const hostname = window.location.hostname
+      if (
+        !hostname.includes("thenextlevelu.com") ||
+        hostname.includes("beggins.") ||
+        hostname.includes("brokerage.") ||
+        hostname.includes("international.")
+      ) {
+        setLoading(false)
+        setUser(null)
+        return
+      }
+    }
+
+    const loadMemberSpace = async () => {
+      try {
+        // Check if MemberSpace is available
+        if (typeof window !== "undefined" && (window as any).MemberSpace) {
+          const memberSpace = (window as any).MemberSpace
+
+          // Get current member
+          const currentMember = await memberSpace.getCurrentMember()
+
+          if (currentMember) {
+            setUser({
+              id: currentMember.id,
+              name: currentMember.name || "",
+              email: currentMember.email || "",
+              customFields: currentMember.customFields || {},
+            })
           }
-          setLoading(false)
-        } else {
-          // MemberSpace not ready yet, check again in 100ms
-          setTimeout(checkMemberSpace, 100)
         }
       } catch (err) {
-        console.error("Error checking MemberSpace:", err)
-        setError(err instanceof Error ? err.message : "Unknown error")
+        console.error("MemberSpace error:", err)
+        setError(err instanceof Error ? err.message : "Failed to load user")
+      } finally {
         setLoading(false)
       }
     }
 
-    // Initial check
-    checkMemberSpace()
+    // Wait for MemberSpace to load
+    if (typeof window !== "undefined") {
+      if ((window as any).MemberSpace) {
+        loadMemberSpace()
+      } else {
+        // Wait for MemberSpace to load
+        const checkMemberSpace = setInterval(() => {
+          if ((window as any).MemberSpace) {
+            clearInterval(checkMemberSpace)
+            loadMemberSpace()
+          }
+        }, 100)
 
-    // Event listeners
-    const handleMemberInfo = ({ detail }: any) => {
-      const { memberInfo } = detail
-      setUser(memberInfo)
-      setLoading(false)
+        // Timeout after 5 seconds
+        setTimeout(() => {
+          clearInterval(checkMemberSpace)
+          setLoading(false)
+        }, 5000)
+      }
     }
+  }, [tenantConfig.id])
 
-    const handleLogout = () => {
-      setUser(null)
-      setLoading(false)
-    }
-
-    document.addEventListener("MemberSpace.member.info", handleMemberInfo)
-    document.addEventListener("MemberSpace.member.logout", handleLogout)
-
-    // Cleanup
-    return () => {
-      document.removeEventListener("MemberSpace.member.info", handleMemberInfo)
-      document.removeEventListener("MemberSpace.member.logout", handleLogout)
-    }
-  }, [])
-
-  return {
-    user,
-    loading,
-    error,
-    isLoggedIn: !!user,
-  }
+  return { user, loading, error }
 }

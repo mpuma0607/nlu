@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { generateContent } from "./actions"
 import { Loader2, Copy, Download, Mail, Mic, MicOff } from "lucide-react"
 import Image from "next/image"
-import { useMemberSpaceUser } from "@memberspace/client"
+import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
 
 const topicOptions = [

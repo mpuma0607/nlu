@@ -6,116 +6,85 @@ import { useTenantConfig } from "@/contexts/tenant-context"
 interface MemberSpaceUser {
   id: string
   email: string
-  name: string
-  planName?: string
-  planId?: string
-  customFields?: Record<string, any>
+  firstName: string
+  lastName: string
+  planName: string
+  planId: string
+  isActive: boolean
 }
 
-interface UseMemberSpaceUserReturn {
-  user: MemberSpaceUser | null
-  loading: boolean
-  error: string | null
-  isAuthenticated: boolean
-  login: () => void
-  logout: () => void
-  refreshUser: () => Promise<void>
-}
-
-export function useMemberSpaceUser(): UseMemberSpaceUserReturn {
+export function useMemberSpaceUser() {
   const [user, setUser] = useState<MemberSpaceUser | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const tenantConfig = useTenantConfig()
 
-  const login = () => {
-    if (tenantConfig.auth.provider === "memberspace" && tenantConfig.auth.settings.memberspace?.loginUrl) {
-      window.location.href = tenantConfig.auth.settings.memberspace.loginUrl
-    }
-  }
-
-  const logout = () => {
-    if (tenantConfig.auth.provider === "memberspace" && tenantConfig.auth.settings.memberspace?.logoutUrl) {
-      window.location.href = tenantConfig.auth.settings.memberspace.logoutUrl
-    }
-  }
-
-  const refreshUser = async () => {
-    // Only proceed if this tenant uses MemberSpace
-    if (tenantConfig.auth.provider !== "memberspace") {
+  useEffect(() => {
+    // Only load MemberSpace for tenants configured to use it
+    if (tenantConfig.auth?.provider !== "memberspace") {
       setLoading(false)
       return
     }
 
-    try {
-      setLoading(true)
-      setError(null)
+    let timeoutId: NodeJS.Timeout
 
-      // Wait for MemberSpace to load
-      let attempts = 0
-      const maxAttempts = 100 // 10 seconds with 100ms intervals
+    const loadMemberSpaceUser = () => {
+      try {
+        // Check if MemberSpace is available
+        if (typeof window !== "undefined" && window.MemberSpace) {
+          const memberSpaceUser = window.MemberSpace.getMember()
 
-      while (attempts < maxAttempts) {
-        if (typeof window !== "undefined" && (window as any).MemberSpace) {
-          break
+          if (memberSpaceUser && memberSpaceUser.id) {
+            setUser({
+              id: memberSpaceUser.id,
+              email: memberSpaceUser.email || "",
+              firstName: memberSpaceUser.firstName || "",
+              lastName: memberSpaceUser.lastName || "",
+              planName: memberSpaceUser.planName || "",
+              planId: memberSpaceUser.planId || "",
+              isActive: memberSpaceUser.isActive || false,
+            })
+          } else {
+            setUser(null)
+          }
+          setLoading(false)
+        } else {
+          // MemberSpace not loaded yet, try again
+          timeoutId = setTimeout(loadMemberSpaceUser, 100)
         }
-        await new Promise((resolve) => setTimeout(resolve, 100))
-        attempts++
+      } catch (err) {
+        console.error("Error loading MemberSpace user:", err)
+        setError("Failed to load user data")
+        setLoading(false)
       }
-
-      if (attempts >= maxAttempts) {
-        throw new Error("MemberSpace failed to load")
-      }
-
-      const memberspace = (window as any).MemberSpace
-
-      // Check if user is logged in
-      const isLoggedIn = await new Promise<boolean>((resolve) => {
-        memberspace.onReady = () => {
-          resolve(memberspace.isLoggedIn())
-        }
-      })
-
-      if (isLoggedIn) {
-        // Get user data
-        const userData = await new Promise<any>((resolve, reject) => {
-          memberspace.getCurrentMember({
-            success: (member: any) => resolve(member),
-            error: (err: any) => reject(err),
-          })
-        })
-
-        setUser({
-          id: userData.id,
-          email: userData.email,
-          name: userData.name || userData.first_name + " " + userData.last_name,
-          planName: userData.plan_name,
-          planId: userData.plan_id,
-          customFields: userData.custom_fields,
-        })
-      } else {
-        setUser(null)
-      }
-    } catch (err) {
-      console.error("Error loading MemberSpace user:", err)
-      setError(err instanceof Error ? err.message : "Failed to load user")
-      setUser(null)
-    } finally {
-      setLoading(false)
     }
-  }
 
-  useEffect(() => {
-    refreshUser()
-  }, [tenantConfig.id])
+    // Start loading immediately
+    loadMemberSpaceUser()
 
-  return {
-    user,
-    loading,
-    error,
-    isAuthenticated: !!user,
-    login,
-    logout,
-    refreshUser,
+    // Set a maximum timeout of 10 seconds
+    const maxTimeout = setTimeout(() => {
+      if (loading) {
+        console.warn("MemberSpace loading timeout")
+        setLoading(false)
+      }
+    }, 10000)
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId)
+      clearTimeout(maxTimeout)
+    }
+  }, [tenantConfig.auth?.provider, loading])
+
+  return { user, loading, error }
+}
+
+// Extend the Window interface to include MemberSpace
+declare global {
+  interface Window {
+    MemberSpace: {
+      getMember: () => any
+      [key: string]: any
+    }
   }
 }

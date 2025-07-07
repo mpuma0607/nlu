@@ -99,7 +99,7 @@ export default function BegginsHomePage() {
               className="bg-white text-black hover:bg-gray-100 text-lg px-8 py-4"
               disabled={loading}
             >
-              {loading ? "Loading..." : user ? "Access Your Portal" : "Access Your Portal"}
+              {loading ? "Loading..." : user ? "Access Your Portal" : "Log in/Sign up"}
             </Button>
           </div>
         </main>

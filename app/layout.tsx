@@ -32,76 +32,33 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/favicon.ico" />
 
-        {/* Default MemberSpace Script for Next Level U */}
+        {/* MemberSpace Script - Domain Detection */}
         <Script
-          id="memberspace-config-default"
+          id="memberspace-config"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
-              // Check if this is NOT a Beggins domain
-              const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
-              const isBegginsAgent = hostname === 'begginsagents.com' || 
+              (function() {
+                // Get hostname
+                var hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+                
+                // Check if this is a Beggins domain
+                var isBegginsAgent = hostname === 'begginsagents.com' || 
                                    hostname === 'www.begginsagents.com' || 
                                    hostname === 'beggins.thenextlevelu.com';
-              
-              if (!isBegginsAgent) {
-                // Default Next Level U MemberSpace config
-                window.MemberSpace = window.MemberSpace || {"subdomain":"thenextlevelu"};
-              }
+                
+                if (isBegginsAgent) {
+                  // Beggins-specific MemberSpace config
+                  window.MemberSpace = window.MemberSpace || {"subdomain":"begginsagents"};
+                } else {
+                  // Default Next Level U MemberSpace config
+                  window.MemberSpace = window.MemberSpace || {"subdomain":"thenextlevelu"};
+                }
+              })();
             `,
           }}
         />
-
-        {/* Beggins-specific MemberSpace Script */}
-        <Script
-          id="memberspace-config-beggins"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              // Check if this is a Beggins domain
-              const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
-              const isBegginsAgent = hostname === 'begginsagents.com' || 
-                                   hostname === 'www.begginsagents.com' || 
-                                   hostname === 'beggins.thenextlevelu.com';
-              
-              if (isBegginsAgent) {
-                // Beggins-specific MemberSpace config
-                var MemberSpace = window.MemberSpace || {"subdomain":"begginsagents"};
-                (function(d){ 
-                  var s = d.createElement("script"); 
-                  s.src = "https://cdn.memberspace.com/scripts/widgets.js"; 
-                  var e = d.getElementsByTagName("script")[0]; 
-                  e.parentNode.insertBefore(s,e); 
-                }(document));
-              }
-            `,
-          }}
-        />
-
-        {/* Default MemberSpace Script for Next Level U */}
-        <Script
-          id="memberspace-script-default"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              // Check if this is NOT a Beggins domain
-              const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
-              const isBegginsAgent = hostname === 'begginsagents.com' || 
-                                   hostname === 'www.begginsagents.com' || 
-                                   hostname === 'beggins.thenextlevelu.com';
-              
-              if (!isBegginsAgent) {
-                // Load default MemberSpace script for Next Level U
-                (function(d){ 
-                  var s = d.createElement("script"); 
-                  s.src = "https://cdn.memberspace.com/scripts/widgets.js"; 
-                  var e = d.getElementsByTagName("script")[0]; 
-                  e.parentNode.insertBefore(s,e); 
-                }(document));
-              }
-            `,
-          }}
-        />
+        <Script src="https://cdn.memberspace.com/scripts/widgets.js" strategy="beforeInteractive" />
       </head>
       <body className={inter.className}>
         <ClientLayout>{children}</ClientLayout>

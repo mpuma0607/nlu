@@ -3,7 +3,7 @@ import type { TenantConfig } from "../types"
 export const brokeragePrivateConfig: TenantConfig = {
   id: "brokerage-private",
   name: "Brokerage Pro Platform",
-  domain: ["brokerage1.thenextlevelu.com", "brokerage-pro.com"],
+  domain: ["brokerage-pro.com", "www.brokerage-pro.com", "brokerage1.thenextlevelu.com"],
   branding: {
     name: "Brokerage Pro Platform",
     logo: "/images/tenants/brokerage-logo.png",
@@ -38,6 +38,7 @@ export const brokeragePrivateConfig: TenantConfig = {
     language: "en",
     currency: "USD",
     dateFormat: "MM/DD/YYYY",
+    translations: {},
   },
   auth: {
     provider: "internal",

@@ -3,7 +3,7 @@ import type { TenantConfig } from "../types"
 export const internationalConfig: TenantConfig = {
   id: "international",
   name: "International Platform",
-  domain: ["international.thenextlevelu.com"],
+  domain: ["international-realestate.com", "www.international-realestate.com", "international.thenextlevelu.com"],
   branding: {
     name: "International Platform",
     logo: "/images/international-logo.png",
@@ -54,7 +54,7 @@ export const internationalConfig: TenantConfig = {
     provider: "memberspace",
     settings: {
       memberspace: {
-        subdomain: "thenextlevelu",
+        subdomain: "international-platform",
         planUrls: {
           monthly: "/plans/monthly",
           annual: "/plans/annual",

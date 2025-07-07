@@ -3,11 +3,16 @@ import type { TenantConfig } from "../types"
 export const century21BegginsConfig: TenantConfig = {
   id: "century21-beggins",
   name: "Beggins University",
-  domain: ["beggins.thenextlevelu.com", "beggins-university.com"],
+  domain: [
+    "beggins-university.com",
+    "www.beggins-university.com",
+    "beggins.thenextlevelu.com",
+    "localhost:3000", // for local development
+  ],
   branding: {
     name: "Beggins University",
-    logo: "/images/beggins-university-light.png", // Black text for light backgrounds
-    logoDark: "/images/beggins-university-dark.png", // White text for dark backgrounds
+    logo: "/images/beggins-university-light.png",
+    logoDark: "/images/beggins-university-dark.png",
     colors: {
       primary: "#000000",
       secondary: "#b6a888",
@@ -60,7 +65,6 @@ export const century21BegginsConfig: TenantConfig = {
     ],
     hiddenFeatures: ["profile"],
     customNavigation: false,
-    customHomePage: "/beggins-home",
   },
   localization: {
     language: "en",
@@ -77,11 +81,14 @@ export const century21BegginsConfig: TenantConfig = {
     },
   },
   auth: {
-    provider: "google-workspace",
+    provider: "memberspace",
     settings: {
-      googleWorkspace: {
-        allowedDomains: ["c21be.com", "c21be3.com"],
-        clientId: "your-google-client-id",
+      memberspace: {
+        subdomain: "beggins-university",
+        planUrls: {
+          monthly: "/plans/monthly",
+          annual: "/plans/annual",
+        },
       },
     },
     billing: {

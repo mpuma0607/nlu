@@ -69,4 +69,10 @@ export const century21BegginsConfig: TenantConfig = {
       }
     `,
   },
+  localization: {
+    language: "en",
+    currency: "USD",
+    dateFormat: "MM/DD/YYYY",
+    translations: {},
+  },
 }

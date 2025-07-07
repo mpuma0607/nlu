@@ -3,7 +3,7 @@ import type { TenantConfig } from "../types"
 export const century21BegginsConfig: TenantConfig = {
   id: "century21-beggins",
   name: "Century 21 Beggins",
-  domain: ["beggins.thenextlevelu.com"],
+  domain: ["beggins.thenextlevelu.com", "begginsagents.com", "www.begginsagents.com"],
   branding: {
     name: "Beggins University",
     logo: "/images/beggins-university-light.png",

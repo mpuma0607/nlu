@@ -8,7 +8,9 @@ const domainTenantMap: Record<string, string> = {
   "brokerage.thenextlevelu.com": "brokerage-private",
   "international.thenextlevelu.com": "international",
 
-  // Phase 3: Future custom domains
+  // Phase 3: Custom domains
+  "begginsagents.com": "century21-beggins",
+  "www.begginsagents.com": "century21-beggins",
   "beggins-university.com": "century21-beggins",
   "www.beggins-university.com": "century21-beggins",
   "brokerage-pro.com": "brokerage-private",

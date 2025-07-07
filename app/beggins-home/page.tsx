@@ -1,9 +1,21 @@
 "use client"
-import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
+import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 
 export default function BegginsHomePage() {
+  const { user, loading } = useMemberSpaceUser()
+
+  const handleAuthAction = () => {
+    if (user) {
+      // User is logged in, go to portal
+      window.location.href = "/portal"
+    } else {
+      // User not logged in, open MemberSpace signup/login
+      window.open("https://www.thenextlevelu.com?msopen=/member/plans/x8lgb2fe1z", "_blank")
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
       {/* Simple Header with ONLY logo and login - NO navigation menu */}
@@ -20,13 +32,14 @@ export default function BegginsHomePage() {
             />
           </div>
 
-          {/* Login Link ONLY */}
+          {/* Login/Sign up Button */}
           <Button
-            asChild
+            onClick={handleAuthAction}
             variant="outline"
             className="bg-transparent border-white text-white hover:bg-white hover:text-black"
+            disabled={loading}
           >
-            <Link href="/portal">Login</Link>
+            {loading ? "Loading..." : user ? "Portal" : "Log in/Sign up"}
           </Button>
         </div>
       </header>
@@ -47,8 +60,13 @@ export default function BegginsHomePage() {
             success.
           </p>
 
-          <Button asChild size="lg" className="bg-white text-black hover:bg-gray-100 text-lg px-8 py-4">
-            <Link href="/portal">Access Your Portal</Link>
+          <Button
+            onClick={handleAuthAction}
+            size="lg"
+            className="bg-white text-black hover:bg-gray-100 text-lg px-8 py-4"
+            disabled={loading}
+          >
+            {loading ? "Loading..." : user ? "Access Your Portal" : "Access Your Portal"}
           </Button>
         </div>
       </main>

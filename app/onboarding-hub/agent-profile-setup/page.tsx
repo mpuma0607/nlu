@@ -47,13 +47,51 @@ const steps = [
     content: {
       overview: "Understanding your leadership structure is crucial for success at Century 21 Beggins.",
       steps: [
-        "Review the leadership organizational chart",
+        "Review the leadership organizational chart below",
         "Schedule meet-and-greet with your direct manager",
         "Learn about each department head's responsibilities",
         "Save important contact information in your phone",
         "Understand escalation procedures for different situations",
       ],
       tips: "Keep a contact sheet handy for your first few weeks!",
+      organizationalChart: {
+        leadership: [
+          "Chris Read",
+          "Kathleen Long",
+          "Jessica Roman",
+          "Joe Deaner",
+          "Jimmy McNally",
+          "Jennifer Birdsong",
+          "Winston Christie",
+          "Mike Johnson",
+          "Lavada McIntyre Burroughs",
+          "Sean Rosenmarkle",
+          "Craig Beggins",
+          "Mike Puma",
+          "Jeff Beggins",
+        ],
+        supportStaff: [
+          { name: "Rachel Jordan", role: "Transaction Coordinator" },
+          { name: "Krissy Seel", role: "Transaction Coordinator" },
+          { name: "Celeste Buzbee", role: "Transaction Coordinator" },
+          { name: "Jeanette Waltrip", role: "Transaction Coordinator" },
+          { name: "Bob Pasquarello", role: "Agent Support" },
+          { name: "Joy Miller", role: "IT + Tech" },
+          { name: "Susie Brush", role: "CFO" },
+          { name: "Angelique Corr Beggins", role: "HR" },
+          { name: "Caitlin Beaird", role: "Back Office Operations" },
+          { name: "Jessica Carlson", role: "BE3" },
+          { name: "Aracely Sanchez", role: "Closing Coordinator" },
+          { name: "Sam Beggins", role: "Leads Coordinator" },
+          { name: "Chris Adams", role: "Contract Coordinator" },
+          { name: "Jazmine Pinero", role: "Listing Coordinator" },
+          { name: "Laurine Gauthier", role: "Listing Coordinator" },
+          { name: "Hilda Tirado", role: "Agent Support" },
+          { name: "Rosa Saldana", role: "Agent Support" },
+          { name: "Elizabeth Mihalek", role: "Relocation and Leads Coordinator" },
+          { name: "Kathy MacKinnon", role: "Agent Support" },
+        ],
+      },
     },
   },
   {
@@ -590,7 +628,7 @@ export default function AgentProfileSetupPage() {
                         View Guide
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                    <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle className="flex items-center gap-2">
                           <Icon className="w-5 h-5 text-blue-600" />
@@ -598,7 +636,7 @@ export default function AgentProfileSetupPage() {
                         </DialogTitle>
                         <DialogDescription>{step.content.overview}</DialogDescription>
                       </DialogHeader>
-                      <div className="space-y-4">
+                      <div className="space-y-6">
                         <div>
                           <h4 className="font-semibold mb-2">Steps to Complete:</h4>
                           <ol className="list-decimal list-inside space-y-1">
@@ -609,6 +647,45 @@ export default function AgentProfileSetupPage() {
                             ))}
                           </ol>
                         </div>
+
+                        {/* Leadership Team Organizational Chart - Only for Step 1 */}
+                        {step.id === 1 && step.content.organizationalChart && (
+                          <div className="space-y-4">
+                            <div className="border-t pt-4">
+                              <h4 className="font-semibold mb-3 text-lg">Century 21 Beggins Organizational Chart</h4>
+
+                              {/* Leadership Team */}
+                              <div className="mb-6">
+                                <h5 className="font-semibold mb-3 text-blue-900 bg-blue-50 p-2 rounded">
+                                  Leadership Team
+                                </h5>
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                                  {step.content.organizationalChart.leadership.map((leader, index) => (
+                                    <div key={index} className="bg-gray-50 p-2 rounded text-sm font-medium text-center">
+                                      {leader}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Support Staff */}
+                              <div>
+                                <h5 className="font-semibold mb-3 text-green-900 bg-green-50 p-2 rounded">
+                                  Support Team
+                                </h5>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                  {step.content.organizationalChart.supportStaff.map((staff, index) => (
+                                    <div key={index} className="bg-white border rounded-lg p-3 shadow-sm">
+                                      <div className="font-medium text-gray-900">{staff.name}</div>
+                                      <div className="text-sm text-gray-600">{staff.role}</div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
                         <div className="bg-blue-50 p-3 rounded-lg">
                           <h4 className="font-semibold text-blue-900 mb-1">💡 Pro Tip:</h4>
                           <p className="text-sm text-blue-800">{step.content.tips}</p>

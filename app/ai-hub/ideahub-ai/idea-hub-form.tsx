@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { generateContent } from "./actions"
 import { Loader2, Copy, Download, Mail, Mic, MicOff } from "lucide-react"
 import Image from "next/image"
-import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
+import { useMemberSpaceUser } from "@memberspace/client"
 import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
 
 const topicOptions = [
@@ -388,7 +388,7 @@ export default function IdeaHubForm() {
   const [isListening, setIsListening] = useState(false)
   const resultsRef = useRef<HTMLDivElement>(null)
   const recognitionRef = useRef<any>(null)
-  const { user } = useMemberSpaceUser()
+  const { user, loading: userLoading } = useMemberSpaceUser()
   const [formData, setFormData] = useState<FormState>({
     primaryTopic: "",
     alternateTopic: "",
@@ -400,16 +400,16 @@ export default function IdeaHubForm() {
   })
   const [result, setResult] = useState<ContentResult | null>(null)
 
-  // Auto-fill user data from MemberSpace
+  // Auto-populate user data when available
   useEffect(() => {
-    if (user) {
+    if (user && !userLoading) {
       setFormData((prev) => ({
         ...prev,
-        name: user.name || prev.name,
-        email: user.email || prev.email,
+        name: prev.name || user.name || `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+        email: prev.email || user.email || "",
       }))
     }
-  }, [user])
+  }, [user, userLoading])
 
   // Auto-scroll to results when they're generated
   useEffect(() => {
@@ -489,7 +489,7 @@ export default function IdeaHubForm() {
       if (user && generatedContent.text) {
         const title = generateCreationTitle("ideahub-ai", formData)
         await saveUserCreation({
-          userId: user.id,
+          userId: user.id.toString(),
           userEmail: user.email,
           toolType: "ideahub-ai",
           title,

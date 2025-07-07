@@ -1,86 +1,108 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useTenant } from "@/contexts/tenant-context"
 
-interface MemberSpaceUser {
-  id: string
-  email: string
+interface MemberInfo {
+  id: number
   name: string
-  customFields?: Record<string, any>
-  planConnections?: Array<{
-    planId: string
-    planName: string
+  firstName: string
+  lastName: string
+  email: string
+  profileImageUrl: string
+  memberships: Array<{
+    id: number
+    planId: number
+    publicPlanId: string
+    name: string
+    type: string
+    createdAt: string
     status: string
+    cancelsOn?: string
+    billingPeriodEnd?: string
+    expiresOn?: string
+    paymentFailure: boolean
+    welcomeUrl: string
+    contentUrl: string
+  }>
+  customSignupFields: Array<{
+    id: number
+    type: string
+    required: boolean
+    value: any
+    options?: Array<{ label: string; value: string }>
   }>
 }
 
+interface MemberSpaceData {
+  isLoggedIn: boolean
+  memberInfo?: MemberInfo
+}
+
+declare global {
+  interface Window {
+    MemberSpace?: {
+      ready: boolean
+      getMemberInfo(): MemberSpaceData
+    }
+  }
+}
+
 export function useMemberSpaceUser() {
-  const [user, setUser] = useState<MemberSpaceUser | null>(null)
+  const [user, setUser] = useState<MemberInfo | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const { config: tenantConfig } = useTenant()
 
   useEffect(() => {
-    // Only load MemberSpace for tenants configured to use it
-    const usesMemberSpace = tenantConfig.auth.provider === "memberspace"
-
-    if (!usesMemberSpace) {
-      setLoading(false)
-      return
-    }
-
-    const initializeMemberSpace = async () => {
+    const checkMemberSpace = () => {
       try {
-        // Check if MemberSpace is available
-        if (typeof window !== "undefined" && (window as any).MemberSpace) {
-          const memberSpace = (window as any).MemberSpace
-
-          // Get current user
-          const currentUser = await memberSpace.getCurrentMember()
-
-          if (currentUser) {
-            setUser({
-              id: currentUser.id,
-              email: currentUser.email,
-              name: currentUser.name || currentUser.email,
-              customFields: currentUser.customFields,
-              planConnections: currentUser.planConnections,
-            })
+        if (window.MemberSpace && window.MemberSpace.ready) {
+          const data = window.MemberSpace.getMemberInfo()
+          if (data.isLoggedIn && data.memberInfo) {
+            setUser(data.memberInfo)
+          } else {
+            setUser(null)
           }
+          setLoading(false)
+        } else {
+          // MemberSpace not ready yet, check again in 100ms
+          setTimeout(checkMemberSpace, 100)
         }
       } catch (err) {
-        console.error("MemberSpace initialization error:", err)
-        setError("Failed to load user information")
-      } finally {
+        console.error("Error checking MemberSpace:", err)
+        setError(err instanceof Error ? err.message : "Unknown error")
         setLoading(false)
       }
     }
 
-    // Wait for MemberSpace to load
-    if (typeof window !== "undefined") {
-      if ((window as any).MemberSpace) {
-        initializeMemberSpace()
-      } else {
-        // Wait for MemberSpace to load
-        const checkMemberSpace = setInterval(() => {
-          if ((window as any).MemberSpace) {
-            clearInterval(checkMemberSpace)
-            initializeMemberSpace()
-          }
-        }, 100)
+    // Initial check
+    checkMemberSpace()
 
-        // Timeout after 10 seconds (increased for subdomains)
-        setTimeout(() => {
-          clearInterval(checkMemberSpace)
-          if (!user) {
-            console.warn("MemberSpace not loaded after timeout")
-          }
-          setLoading(false)
-        }, 10000)
-      }
+    // Event listeners
+    const handleMemberInfo = ({ detail }: any) => {
+      const { memberInfo } = detail
+      setUser(memberInfo)
+      setLoading(false)
     }
-  }, [tenantConfig.auth.provider, user])
 
-  return { user, loading, error }
+    const handleLogout = () => {
+      setUser(null)
+      setLoading(false)
+    }
+
+    document.addEventListener("MemberSpace.member.info", handleMemberInfo)
+    document.addEventListener("MemberSpace.member.logout", handleLogout)
+
+    // Cleanup
+    return () => {
+      document.removeEventListener("MemberSpace.member.info", handleMemberInfo)
+      document.removeEventListener("MemberSpace.member.logout", handleLogout)
+    }
+  }, [])
+
+  return {
+    user,
+    loading,
+    error,
+    isLoggedIn: !!user,
+  }
 }

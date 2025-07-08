@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { generateContent } from "./actions"
-import { Loader2, Copy, Download, Mail, Mic, MicOff } from "lucide-react"
+import { Loader2, Copy, Download, Mail, Mic, MicOff, Save } from "lucide-react"
 import Image from "next/image"
 import { useMemberSpaceUser } from "@/hooks/use-memberspace-user"
 import { saveUserCreation, generateCreationTitle } from "@/lib/auto-save-creation"
@@ -385,6 +385,7 @@ export default function IdeaHubForm() {
   const [step, setStep] = useState(1)
   const [isGenerating, setIsGenerating] = useState(false)
   const [isSendingEmail, setIsSendingEmail] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
   const [isListening, setIsListening] = useState(false)
   const resultsRef = useRef<HTMLDivElement>(null)
   const recognitionRef = useRef<any>(null)
@@ -483,32 +484,6 @@ export default function IdeaHubForm() {
     try {
       const generatedContent = await generateContent(formData)
       setResult(generatedContent)
-
-      // Auto-save the creation
-      if (user && generatedContent.text) {
-        try {
-          const title = generateCreationTitle("ideahub-ai", formData)
-          await saveUserCreation({
-            userId: user.id.toString(),
-            userEmail: user.email,
-            toolType: "ideahub-ai",
-            title,
-            content: generatedContent.text,
-            formData,
-            metadata: {
-              imageUrl: generatedContent.imageUrl,
-              contentType: formData.contentType,
-              tonality: formData.tonality,
-              language: formData.language,
-              topic: formData.primaryTopic || formData.alternateTopic,
-            },
-          })
-          console.log("IdeaHub creation saved successfully")
-        } catch (saveError) {
-          console.error("Error saving IdeaHub creation:", saveError)
-          // Don't throw error to avoid disrupting user experience
-        }
-      }
       setStep(3)
     } catch (error) {
       console.error("Error generating content:", error)
@@ -575,6 +550,39 @@ export default function IdeaHubForm() {
       } finally {
         setIsSendingEmail(false)
       }
+    }
+  }
+
+  const saveToProfile = async () => {
+    if (!user || !result?.text) {
+      alert("Please log in to save your content.")
+      return
+    }
+
+    setIsSaving(true)
+    try {
+      const title = generateCreationTitle("ideahub-ai", formData)
+      await saveUserCreation({
+        userId: user.id.toString(),
+        userEmail: user.email,
+        toolType: "ideahub-ai",
+        title,
+        content: result.text,
+        formData,
+        metadata: {
+          imageUrl: result.imageUrl,
+          contentType: formData.contentType,
+          tonality: formData.tonality,
+          language: formData.language,
+          topic: formData.primaryTopic || formData.alternateTopic,
+        },
+      })
+      alert("Content saved to your profile successfully!")
+    } catch (error) {
+      console.error("Error saving content:", error)
+      alert("Failed to save content. Please try again.")
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -771,7 +779,7 @@ export default function IdeaHubForm() {
         </TabsContent>
       </Tabs>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <Button
           variant="outline"
           onClick={copyToClipboard}
@@ -794,6 +802,15 @@ export default function IdeaHubForm() {
         >
           {isSendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
           <span className="whitespace-nowrap">Email</span>
+        </Button>
+        <Button
+          variant="outline"
+          onClick={saveToProfile}
+          disabled={isSaving}
+          className="flex items-center justify-center gap-2 bg-transparent"
+        >
+          {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          <span className="whitespace-nowrap">Save</span>
         </Button>
       </div>
 

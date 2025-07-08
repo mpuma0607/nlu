@@ -339,7 +339,7 @@ export default function Navigation() {
                     <div key={item.title} className="border-b border-gray-100 pb-2">
                       <div
                         className="flex items-center justify-between py-2"
-                        onClick={() => item.submenu && item.submenu.length > 0 && toggleSubmenu(item.title)}
+                        onClick={item.submenu && item.submenu.length > 0 ? () => toggleSubmenu(item.title) : undefined}
                       >
                         {item.title === "Gear Hub" && tenantConfig.id === "default" ? (
                           <a

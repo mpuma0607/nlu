@@ -51,8 +51,9 @@ export default function RootLayout({
                   // Beggins-specific MemberSpace config
                   window.MemberSpace = window.MemberSpace || {"subdomain":"begginsagents"};
                 } else {
-                  // Default Next Level U MemberSpace config
-                  window.MemberSpace = window.MemberSpace || {"subdomain":"thenextlevelu"};
+                  // Default to Empower AI MemberSpace config for all other domains
+                  // This includes getempowerai.com, thenextlevelu.com, and any other domains
+                  window.MemberSpace = window.MemberSpace || {"subdomain":"getempowerai"};
                 }
               })();
             `,

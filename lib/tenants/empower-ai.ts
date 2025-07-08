@@ -1,91 +1,59 @@
-import type { TenantConfig } from "../types"
+import type { TenantConfig } from "@/lib/types"
 
 export const empowerAiConfig: TenantConfig = {
   id: "empower-ai",
   name: "Empower AI",
-  domain: ["getempowerai.com", "www.getempowerai.com"],
   branding: {
     name: "Empower AI",
     logo: "/images/empower-ai-logo.png",
-    logoDark: "/images/empower-ai-logo.png", // Using same logo for both light and dark
+    favicon: "/favicon.ico",
     colors: {
-      primary: "#16a34a", // green-600
-      secondary: "#059669", // emerald-600
-      accent: "#0d9488", // teal-600
-      background: "#ffffff",
-      text: "#1f2937", // gray-800
+      primary: "#2563eb",
+      secondary: "#64748b",
+      accent: "#f59e0b",
     },
+  },
+  memberspace: {
+    subdomain: "getempowerai",
+    loginUrl: "https://getempowerai.memberspace.com/sign-in",
+    signupUrl: "https://getempowerai.memberspace.com/sign-up",
+    profileUrl: "https://getempowerai.memberspace.com/account",
+    logoutUrl: "https://getempowerai.memberspace.com/sign-out",
   },
   features: {
     enabledTools: [
+      "listit-ai",
       "ideahub-ai",
-      "realbio",
-      "listit",
-      "scriptit",
-      "roleplay-ai",
-      "action-ai",
       "realcoach-ai",
-      "bizplan-ai",
       "realdeal-ai",
-      "quickcma-ai",
-      "whos-who-ai",
-      "goalscreen-ai",
       "propbot-ai",
+      "goalscreen-ai",
+      "action-ai",
+      "bizplan-ai",
+      "quickcma-ai",
+      "realbio",
+      "roleplay-ai",
+      "scriptit-ai",
+      "whos-who-ai",
     ],
-    customSections: [],
     hiddenFeatures: [],
-    customNavigation: false,
+    customizations: {
+      showBranding: true,
+      customCSS: "",
+    },
   },
   localization: {
     language: "en",
-    currency: "USD",
-    dateFormat: "MM/DD/YYYY",
-    translations: {
-      "ai-hub.title": "AI Hub",
-      "marketing-hub.title": "Marketing Hub",
-      "prospecting-hub.title": "Prospecting Hub",
-      "training-hub.title": "Training Hub",
-      "services-hub.title": "Services Hub",
-      "networking-hub.title": "Networking Hub",
-      "gear-hub.title": "Gear Hub",
-    },
+    translations: {},
   },
-  auth: {
-    provider: "memberspace",
-    settings: {
-      memberspace: {
-        subdomain: "thenextlevelu", // Will be updated to new subdomain later
-        planUrls: {
-          monthly: "/plans/monthly",
-          annual: "/plans/annual",
-        },
-      },
+  integrations: {
+    analytics: {
+      googleAnalytics: "",
+      mixpanel: "",
     },
-    billing: {
-      model: "subscription",
-      currency: "USD",
-      plans: [
-        {
-          id: "monthly",
-          name: "Monthly Plan",
-          price: 29.99,
-          interval: "month",
-          features: ["All AI Tools", "Training Hub", "Community Access"],
-        },
-        {
-          id: "annual",
-          name: "Annual Plan",
-          price: 252,
-          interval: "year",
-          features: ["All AI Tools", "Training Hub", "Community Access", "30% Savings"],
-        },
-      ],
+    email: {
+      provider: "resend",
+      fromEmail: "noreply@getempowerai.com",
     },
-  },
-  content: {
-    customTraining: false,
-    onboardingFlow: false,
-    privateResources: false,
-    customAbout: "",
   },
 }

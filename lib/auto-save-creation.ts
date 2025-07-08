@@ -69,7 +69,7 @@ export function generateCreationTitle(toolType: string, formData: any): string {
     case "bizplan-ai":
       return `Business Plan: ${formData.agentName || "Agent"}`
     case "ideahub-ai":
-      return `Content Ideas: ${formData.contentType || "Social Media"}`
+      return `${formData.contentType || "Content"}: ${formData.primaryTopic || formData.alternateTopic || "Social Media"}`
     case "goalscreen-ai":
       return `Goal Wallpaper: ${new Date().toLocaleDateString()}`
     case "realcoach-ai":

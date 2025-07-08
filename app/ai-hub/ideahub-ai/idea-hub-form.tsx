@@ -483,26 +483,33 @@ export default function IdeaHubForm() {
     try {
       const generatedContent = await generateContent(formData)
       setResult(generatedContent)
-      setStep(3)
 
       // Auto-save the creation
       if (user && generatedContent.text) {
-        const title = generateCreationTitle("ideahub-ai", formData)
-        await saveUserCreation({
-          userId: user.id.toString(),
-          userEmail: user.email,
-          toolType: "ideahub-ai",
-          title,
-          content: generatedContent.text,
-          formData,
-          metadata: {
-            imageUrl: generatedContent.imageUrl,
-            contentType: formData.contentType,
-            tonality: formData.tonality,
-            language: formData.language,
-          },
-        })
+        try {
+          const title = generateCreationTitle("ideahub-ai", formData)
+          await saveUserCreation({
+            userId: user.id.toString(),
+            userEmail: user.email,
+            toolType: "ideahub-ai",
+            title,
+            content: generatedContent.text,
+            formData,
+            metadata: {
+              imageUrl: generatedContent.imageUrl,
+              contentType: formData.contentType,
+              tonality: formData.tonality,
+              language: formData.language,
+              topic: formData.primaryTopic || formData.alternateTopic,
+            },
+          })
+          console.log("IdeaHub creation saved successfully")
+        } catch (saveError) {
+          console.error("Error saving IdeaHub creation:", saveError)
+          // Don't throw error to avoid disrupting user experience
+        }
       }
+      setStep(3)
     } catch (error) {
       console.error("Error generating content:", error)
       alert("Failed to generate content. Please try again.")
@@ -823,14 +830,6 @@ export default function IdeaHubForm() {
             1
           </div>
           <div className={`h-1 w-16 ${step >= 2 ? "bg-purple-600" : "bg-gray-200"}`}></div>
-          <div
-            className={`w-10 h-10 rounded-full flex items-center justify-center ${
-              step >= 2 ? "bg-purple-600 text-white" : "bg-gray-200 text-gray-600"
-            }`}
-          >
-            2
-          </div>
-          <div className={`h-1 w-16 ${step >= 3 ? "bg-purple-600" : "bg-gray-200"}`}></div>
           <div
             className={`w-10 h-10 rounded-full flex items-center justify-center ${
               step >= 3 ? "bg-purple-600 text-white" : "bg-gray-200 text-gray-600"

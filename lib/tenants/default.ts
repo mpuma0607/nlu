@@ -3,43 +3,88 @@ import type { TenantConfig } from "../types"
 export const defaultTenantConfig: TenantConfig = {
   id: "default",
   name: "The Next Level U",
-  domain: "thenextlevelu.com",
+  domain: ["localhost", "thenextlevelu.com", "www.thenextlevelu.com"],
   branding: {
     name: "The Next Level U",
-    logo: "/images/nlu-logo-dark-new.png",
-    logoDark: "/images/nlu-logo-dark-new.png",
+    logo: "/images/nlu-logo-light.png", // Light version with beige text for light backgrounds
+    logoDark: "/images/nlu-logo-dark.png", // Dark version with black text for dark backgrounds
     colors: {
-      primary: "#10b981",
-      secondary: "#059669",
-      accent: "#34d399",
+      primary: "#16a34a", // green-600
+      secondary: "#059669", // emerald-600
+      accent: "#0d9488", // teal-600
       background: "#ffffff",
-      text: "#1f2937",
+      text: "#1f2937", // gray-800
     },
   },
   features: {
-    aiHub: true,
-    marketingHub: true,
-    prospectingHub: true,
-    trainingHub: true,
-    servicesHub: true,
-    networkingHub: true,
+    enabledTools: [
+      "ideahub-ai",
+      "realbio",
+      "listit",
+      "scriptit",
+      "roleplay-ai",
+      "action-ai",
+      "realcoach-ai",
+      "bizplan-ai",
+      "realdeal-ai",
+      "quickcma-ai",
+      "whos-who-ai",
+      "goalscreen-ai",
+      "propbot-ai",
+    ],
     customSections: [],
-  },
-  integrations: {
-    memberSpace: {
-      subdomain: "thenextlevelu",
-      loginUrl: "https://thenextlevelu.memberspace.com/sign-in",
-      signupUrl: "https://thenextlevelu.memberspace.com/sign-up",
-      profileUrl: "https://thenextlevelu.memberspace.com/account",
-      logoutUrl: "https://thenextlevelu.memberspace.com/sign-out",
-    },
-    community: {
-      enabled: true,
-      ssoUrl: "/api/community-sso",
-    },
+    hiddenFeatures: [],
+    customNavigation: false,
   },
   localization: {
     language: "en",
-    translations: {},
+    currency: "USD",
+    dateFormat: "MM/DD/YYYY",
+    translations: {
+      "ai-hub.title": "AI Hub",
+      "marketing-hub.title": "Marketing Hub",
+      "prospecting-hub.title": "Prospecting Hub",
+      "training-hub.title": "Training Hub",
+      "services-hub.title": "Services Hub",
+      "networking-hub.title": "Networking Hub",
+      "gear-hub.title": "Gear Hub",
+    },
+  },
+  auth: {
+    provider: "memberspace",
+    settings: {
+      memberspace: {
+        subdomain: "thenextlevelu",
+        planUrls: {
+          monthly: "/plans/monthly",
+          annual: "/plans/annual",
+        },
+      },
+    },
+    billing: {
+      model: "subscription",
+      currency: "USD",
+      plans: [
+        {
+          id: "monthly",
+          name: "Monthly Plan",
+          price: 29.99,
+          interval: "month",
+          features: ["All AI Tools", "Training Hub", "Community Access"],
+        },
+        {
+          id: "annual",
+          name: "Annual Plan",
+          price: 252,
+          interval: "year",
+          features: ["All AI Tools", "Training Hub", "Community Access", "30% Savings"],
+        },
+      ],
+    },
+  },
+  content: {
+    customTraining: false,
+    onboardingFlow: false,
+    privateResources: false,
   },
 }

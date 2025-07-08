@@ -3,32 +3,89 @@ import type { TenantConfig } from "../types"
 export const empowerAiConfig: TenantConfig = {
   id: "empower-ai",
   name: "Empower AI",
-  domains: ["getempowerai.com", "www.getempowerai.com"],
+  domain: ["getempowerai.com", "www.getempowerai.com"],
   branding: {
     name: "Empower AI",
-    logo: "/images/empower-ai-portal-logo.png",
-    primaryColor: "#10b981",
-    secondaryColor: "#059669",
+    logo: "/images/empower-ai-portal-logo.png", // Using the black and white portal logo
+    logoDark: "/images/empower-ai-portal-logo.png", // Portal navigation logo
+    colors: {
+      primary: "#16a34a", // green-600
+      secondary: "#059669", // emerald-600
+      accent: "#0d9488", // teal-600
+      background: "#ffffff",
+      text: "#1f2937", // gray-800
+    },
   },
   features: {
-    aiHub: true,
-    marketingHub: true,
-    prospectingHub: true,
-    trainingHub: true,
-    servicesHub: true,
-    networkingHub: true,
-    gearHub: true,
+    enabledTools: [
+      "ideahub-ai",
+      "realbio",
+      "listit",
+      "scriptit",
+      "roleplay-ai",
+      "action-ai",
+      "realcoach-ai",
+      "bizplan-ai",
+      "realdeal-ai",
+      "quickcma-ai",
+      "whos-who-ai",
+      "goalscreen-ai",
+      "propbot-ai",
+    ],
     customSections: [],
+    hiddenFeatures: [],
+    customNavigation: false,
   },
-  memberSpace: {
-    subdomain: "getempowerai",
-    loginUrl: "https://getempowerai.memberspace.com/sign-in",
-    signupUrl: "https://getempowerai.memberspace.com/sign-up",
-    profileUrl: "https://getempowerai.memberspace.com/account",
-    logoutUrl: "https://getempowerai.memberspace.com/sign-out",
+  localization: {
+    language: "en",
+    currency: "USD",
+    dateFormat: "MM/DD/YYYY",
+    translations: {
+      "ai-hub.title": "AI Hub",
+      "marketing-hub.title": "Marketing Hub",
+      "prospecting-hub.title": "Prospecting Hub",
+      "training-hub.title": "Training Hub",
+      "services-hub.title": "Services Hub",
+      "networking-hub.title": "Networking Hub",
+      "gear-hub.title": "Gear Hub",
+    },
   },
-  emailIntegration: {
-    fromEmail: "noreply@getempowerai.com",
-    supportEmail: "support@getempowerai.com",
+  auth: {
+    provider: "memberspace",
+    settings: {
+      memberspace: {
+        subdomain: "getempowerai",
+        planUrls: {
+          monthly: "/plans/monthly",
+          annual: "/plans/annual",
+        },
+      },
+    },
+    billing: {
+      model: "subscription",
+      currency: "USD",
+      plans: [
+        {
+          id: "monthly",
+          name: "Monthly Plan",
+          price: 29.99,
+          interval: "month",
+          features: ["All AI Tools", "Training Hub", "Community Access"],
+        },
+        {
+          id: "annual",
+          name: "Annual Plan",
+          price: 252,
+          interval: "year",
+          features: ["All AI Tools", "Training Hub", "Community Access", "30% Savings"],
+        },
+      ],
+    },
+  },
+  content: {
+    customTraining: false,
+    onboardingFlow: false,
+    privateResources: false,
+    customAbout: "",
   },
 }

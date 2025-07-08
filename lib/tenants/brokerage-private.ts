@@ -2,44 +2,109 @@ import type { TenantConfig } from "../types"
 
 export const brokeragePrivateConfig: TenantConfig = {
   id: "brokerage-private",
-  name: "Private Brokerage Portal",
-  domain: "private.example.com",
+  name: "Private Brokerage",
+  domain: [
+    // Phase 2: Test subdomains
+    "brokerage.thenextlevelu.com",
+    "brokerage.localhost",
+    // Phase 3: Future custom domains
+    "brokerage-pro.com",
+    "www.brokerage-pro.com",
+  ],
   branding: {
-    name: "Private Brokerage Portal",
-    logo: "/placeholder-logo.png",
-    logoDark: "/placeholder-logo.png",
+    name: "Private Brokerage Platform",
+    logo: "/images/nlu-logo-light.png",
+    logoDark: "/images/nlu-logo-dark.png",
     colors: {
-      primary: "#1e40af",
-      secondary: "#1e3a8a",
-      accent: "#3b82f6",
+      primary: "#2563eb",
+      secondary: "#64748b",
+      accent: "#0ea5e9",
       background: "#ffffff",
-      text: "#1f2937",
+      text: "#1e293b",
     },
   },
   features: {
-    aiHub: true,
-    marketingHub: false,
-    prospectingHub: true,
-    trainingHub: true,
-    servicesHub: false,
-    networkingHub: false,
-    customSections: [],
-  },
-  integrations: {
-    memberSpace: {
-      subdomain: "private-brokerage",
-      loginUrl: "https://private-brokerage.memberspace.com/sign-in",
-      signupUrl: "https://private-brokerage.memberspace.com/sign-up",
-      profileUrl: "https://private-brokerage.memberspace.com/account",
-      logoutUrl: "https://private-brokerage.memberspace.com/sign-out",
-    },
-    community: {
-      enabled: false,
-      ssoUrl: "/api/community-sso",
-    },
+    enabledTools: [
+      "ideahub-ai",
+      "realbio",
+      "listit",
+      "scriptit",
+      "quickcma-ai",
+      "roleplay-ai",
+      "propbot-ai",
+      "whos-who-ai",
+      "goalscreen-ai",
+      "action-ai",
+      "realcoach-ai",
+      "bizplan-ai",
+      "realdeal-ai",
+    ],
+    customSections: [
+      {
+        id: "private-training",
+        title: "Private Training",
+        href: "/training-hub/private-training",
+        description: "Exclusive training materials",
+      },
+      {
+        id: "brokerage-resources",
+        title: "Brokerage Resources",
+        href: "/marketing-hub/brokerage-resources",
+        description: "Internal brokerage materials",
+      },
+    ],
+    hiddenFeatures: [],
+    customNavigation: false,
+    customHomePage: null,
   },
   localization: {
     language: "en",
-    translations: {},
+    currency: "USD",
+    dateFormat: "MM/DD/YYYY",
+    translations: {
+      "ai-hub.title": "AI Hub",
+      "marketing-hub.title": "Marketing Hub",
+      "prospecting-hub.title": "Prospecting Hub",
+      "training-hub.title": "Training Hub",
+      "services-hub.title": "Services Hub",
+      "networking-hub.title": "Networking Hub",
+      "gear-hub.title": "Gear Hub",
+    },
+  },
+  auth: {
+    provider: "memberspace",
+    settings: {
+      memberspace: {
+        subdomain: "private-brokerage",
+        planUrls: {
+          monthly: "/plans/monthly",
+          annual: "/plans/annual",
+        },
+      },
+    },
+    billing: {
+      model: "subscription",
+      currency: "USD",
+      plans: [
+        {
+          id: "basic",
+          name: "Basic Plan",
+          price: 49,
+          interval: "month",
+        },
+        {
+          id: "pro",
+          name: "Pro Plan",
+          price: 99,
+          interval: "month",
+        },
+      ],
+    },
+  },
+  content: {
+    customTraining: true,
+    onboardingFlow: false,
+    privateResources: true,
+    customAbout: "Private brokerage platform with exclusive tools and training.",
   },
 }

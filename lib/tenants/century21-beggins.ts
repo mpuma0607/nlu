@@ -1,50 +1,56 @@
-import type { TenantConfig } from "@/lib/types"
+import type { TenantConfig } from "../types"
 
 export const century21BegginsConfig: TenantConfig = {
   id: "century21-beggins",
+  name: "Century 21 Beggins Enterprises",
+  domain: "begginsagents.com",
   branding: {
-    name: "Beggins University",
+    name: "Century 21 Beggins Enterprises",
     logo: "/images/beggins-university-light.png",
     logoDark: "/images/beggins-university-dark.png",
-    primaryColor: "#10b981",
-    secondaryColor: "#059669",
+    colors: {
+      primary: "#B8860B",
+      secondary: "#DAA520",
+      accent: "#FFD700",
+      background: "#ffffff",
+      text: "#1f2937",
+    },
   },
   features: {
-    enabledTools: [
-      "ideahub-ai",
-      "realbio",
-      "listit-ai",
-      "scriptit-ai",
-      "quickcma-ai",
-      "roleplay-ai",
-      "propbot-ai",
-      "whos-who-ai",
-      "goalscreen-ai",
-      "action-ai",
-      "realcoach-ai",
-      "bizplan-ai",
-      "realdeal-ai",
-    ],
-    hiddenFeatures: [],
+    aiHub: true,
+    marketingHub: true,
+    prospectingHub: true,
+    trainingHub: true,
+    servicesHub: true,
+    networkingHub: true,
     customSections: [
       {
         id: "onboarding",
         title: "Agent Onboarding",
         href: "/training-hub/onboarding",
-        description: "Complete agent onboarding process",
+        description: "Complete onboarding process for new agents",
       },
     ],
   },
-  memberspace: {
-    subdomain: "begginsagents",
-    loginUrl: "https://begginsagents.memberspace.com/sign-in",
-    signupUrl: "https://begginsagents.memberspace.com/sign-up",
-    profileUrl: "https://begginsagents.memberspace.com/member/sign_in",
-    logoutUrl: "https://begginsagents.memberspace.com/sign-out",
-    emailDomain: "@begginsagents.com",
+  integrations: {
+    memberSpace: {
+      subdomain: "begginsagents",
+      loginUrl: "https://begginsagents.memberspace.com/sign-in",
+      signupUrl: "https://begginsagents.memberspace.com/sign-up",
+      profileUrl: "https://begginsagents.memberspace.com/account",
+      logoutUrl: "https://begginsagents.memberspace.com/sign-out",
+    },
+    community: {
+      enabled: true,
+      ssoUrl: "/api/community-sso",
+    },
   },
   localization: {
     language: "en",
-    translations: {},
+    translations: {
+      "ai-hub.title": "AI Tools",
+      "marketing-hub.title": "Marketing Resources",
+      "training-hub.title": "Training Center",
+    },
   },
 }

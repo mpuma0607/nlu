@@ -1,40 +1,42 @@
-import type { TenantConfig } from "@/lib/types"
+import type { TenantConfig } from "../types"
 
 export const internationalConfig: TenantConfig = {
   id: "international",
+  name: "International Real Estate Platform",
+  domain: "international.example.com",
   branding: {
     name: "International Real Estate Platform",
-    logo: "/images/nlu-logo-dark-new.png",
-    logoDark: "/images/nlu-logo-dark-new.png",
-    primaryColor: "#10b981",
-    secondaryColor: "#059669",
+    logo: "/placeholder-logo.png",
+    logoDark: "/placeholder-logo.png",
+    colors: {
+      primary: "#7c3aed",
+      secondary: "#6d28d9",
+      accent: "#8b5cf6",
+      background: "#ffffff",
+      text: "#1f2937",
+    },
   },
   features: {
-    enabledTools: [
-      "ideahub-ai",
-      "realbio",
-      "listit-ai",
-      "scriptit-ai",
-      "quickcma-ai",
-      "roleplay-ai",
-      "propbot-ai",
-      "whos-who-ai",
-      "goalscreen-ai",
-      "action-ai",
-      "realcoach-ai",
-      "bizplan-ai",
-      "realdeal-ai",
-    ],
-    hiddenFeatures: [],
+    aiHub: true,
+    marketingHub: true,
+    prospectingHub: true,
+    trainingHub: true,
+    servicesHub: true,
+    networkingHub: true,
     customSections: [],
   },
-  memberspace: {
-    subdomain: "thenextlevelu",
-    loginUrl: "https://thenextlevelu.memberspace.com/sign-in",
-    signupUrl: "https://thenextlevelu.memberspace.com/sign-up",
-    profileUrl: "https://thenextlevelu.memberspace.com/member/sign_in",
-    logoutUrl: "https://thenextlevelu.memberspace.com/sign-out",
-    emailDomain: "@thenextlevelu.com",
+  integrations: {
+    memberSpace: {
+      subdomain: "international",
+      loginUrl: "https://international.memberspace.com/sign-in",
+      signupUrl: "https://international.memberspace.com/sign-up",
+      profileUrl: "https://international.memberspace.com/account",
+      logoutUrl: "https://international.memberspace.com/sign-out",
+    },
+    community: {
+      enabled: true,
+      ssoUrl: "/api/community-sso",
+    },
   },
   localization: {
     language: "en",

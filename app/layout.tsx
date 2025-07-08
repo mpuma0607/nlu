@@ -50,8 +50,8 @@ export default function RootLayout({
                     hostname === 'beggins.thenextlevelu.com') {
                   subdomain = 'begginsagents';
                 } else {
-                  // For getempowerai.com and all other domains, use thenextlevelu
-                  subdomain = 'thenextlevelu';
+                  // For getempowerai.com and all other domains, use getempowerai
+                  subdomain = 'getempowerai';
                 }
                 
                 // Set MemberSpace configuration

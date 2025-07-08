@@ -93,8 +93,8 @@ export default function HomePage() {
             <Image
               src={tenantConfig.branding.logo || "/placeholder.svg"}
               alt={tenantConfig.branding.name}
-              width={79}
-              height={79}
+              width={100}
+              height={100}
               className="object-contain"
             />
           </div>
@@ -780,8 +780,8 @@ export default function HomePage() {
                 <Image
                   src={tenantConfig.branding.logo || "/placeholder.svg"}
                   alt={tenantConfig.branding.name}
-                  width={48}
-                  height={48}
+                  width={100}
+                  height={100}
                   className="object-contain"
                 />
               </div>

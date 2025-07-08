@@ -15,7 +15,8 @@ const tenantConfigs: Record<string, TenantConfig> = {
 
 export function getTenantConfig(): TenantConfig {
   if (typeof window === "undefined") {
-    return defaultTenantConfig
+    // Server-side: Use Empower AI as default
+    return empowerAiConfig
   }
 
   // Client-side: All existing methods preserved in exact same order
@@ -66,17 +67,17 @@ export function getTenantConfig(): TenantConfig {
     return empowerAiConfig
   }
 
-  // 4. Fallback to default (existing)
-  return defaultTenantConfig
+  // 4. Fallback to Empower AI as default (changed from defaultTenantConfig)
+  return empowerAiConfig
 }
 
 export function getAllTenants() {
   return [
-    { id: "default", name: "The Next Level U" },
+    { id: "empower-ai", name: "Empower AI" },
     { id: "century21-beggins", name: "Beggins University" },
     { id: "brokerage-private", name: "Private Brokerage" },
     { id: "international", name: "International Platform" },
-    { id: "empower-ai", name: "Empower AI" },
+    { id: "default", name: "The Next Level U (Legacy)" },
   ]
 }
 

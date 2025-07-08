@@ -606,6 +606,23 @@ export default function ScriptForm() {
         </Select>
       </div>
 
+      <div className="space-y-2">
+        <Label htmlFor="scriptType">Script Delivery *</Label>
+
+        <Select value={formData.scriptType} onValueChange={(value) => handleSelectChange("scriptType", value)}>
+          <SelectTrigger id="scriptType">
+            <SelectValue placeholder="Select how you'll deliver this script" />
+          </SelectTrigger>
+
+          <SelectContent>
+            <SelectItem value="text">Text Message</SelectItem>
+            <SelectItem value="email">Email</SelectItem>
+            <SelectItem value="phone">Phone</SelectItem>
+            <SelectItem value="doorknocking">In Person</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       {formData.scriptTypeCategory === "Difficult conversation" && (
         <div className="space-y-2">
           <Label htmlFor="difficultConversationType">Difficult Conversation Type *</Label>

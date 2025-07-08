@@ -44,11 +44,11 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const userId = searchParams.get("userId")
+    const email = searchParams.get("email")
     const toolType = searchParams.get("toolType")
 
-    if (!userId) {
-      return NextResponse.json({ error: "User ID is required" }, { status: 400 })
+    if (!email) {
+      return NextResponse.json({ error: "Email is required" }, { status: 400 })
     }
 
     let result
@@ -56,14 +56,14 @@ export async function GET(request: NextRequest) {
       result = await sql`
        SELECT id, tool_type, title, content, form_data, metadata, created_at, expires_at
        FROM user_creations 
-       WHERE user_id = ${userId} AND tool_type = ${toolType} AND expires_at > NOW()
+       WHERE user_email = ${email} AND tool_type = ${toolType} AND expires_at > NOW()
        ORDER BY created_at DESC
      `
     } else {
       result = await sql`
        SELECT id, tool_type, title, content, form_data, metadata, created_at, expires_at
        FROM user_creations 
-       WHERE user_id = ${userId} AND expires_at > NOW()
+       WHERE user_email = ${email} AND expires_at > NOW()
        ORDER BY created_at DESC
      `
     }

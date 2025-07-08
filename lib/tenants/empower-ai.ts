@@ -6,8 +6,8 @@ export const empowerAiConfig: TenantConfig = {
   domain: ["getempowerai.com", "www.getempowerai.com"],
   branding: {
     name: "Empower AI",
-    logo: "/images/empower-ai-portal-logo.png", // Using the black and white portal logo
-    logoDark: "/images/empower-ai-portal-logo.png", // Portal navigation logo
+    logo: "/images/empower-ai-logo.png", // WHITE logo for consumer home page
+    logoDark: "/images/empower-ai-portal-logo.png", // BLACK logo for portal navigation
     colors: {
       primary: "#16a34a", // green-600
       secondary: "#059669", // emerald-600

@@ -231,8 +231,15 @@ export default function Navigation() {
     .filter(Boolean)
 
   // Get the correct logo for the tenant
-  const logoSrc =
-    tenantConfig.id === "default" ? "/images/nlu-logo-dark-new.png" : tenantConfig.branding.logo || "/placeholder.svg"
+  const logoSrc = (() => {
+    if (tenantConfig.id === "default") {
+      return "/images/nlu-logo-dark-new.png"
+    }
+    if (tenantConfig.id === "empower-ai") {
+      return tenantConfig.branding.logoDark || "/placeholder.svg"
+    }
+    return tenantConfig.branding.logo || "/placeholder.svg"
+  })()
 
   return (
     <nav className="bg-white shadow-sm border-b sticky top-0 z-50">

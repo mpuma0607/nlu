@@ -230,9 +230,11 @@ export default function Navigation() {
     })
     .filter(Boolean)
 
-  // Get the correct logo for the tenant
+  // Get the correct logo for the tenant - use logoDark for portal navigation
   const logoSrc =
-    tenantConfig.id === "default" ? "/images/nlu-logo-dark-new.png" : tenantConfig.branding.logo || "/placeholder.svg"
+    tenantConfig.id === "default"
+      ? "/images/nlu-logo-dark-new.png"
+      : tenantConfig.branding.logoDark || tenantConfig.branding.logo || "/placeholder.svg"
 
   return (
     <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
@@ -244,7 +246,7 @@ export default function Navigation() {
               src={logoSrc || "/placeholder.svg"}
               alt={tenantConfig.branding.name}
               width={100}
-              height={40}
+              height={100}
               className="object-contain"
             />
           </Link>

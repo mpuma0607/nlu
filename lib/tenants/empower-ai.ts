@@ -6,8 +6,8 @@ export const empowerAiConfig: TenantConfig = {
   domain: ["getempowerai.com", "www.getempowerai.com"],
   branding: {
     name: "Empower AI",
-    logo: "/images/nlu-logo-light.png", // Will be updated with Empower AI logos later
-    logoDark: "/images/nlu-logo-dark.png", // Will be updated with Empower AI logos later
+    logo: "/images/empower-ai-logo.png",
+    logoDark: "/images/empower-ai-logo.png", // Using same logo for both light and dark
     colors: {
       primary: "#16a34a", // green-600
       secondary: "#059669", // emerald-600

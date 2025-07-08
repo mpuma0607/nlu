@@ -91,8 +91,8 @@ export default function HomePage() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center">
             <Image
-              src="/images/nlu-logo-light.png"
-              alt="The Next Level U"
+              src={tenantConfig.branding.logo || "/placeholder.svg"}
+              alt={tenantConfig.branding.name}
               width={66}
               height={66}
               className="object-contain"
@@ -148,7 +148,8 @@ export default function HomePage() {
             🚀 Transform Your Real Estate Business
           </Badge>
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
-            The Next Level U<span className="block text-[#b6a888]">Real Estate Platform</span>
+            {tenantConfig.branding.name}
+            <span className="block text-[#b6a888]">Real Estate Platform</span>
           </h1>
           <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
             Unlock your potential with our AI-powered tools, comprehensive training, marketing resources, and a thriving
@@ -541,8 +542,8 @@ export default function HomePage() {
             <div className="bg-gradient-to-r from-[#b6a888]/10 via-[#b6a888]/5 to-[#b6a888]/10 p-8 rounded-lg border border-[#b6a888]/20">
               <h3 className="text-2xl font-bold text-white mb-4">Experience Meets Innovation</h3>
               <p className="text-gray-300 max-w-2xl mx-auto mb-6">
-                When you join The Next Level U, you're not just getting software—you're getting decades of real estate
-                wisdom, proven strategies, and tools that have generated over a billion dollars in sales.
+                When you join {tenantConfig.branding.name}, you're not just getting software—you're getting decades of
+                real estate wisdom, proven strategies, and tools that have generated over a billion dollars in sales.
               </p>
               <Badge className="bg-[#b6a888]/20 text-[#b6a888] border-[#b6a888]/30 px-4 py-2">
                 🏆 Proven by Real Results
@@ -666,7 +667,8 @@ export default function HomePage() {
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">What Our Members Say</h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Join thousands of real estate professionals who have transformed their business with The Next Level U.
+              Join thousands of real estate professionals who have transformed their business with{" "}
+              {tenantConfig.branding.name}.
             </p>
           </div>
 
@@ -776,8 +778,8 @@ export default function HomePage() {
             <div>
               <div className="flex items-center mb-4">
                 <Image
-                  src="/images/nlu-logo-light.png"
-                  alt="The Next Level U"
+                  src={tenantConfig.branding.logo || "/placeholder.svg"}
+                  alt={tenantConfig.branding.name}
                   width={40}
                   height={40}
                   className="object-contain"
@@ -854,7 +856,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 The Next Level U. All rights reserved.</p>
+            <p>&copy; 2024 {tenantConfig.branding.name}. All rights reserved.</p>
           </div>
         </div>
       </footer>

@@ -32,34 +32,47 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/favicon.ico" />
 
-        {/* MemberSpace Script - Domain Detection */}
+        {/* Single Clean MemberSpace Script - No Conflicts */}
         <Script
-          id="memberspace-config"
+          id="memberspace-single-config"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
-              (function() {
-                // Get hostname
-                var hostname = typeof window !== 'undefined' ? window.location.hostname : '';
-                
-                // Check if this is a Beggins domain
-                var isBegginsAgent = hostname === 'begginsagents.com' || 
-                                   hostname === 'www.begginsagents.com' || 
-                                   hostname === 'beggins.thenextlevelu.com';
-                
-                if (isBegginsAgent) {
-                  // Beggins-specific MemberSpace config
-                  window.MemberSpace = window.MemberSpace || {"subdomain":"begginsagents"};
-                } else {
-                  // Default to Empower AI MemberSpace config for all other domains
-                  // This includes getempowerai.com, thenextlevelu.com, and any other domains
-                  window.MemberSpace = window.MemberSpace || {"subdomain":"getempowerai"};
-                }
-              })();
-            `,
+             (function() {
+               if (typeof window === 'undefined') return;
+               
+               var hostname = window.location.hostname;
+               var memberSpaceSubdomain = '';
+               
+               // Determine MemberSpace subdomain based on domain
+               if (hostname === 'begginsagents.com' || 
+                   hostname === 'www.begginsagents.com' || 
+                   hostname === 'beggins.thenextlevelu.com') {
+                 memberSpaceSubdomain = 'begginsagents';
+               } else {
+                 // All other domains use getempowerai (including getempowerai.com, thenextlevelu.com, etc.)
+                 memberSpaceSubdomain = 'getempowerai';
+               }
+               
+               // Set single MemberSpace configuration
+               window.MemberSpace = {
+                 "subdomain": memberSpaceSubdomain
+               };
+               
+               console.log('MemberSpace configured for:', hostname, 'using subdomain:', memberSpaceSubdomain);
+             })();
+           `,
           }}
         />
-        <Script src="https://cdn.memberspace.com/scripts/widgets.js" strategy="beforeInteractive" />
+
+        {/* Load MemberSpace widgets script */}
+        <Script
+          src="https://cdn.memberspace.com/scripts/widgets.js"
+          strategy="afterInteractive"
+          onLoad={() => {
+            console.log("MemberSpace widgets script loaded")
+          }}
+        />
       </head>
       <body className={inter.className}>
         <ClientLayout>{children}</ClientLayout>
@@ -70,20 +83,20 @@ export default function RootLayout({
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
-              (function() {
-                // Only skip on consumer home page
-                if (typeof window !== 'undefined' && window.location.pathname === '/') {
-                  return;
-                }
-                
-                // Add the Fastbots script to head with higher priority
-                var script = document.createElement('script');
-                script.defer = true;
-                script.src = 'https://app.fastbots.ai/embed.js';
-                script.setAttribute('data-bot-id', 'cmb9q8pc4072ku0lvydb0l8io');
-                document.head.appendChild(script);
-              })();
-            `,
+             (function() {
+               // Only skip on consumer home page
+               if (typeof window !== 'undefined' && window.location.pathname === '/') {
+                 return;
+               }
+               
+               // Add the Fastbots script to head with higher priority
+               var script = document.createElement('script');
+               script.defer = true;
+               script.src = 'https://app.fastbots.ai/embed.js';
+               script.setAttribute('data-bot-id', 'cmb9q8pc4072ku0lvydb0l8io');
+               document.head.appendChild(script);
+             })();
+           `,
           }}
         />
       </body>

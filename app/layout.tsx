@@ -32,9 +32,9 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/favicon.ico" />
 
-        {/* Single Clean MemberSpace Script - No Conflicts */}
+        {/* Single Clean MemberSpace Script - Domain Based Configuration */}
         <Script
-          id="memberspace-single-config"
+          id="memberspace-unified"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
@@ -42,35 +42,29 @@ export default function RootLayout({
                if (typeof window === 'undefined') return;
                
                var hostname = window.location.hostname;
-               var memberSpaceSubdomain = '';
+               var subdomain = '';
                
-               // Determine MemberSpace subdomain based on domain
+               // Determine subdomain based on domain
                if (hostname === 'begginsagents.com' || 
                    hostname === 'www.begginsagents.com' || 
                    hostname === 'beggins.thenextlevelu.com') {
-                 memberSpaceSubdomain = 'begginsagents';
+                 subdomain = 'begginsagents';
                } else {
-                 // All other domains use getempowerai (including getempowerai.com, thenextlevelu.com, etc.)
-                 memberSpaceSubdomain = 'getempowerai';
+                 subdomain = 'getempowerai';
                }
                
-               // Set single MemberSpace configuration
-               window.MemberSpace = {
-                 "subdomain": memberSpaceSubdomain
-               };
+               // Set MemberSpace configuration
+               window.MemberSpace = window.MemberSpace || {"subdomain": subdomain};
                
-               console.log('MemberSpace configured for:', hostname, 'using subdomain:', memberSpaceSubdomain);
+               // Load widgets script only once
+               var script = document.createElement("script");
+               script.src = "https://cdn.memberspace.com/scripts/widgets.js";
+               var firstScript = document.getElementsByTagName("script")[0];
+               firstScript.parentNode.insertBefore(script, firstScript);
+               
+               console.log('MemberSpace loaded for domain:', hostname, 'with subdomain:', subdomain);
              })();
            `,
-          }}
-        />
-
-        {/* Load MemberSpace widgets script */}
-        <Script
-          src="https://cdn.memberspace.com/scripts/widgets.js"
-          strategy="afterInteractive"
-          onLoad={() => {
-            console.log("MemberSpace widgets script loaded")
           }}
         />
       </head>

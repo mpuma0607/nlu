@@ -18,10 +18,15 @@ const domainTenantMap: Record<string, string> = {
   "international-realestate.com": "international",
   "www.international-realestate.com": "international",
 
+  // Empower AI domains
+  "getempowerai.com": "empower-ai",
+  "www.getempowerai.com": "empower-ai",
+
   // Local development testing
   "beggins.localhost": "century21-beggins",
   "brokerage.localhost": "brokerage-private",
   "international.localhost": "international",
+  "empowerai.localhost": "empower-ai",
 }
 
 export function middleware(request: NextRequest) {

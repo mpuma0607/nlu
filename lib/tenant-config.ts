@@ -2,6 +2,7 @@ import { defaultTenantConfig } from "@/lib/tenants/default"
 import { brokeragePrivateConfig } from "@/lib/tenants/brokerage-private"
 import { internationalConfig } from "@/lib/tenants/international"
 import { century21BegginsConfig } from "@/lib/tenants/century21-beggins"
+import { empowerAiConfig } from "@/lib/tenants/empower-ai"
 import type { TenantConfig } from "@/lib/types"
 
 const tenantConfigs: Record<string, TenantConfig> = {
@@ -9,6 +10,7 @@ const tenantConfigs: Record<string, TenantConfig> = {
   "brokerage-private": brokeragePrivateConfig,
   international: internationalConfig,
   "century21-beggins": century21BegginsConfig,
+  "empower-ai": empowerAiConfig,
 }
 
 export function getTenantConfig(): TenantConfig {
@@ -45,6 +47,11 @@ export function getTenantConfig(): TenantConfig {
     return internationalConfig
   }
 
+  // Check for Empower AI domains
+  if (hostname === "getempowerai.com" || hostname === "www.getempowerai.com") {
+    return empowerAiConfig
+  }
+
   // Fallback to partial matches (existing logic)
   if (hostname.includes("beggins") || hostname.includes("century21-beggins")) {
     return century21BegginsConfig
@@ -54,6 +61,9 @@ export function getTenantConfig(): TenantConfig {
   }
   if (hostname.includes("international")) {
     return internationalConfig
+  }
+  if (hostname.includes("empowerai") || hostname.includes("empower-ai")) {
+    return empowerAiConfig
   }
 
   // 4. Fallback to default (existing)
@@ -66,6 +76,7 @@ export function getAllTenants() {
     { id: "century21-beggins", name: "Beggins University" },
     { id: "brokerage-private", name: "Private Brokerage" },
     { id: "international", name: "International Platform" },
+    { id: "empower-ai", name: "Empower AI" },
   ]
 }
 

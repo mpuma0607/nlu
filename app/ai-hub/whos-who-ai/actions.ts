@@ -45,9 +45,11 @@ export async function skipTraceProperty(formData: SkipTraceFormData) {
       }
     }
 
-    // Use the correct endpoint format that works in RapidAPI
-    const street = encodeURIComponent(formData.street)
-    const citystatezip = encodeURIComponent(`${formData.city} ${formData.state} ${formData.zip}`)
+    // Use the correct endpoint format that works in RapidAPI - match test route format
+    const street = encodeURIComponent(formData.street.toLowerCase())
+    const citystatezip = encodeURIComponent(
+      `${formData.city.toLowerCase()} ${formData.state.toLowerCase()} ${formData.zip}`,
+    )
 
     const url = `https://zillow-working-api.p.rapidapi.com/skip/byaddress?street=${street}&citystatezip=${citystatezip}&page=1`
 

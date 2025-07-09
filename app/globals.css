@@ -12,40 +12,6 @@ body {
   }
 }
 
-/* Tenant-specific CSS variables (dynamically set by TenantProvider) */
-:root {
-  --color-primary: #16a34a;
-  --color-secondary: #059669;
-  --color-accent: #0d9488;
-  --color-background: #ffffff;
-  --color-text: #1f2937;
-}
-
-/* Custom utility classes for tenant theming */
-.tenant-primary {
-  color: var(--color-primary);
-}
-
-.tenant-bg-primary {
-  background-color: var(--color-primary);
-}
-
-.tenant-border-primary {
-  border-color: var(--color-primary);
-}
-
-.tenant-text-primary {
-  color: var(--color-primary);
-}
-
-.tenant-hover-primary:hover {
-  color: var(--color-primary);
-}
-
-.tenant-hover-bg-primary:hover {
-  background-color: var(--color-primary);
-}
-
 @layer base {
   :root {
     --background: 0 0% 100%;

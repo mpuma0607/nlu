@@ -60,9 +60,6 @@ interface CMAResult {
 
 export function WhosWhoForm() {
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    phone: "",
     street: "",
     city: "",
     state: "",
@@ -166,12 +163,7 @@ export function WhosWhoForm() {
     }
   }
 
-  const isFormValid =
-    (formData.firstName ||
-      formData.lastName ||
-      formData.phone ||
-      (formData.street && formData.city && formData.state && formData.zip)) &&
-    formData.email
+  const isFormValid = formData.street && formData.city && formData.state && formData.zip && formData.email
 
   // Enhanced parsing function to extract and format content
   const parseAISummary = (summary: string) => {
@@ -237,41 +229,7 @@ export function WhosWhoForm() {
   return (
     <div className="space-y-6">
       <form onSubmit={handleSubmit} className="space-y-4">
-        <p className="text-sm text-gray-500">Search by entering either a name, phone number, or address.</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="firstName">First Name</Label>
-            <Input
-              id="firstName"
-              name="firstName"
-              type="text"
-              placeholder="John"
-              value={formData.firstName}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="lastName">Last Name</Label>
-            <Input
-              id="lastName"
-              name="lastName"
-              type="text"
-              placeholder="Doe"
-              value={formData.lastName}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number</Label>
-            <Input
-              id="phone"
-              name="phone"
-              type="text"
-              placeholder="555-123-4567"
-              value={formData.phone}
-              onChange={handleInputChange}
-            />
-          </div>
           <div className="space-y-2">
             <Label htmlFor="street">Street Address</Label>
             <Input
@@ -281,6 +239,7 @@ export function WhosWhoForm() {
               placeholder="123 Main Street"
               value={formData.street}
               onChange={handleInputChange}
+              required
             />
           </div>
           <div className="space-y-2">
@@ -292,6 +251,7 @@ export function WhosWhoForm() {
               placeholder="Miami"
               value={formData.city}
               onChange={handleInputChange}
+              required
             />
           </div>
           <div className="space-y-2">
@@ -303,6 +263,7 @@ export function WhosWhoForm() {
               placeholder="FL"
               value={formData.state}
               onChange={handleInputChange}
+              required
               maxLength={2}
             />
           </div>
@@ -315,6 +276,7 @@ export function WhosWhoForm() {
               placeholder="33101"
               value={formData.zip}
               onChange={handleInputChange}
+              required
               maxLength={5}
             />
           </div>

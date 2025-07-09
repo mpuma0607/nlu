@@ -167,10 +167,11 @@ export function WhosWhoForm() {
   }
 
   const isFormValid =
-    formData.firstName ||
-    formData.lastName ||
-    formData.phone ||
-    (formData.street && formData.city && formData.state && formData.zip)
+    (formData.firstName ||
+      formData.lastName ||
+      formData.phone ||
+      (formData.street && formData.city && formData.state && formData.zip)) &&
+    formData.email
 
   // Enhanced parsing function to extract and format content
   const parseAISummary = (summary: string) => {

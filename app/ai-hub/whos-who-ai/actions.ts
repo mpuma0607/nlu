@@ -43,10 +43,10 @@ export async function skipTraceProperty(formData: SkipTraceFormData) {
     const enformionKey = process.env.ENFORMION_API_KEY
     const enformionPassword = process.env.ENFORMION_PASSWORD
 
-    if (!apiKey) {
+    if (!enformionKey || !enformionPassword) {
       return {
         success: false,
-        error: "API key not configured. Please contact administrator.",
+        error: "EnformionGo API credentials not configured. Please contact administrator.",
       }
     }
 
@@ -78,8 +78,8 @@ export async function skipTraceProperty(formData: SkipTraceFormData) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        keyname: enformionKey || "",
-        password: enformionPassword || "",
+        keyname: enformionKey,
+        password: enformionPassword,
       },
       body: JSON.stringify(enformionBody),
     })
@@ -106,6 +106,11 @@ export async function skipTraceProperty(formData: SkipTraceFormData) {
       if (firstResult.addresses && firstResult.addresses.length > 0) {
         fullAddress = firstResult.addresses[0].fullAddress
       }
+    }
+
+    // If no address from API response, construct from form data
+    if (!fullAddress && formData.street) {
+      fullAddress = `${formData.street}, ${formData.city}, ${formData.state} ${formData.zip}`
     }
 
     // Generate AI summary with all available data
@@ -169,7 +174,7 @@ For any URLs or web links found in the data, present them clearly in the CONTACT
     // Send email with results
     try {
       const emailResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/send-whos-who-email`,
+        `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/send-skiptrace-email`,
         {
           method: "POST",
           headers: {

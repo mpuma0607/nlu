@@ -4,10 +4,13 @@ import { generateText } from "ai"
 import { openai } from "@ai-sdk/openai"
 
 interface SkipTraceFormData {
-  street: string
-  city: string
-  state: string
-  zip: string
+  firstName?: string
+  lastName?: string
+  phone?: string
+  street?: string
+  city?: string
+  state?: string
+  zip?: string
   email: string
 }
 
@@ -37,30 +40,48 @@ async function fetchAdditionalContactInfo(url: string, apiKey: string) {
 export async function skipTraceProperty(formData: SkipTraceFormData) {
   try {
     const apiKey = process.env.RAPIDAPI_ZILLOW_KEY
+    const enformionKey = process.env.ENFORMION_API_KEY
+    const enformionPassword = process.env.ENFORMION_PASSWORD
 
-    if (!apiKey) {
+    if (!enformionKey || !enformionPassword) {
       return {
         success: false,
-        error: "API key not configured. Please contact administrator.",
+        error: "EnformionGo API credentials not configured. Please contact administrator.",
       }
     }
 
-    // Use the correct endpoint format that works in RapidAPI - match test route format
-    const street = encodeURIComponent(formData.street.toLowerCase())
-    const citystatezip = encodeURIComponent(
-      `${formData.city.toLowerCase()} ${formData.state.toLowerCase()} ${formData.zip}`,
-    )
+    // Construct EnformionGo request body
+    const enformionBody: Record<string, any> = {}
 
-    const url = `https://zillow-working-api.p.rapidapi.com/skip/byaddress?street=${street}&citystatezip=${citystatezip}&page=1`
+    if (formData.firstName) {
+      enformionBody.FirstName = formData.firstName
+    }
+    if (formData.lastName) {
+      enformionBody.LastName = formData.lastName
+    }
+    if (formData.phone) {
+      enformionBody.PhoneNumber = formData.phone
+    }
+    if (formData.street) {
+      enformionBody.Address = formData.street
+      enformionBody.City = formData.city
+      enformionBody.State = formData.state
+      enformionBody.Zip = formData.zip
+    }
 
-    console.log("Skip trace request URL:", url)
+    const enformionUrl = "https://devapi.enformion.com/PersonSearch"
 
-    const response = await fetch(url, {
-      method: "GET",
+    console.log("EnformionGo request URL:", enformionUrl)
+    console.log("EnformionGo request body:", JSON.stringify(enformionBody, null, 2))
+
+    const response = await fetch(enformionUrl, {
+      method: "POST",
       headers: {
-        "X-RapidAPI-Key": apiKey,
-        "X-RapidAPI-Host": "zillow-working-api.p.rapidapi.com",
+        "Content-Type": "application/json",
+        keyname: enformionKey,
+        password: enformionPassword,
       },
+      body: JSON.stringify(enformionBody),
     })
 
     console.log("API Response status:", response.status)
@@ -77,39 +98,23 @@ export async function skipTraceProperty(formData: SkipTraceFormData) {
     const skipTraceData = await response.json()
     console.log("Skip trace data received:", JSON.stringify(skipTraceData, null, 2))
 
-    // Check for additional contact info links and fetch them
-    let additionalContactData = null
-    if (skipTraceData && typeof skipTraceData === "object") {
-      // Look for URLs in the response that might contain additional contact info
-      const findUrls = (obj: any): string[] => {
-        const urls: string[] = []
+    // Extract address from EnformionGo response
+    let fullAddress = ""
+    const additionalContactData = null
 
-        const traverse = (item: any) => {
-          if (typeof item === "string" && item.includes("zillow-working-api.p.rapidapi.com")) {
-            urls.push(item)
-          } else if (typeof item === "object" && item !== null) {
-            Object.values(item).forEach(traverse)
-          } else if (Array.isArray(item)) {
-            item.forEach(traverse)
-          }
-        }
+    if (skipTraceData && Array.isArray(skipTraceData) && skipTraceData.length > 0) {
+      const firstResult = skipTraceData[0]
 
-        traverse(obj)
-        return urls
-      }
-
-      const additionalUrls = findUrls(skipTraceData)
-      console.log("Found additional URLs:", additionalUrls)
-
-      // Fetch additional contact info from the first URL found
-      if (additionalUrls.length > 0) {
-        additionalContactData = await fetchAdditionalContactInfo(additionalUrls[0], apiKey)
+      // Extract full address from the response
+      if (firstResult.addresses && firstResult.addresses.length > 0) {
+        const address = firstResult.addresses[0]
+        fullAddress =
+          address.fullAddress ||
+          `${address.streetAddress || ""} ${address.city || ""} ${address.state || ""} ${address.zip || ""}`.trim()
       }
     }
 
     // Generate AI summary with all available data
-    const fullAddress = `${formData.street}, ${formData.city}, ${formData.state} ${formData.zip}`
-
     const { text: summary } = await generateText({
       model: openai("gpt-4o"),
       prompt: `
@@ -170,7 +175,7 @@ For any URLs or web links found in the data, present them clearly in the CONTACT
     // Send email with results
     try {
       const emailResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/send-skiptrace-email`,
+        `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/send-whos-who-email`,
         {
           method: "POST",
           headers: {

@@ -5,20 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import {
-  Download,
-  Mail,
-  Check,
-  Home,
-  DollarSign,
-  Ruler,
-  MapPin,
-  TrendingUp,
-  ChevronDown,
-  ChevronUp,
-  AlertCircle,
-  Hash,
-} from "lucide-react"
+import { Download, Mail, Check, Home, DollarSign, Ruler, MapPin, TrendingUp, AlertCircle, Hash } from "lucide-react"
 
 interface QuickCMAResultsProps {
   data: {
@@ -438,35 +425,4 @@ export function QuickCMAResults({ data }: QuickCMAResultsProps) {
                     )}
                   </div>
                   <Button variant="ghost" size="sm" onClick={() => toggleCompExpansion(index)} className="ml-4">
-                    {expandedComps.has(index) ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Analysis Sections */}
-      <div className="space-y-6">
-        {Object.entries(data.sections).map(([header, bullets]) => (
-          <Card key={header} className="border-l-4 border-l-blue-500">
-            <CardHeader>
-              <CardTitle className="text-xl font-bold text-blue-800">{header}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-3">
-                {bullets.map((bullet, index) => (
-                  <li key={index} className="flex items-start gap-3">
-                    <span className="text-blue-600 font-bold mt-1 flex-shrink-0">•</span>
-                    <span className="text-gray-700 leading-relaxed">{bullet}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  )
-}
+                    {expan

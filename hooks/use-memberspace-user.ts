@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 interface MemberInfo {
   id: number
@@ -48,6 +48,41 @@ declare global {
 }
 
 export function useMemberSpaceUser() {
-const [user, setUser] = useState<MemberInfo | null>(null)
-const [loading, setLoading] = useState(true)
-const [error, setError\
+  const [user, setUser] = useState<MemberInfo | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const checkMemberSpace = () => {
+      try {
+        if (typeof window !== "undefined" && window.MemberSpace?.ready) {
+          const memberData = window.MemberSpace.getMemberInfo()
+          console.log("MemberSpace data:", memberData)
+
+          if (memberData.isLoggedIn && memberData.memberInfo) {
+            setUser(memberData.memberInfo)
+          } else {
+            setUser(null)
+          }
+          setLoading(false)
+        } else {
+          // MemberSpace not ready yet, try again in a bit
+          setTimeout(checkMemberSpace, 100)
+        }
+      } catch (err) {
+        console.error("Error checking MemberSpace:", err)
+        setError("Failed to load user information")
+        setLoading(false)
+      }
+    }
+
+    checkMemberSpace()
+  }, [])
+
+  return {
+    user,
+    isLoggedIn: !!user,
+    loading,
+    error,
+  }
+}

@@ -68,7 +68,6 @@ export async function skipTraceProperty(formData: SkipTraceFormData) {
       enformionBody.State = formData.state
       enformionBody.Zip = formData.zip
     }
-    enformionBody.EmailAddress = formData.email
 
     const enformionUrl = "https://devapi.enformion.com/PersonSearch"
 
@@ -99,21 +98,20 @@ export async function skipTraceProperty(formData: SkipTraceFormData) {
     const skipTraceData = await response.json()
     console.log("Skip trace data received:", JSON.stringify(skipTraceData, null, 2))
 
-    // Adapt EnformionGo response to SkipTraceResult
+    // Check for additional contact info links and fetch them
     const additionalContactData = null
     let fullAddress = ""
-    let summary = ""
-
     if (skipTraceData && Array.isArray(skipTraceData) && skipTraceData.length > 0) {
       const firstResult = skipTraceData[0]
-
-      // Extract full address
       if (firstResult.addresses && firstResult.addresses.length > 0) {
         fullAddress = firstResult.addresses[0].fullAddress
       }
+    }
 
-      // Generate AI summary with all available data
-      const aiPrompt = `
+    // Generate AI summary with all available data
+    const { text: summary } = await generateText({
+      model: openai("gpt-4o"),
+      prompt: `
 You are a professional real estate assistant. Analyze the following property skip trace data and create a comprehensive, professional summary report.
 
 Property Address: ${fullAddress}
@@ -165,14 +163,8 @@ Format this as a clean, professional report with clear headings and organized in
 Focus on actionable information for real estate professionals.
 If specific information isn't available, clearly state "Not Available" rather than making assumptions.
 For any URLs or web links found in the data, present them clearly in the CONTACT DETAILS section.
-`
-
-      const aiResponse = await generateText({
-        model: openai("gpt-4o"),
-        prompt: aiPrompt,
-      })
-      summary = aiResponse.text
-    }
+`,
+    })
 
     // Send email with results
     try {
@@ -203,7 +195,7 @@ For any URLs or web links found in the data, present them clearly in the CONTACT
     return {
       success: true,
       data: {
-        summary: summary,
+        summary,
         rawData: skipTraceData,
         additionalData: additionalContactData,
         address: fullAddress,
